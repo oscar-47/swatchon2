@@ -1,0 +1,401 @@
+{
+  "id": 42931,
+  "code": "QL-042931",
+  "status": "published",
+  "title": "Sequin Polyester Embellished Tulle",
+  "storeId": 1398,
+  "assuranceLevel": "ag_not_assured",
+  "preferenceCriterion": null,
+  "landingUrl": "/wholesale-fabric/Polyester-Lace-Tulle+-+Embellishment-Piece+dye-42931",
+  "stretchability": "non_stretchable",
+  "metric": {
+    "width": 52,
+    "weight": 236,
+    "thickness": 0.79
+  },
+  "saleSwatchPoint": 1,
+  "isPrintOrderable": false,
+  "isSwatchOrderable": true,
+  "isIndividualSwatchOrderable": true,
+  "isNewArrival": false,
+  "isCoreCollection": false,
+  "version": 1,
+  "medias": [
+    {
+      "classType": "video",
+      "videoType": "swatch",
+      "thumbnail": "https://d1fnkfov8k8p66.cloudfront.net/videos/resized/thumbs/small/QL-042931_3cbb4206-8581-4024-904d-7d83f498eae1_IMG_2935-00001.jpg",
+      "path": "https://d1fnkfov8k8p66.cloudfront.net/videos/resized/QL-042931_3cbb4206-8581-4024-904d-7d83f498eae1_IMG_2935.mp4",
+      "badgeText": null
+    }
+  ],
+  "qualityPriceTagGroups": {
+    "standardOrder": {
+      "id": 692863,
+      "salesType": "standard_order",
+      "printMethod": "none",
+      "qualityPriceTags": [
+        {
+          "id": 2027403,
+          "salePrice": 19.81,
+          "salePriceBeforeDiscount": 19.81,
+          "discountRate": 0,
+          "relativeDiscountRate": null,
+          "relativeDiscountRateBeforeDiscount": null,
+          "range": "sample",
+          "quantityGteq": 1,
+          "quantityLt": 50,
+          "inclusiveSalePrice": 25.48,
+          "unitShippingFee": 5.67,
+          "inclusiveSalePriceBeforeDiscount": 25.48,
+          "inclusiveDiscountRate": 0
+        },
+        {
+          "id": 2027404,
+          "salePrice": 14.59,
+          "salePriceBeforeDiscount": 14.59,
+          "discountRate": 0,
+          "relativeDiscountRate": 26,
+          "relativeDiscountRateBeforeDiscount": 26,
+          "range": "bulk",
+          "quantityGteq": 50,
+          "quantityLt": 100,
+          "inclusiveSalePrice": 20.45,
+          "unitShippingFee": 5.86,
+          "inclusiveSalePriceBeforeDiscount": 20.45,
+          "inclusiveDiscountRate": 0
+        },
+        {
+          "id": 2027405,
+          "salePrice": 12.52,
+          "salePriceBeforeDiscount": 12.52,
+          "discountRate": 0,
+          "relativeDiscountRate": 37,
+          "relativeDiscountRateBeforeDiscount": 37,
+          "range": "bulk",
+          "quantityGteq": 100,
+          "quantityLt": null,
+          "inclusiveSalePrice": 18.38,
+          "unitShippingFee": 5.86,
+          "inclusiveSalePriceBeforeDiscount": 18.38,
+          "inclusiveDiscountRate": 0
+        }
+      ]
+    },
+    "customDye": null,
+    "print": null,
+    "matchingRib": null
+  },
+  "swatchChargedPrice": 3.0,
+  "customDutyInfo": {
+    "dutyMinimumPriceCurrency": null,
+    "dutyMinimumPrice": null,
+    "dutyRate": 10.0
+  },
+  "shippingDepartureCountry": {
+    "name": "Korea",
+    "code": "KR",
+    "callingCode": "82",
+    "autoVerification": false,
+    "availableFreightsWithLeadtime": [
+      {
+        "freight": "domestic",
+        "leadtime": {
+          "min": 2,
+          "max": 9
+        }
+      }
+    ],
+    "availableIncoTerms": [],
+    "availableCouriers": [],
+    "availableStates": [],
+    "availableSubDestinations": [],
+    "ftaApplicable": false,
+    "ftaAgreedName": null
+  },
+  "supplyType": "standard",
+  "stockMoq": 1,
+  "productionMoq": 200,
+  "madeToOrderMoq": 800,
+  "stockLeadtimeRange": {
+    "min": 6,
+    "max": 10
+  },
+  "productionLeadtimeRange": {
+    "min": 23,
+    "max": 27
+  },
+  "printLeadtimeRange": null,
+  "store": {
+    "id": 1398,
+    "status": "open",
+    "code": "KR0H576",
+    "storeType": "type_b",
+    "supplierType": "uncontrolled_ddm",
+    "isCertified": false,
+    "introduction": null,
+    "specialty": null,
+    "monthlyCapacity": null,
+    "foundedOn": null,
+    "country": {
+      "name": "Korea",
+      "code": "KR",
+      "callingCode": "82",
+      "autoVerification": false,
+      "availableFreightsWithLeadtime": [
+        {
+          "freight": "domestic",
+          "leadtime": {
+            "min": 2,
+            "max": 9
+          }
+        }
+      ],
+      "availableIncoTerms": [],
+      "availableCouriers": [],
+      "availableStates": [],
+      "availableSubDestinations": [],
+      "ftaApplicable": false,
+      "ftaAgreedName": null
+    }
+  },
+  "products": [
+    {
+      "id": 568322,
+      "code": "PD-00568322",
+      "status": "published",
+      "productType": "actual_color",
+      "isStockSampleOrderable": true,
+      "isStockBulkOrderable": true,
+      "isDyeOrderable": true,
+      "isOnSwatch": true,
+      "stock": 0.0,
+      "newColor": false,
+      "labelColorNumber": "1",
+      "image": {
+        "large": "https://d1fnkfov8k8p66.cloudfront.net/images/large/PD-00568322_bc9b1788-01cb-4336-8acd-c8ffc1c54a7f_IMG_2770.jpg",
+        "medium": "https://d1fnkfov8k8p66.cloudfront.net/images/medium/PD-00568322_bc9b1788-01cb-4336-8acd-c8ffc1c54a7f_IMG_2770.jpg",
+        "small": "https://d1fnkfov8k8p66.cloudfront.net/images/small/PD-00568322_bc9b1788-01cb-4336-8acd-c8ffc1c54a7f_IMG_2770.jpg",
+        "caption": null
+      },
+      "purchaseInfo": {
+        "stockMoq": 21,
+        "stockLeadTime": 3,
+        "productionMoq": 200,
+        "productionLeadTime": 20,
+        "supplierStock": null,
+        "supplierStockCheckedAt": null,
+        "ordinaryStock": null,
+        "productionInfoCheckedAt": "2024-06-06T23:38:07+09:00",
+        "ordinaryStockCheckedAt": null
+      },
+      "colors": [
+        {
+          "id": 25,
+          "name": "Purple",
+          "sequence": 23,
+          "status": "visible",
+          "description": null,
+          "hierarchyLabel": "",
+          "parentId": null,
+          "hexcode": "#52307C",
+          "colorType": "normal"
+        }
+      ],
+      "colorEffects": [],
+      "purchasePriceSurplus": 0.0
+    },
+    {
+      "id": 568323,
+      "code": "PD-00568323",
+      "status": "published",
+      "productType": "actual_color",
+      "isStockSampleOrderable": true,
+      "isStockBulkOrderable": true,
+      "isDyeOrderable": true,
+      "isOnSwatch": true,
+      "stock": 0.0,
+      "newColor": false,
+      "labelColorNumber": "2",
+      "image": {
+        "large": "https://d1fnkfov8k8p66.cloudfront.net/images/large/PD-00568323_bf34d8c3-696c-45a5-a692-da7695dfb80e_IMG_2771.jpg",
+        "medium": "https://d1fnkfov8k8p66.cloudfront.net/images/medium/PD-00568323_bf34d8c3-696c-45a5-a692-da7695dfb80e_IMG_2771.jpg",
+        "small": "https://d1fnkfov8k8p66.cloudfront.net/images/small/PD-00568323_bf34d8c3-696c-45a5-a692-da7695dfb80e_IMG_2771.jpg",
+        "caption": null
+      },
+      "purchaseInfo": {
+        "stockMoq": 21,
+        "stockLeadTime": 3,
+        "productionMoq": 200,
+        "productionLeadTime": 20,
+        "supplierStock": null,
+        "supplierStockCheckedAt": null,
+        "ordinaryStock": null,
+        "productionInfoCheckedAt": "2024-06-06T23:38:07+09:00",
+        "ordinaryStockCheckedAt": null
+      },
+      "colors": [
+        {
+          "id": 15,
+          "name": "Yellow",
+          "sequence": 10,
+          "status": "visible",
+          "description": null,
+          "hierarchyLabel": "",
+          "parentId": null,
+          "hexcode": "#FEE715",
+          "colorType": "normal"
+        }
+      ],
+      "colorEffects": [],
+      "purchasePriceSurplus": 0.0
+    },
+    {
+      "id": 568324,
+      "code": "PD-00568324",
+      "status": "published",
+      "productType": "actual_color",
+      "isStockSampleOrderable": true,
+      "isStockBulkOrderable": true,
+      "isDyeOrderable": true,
+      "isOnSwatch": true,
+      "stock": 0.0,
+      "newColor": false,
+      "labelColorNumber": "3",
+      "image": {
+        "large": "https://d1fnkfov8k8p66.cloudfront.net/images/large/PD-00568324_b8108701-e0d1-4a5a-98c7-6b48694dd888_IMG_2772.jpg",
+        "medium": "https://d1fnkfov8k8p66.cloudfront.net/images/medium/PD-00568324_b8108701-e0d1-4a5a-98c7-6b48694dd888_IMG_2772.jpg",
+        "small": "https://d1fnkfov8k8p66.cloudfront.net/images/small/PD-00568324_b8108701-e0d1-4a5a-98c7-6b48694dd888_IMG_2772.jpg",
+        "caption": null
+      },
+      "purchaseInfo": {
+        "stockMoq": 21,
+        "stockLeadTime": 3,
+        "productionMoq": 200,
+        "productionLeadTime": 20,
+        "supplierStock": null,
+        "supplierStockCheckedAt": null,
+        "ordinaryStock": null,
+        "productionInfoCheckedAt": "2024-06-06T23:38:07+09:00",
+        "ordinaryStockCheckedAt": null
+      },
+      "colors": [
+        {
+          "id": 14,
+          "name": "Pale Green",
+          "sequence": 12,
+          "status": "visible",
+          "description": null,
+          "hierarchyLabel": "",
+          "parentId": null,
+          "hexcode": "#B9EAB3",
+          "colorType": "normal"
+        }
+      ],
+      "colorEffects": [],
+      "purchasePriceSurplus": 0.0
+    }
+  ],
+  "versions": [
+    1
+  ],
+  "sustainabilityFactors": [],
+  "sustainabilityInks": [],
+  "categories": [
+    {
+      "id": 218,
+      "name": "Embellished Tulle",
+      "sequence": 72,
+      "status": "visible",
+      "description": "Embroidered tulle is tulle adorned with various threads and/or beads, giving it a raised and textured feeling.",
+      "hierarchyLabel": "Knit > Lace Knit > ",
+      "parentId": 257
+    }
+  ],
+  "contents": [
+    {
+      "id": 23,
+      "name": "Polyester",
+      "abbreviation": "P",
+      "hierarchyLabel": "Synthetic > ",
+      "ratio": 100
+    }
+  ],
+  "otherCharacters": [
+    {
+      "id": 112,
+      "name": "Piece Dye",
+      "sequence": 13,
+      "status": "visible",
+      "description": null,
+      "hierarchyLabel": "Dye Method > ",
+      "parentId": 72
+    }
+  ],
+  "finishes": [
+    {
+      "id": 92,
+      "name": "Sequin",
+      "sequence": 35,
+      "status": "visible",
+      "description": "Sequin fabric is a stylish material covered with flat plastic or metal embellishments that come in various sizes, shapes, and colors. It creates a sparkling, eye-catching effect and is commonly used for partywear, evening gowns, and stage costumes.",
+      "hierarchyLabel": "Decoration > ",
+      "parentId": 3
+    }
+  ],
+  "performances": [],
+  "patterns": [
+    {
+      "id": 74,
+      "name": "Solid",
+      "sequence": 1,
+      "status": "visible",
+      "description": null,
+      "hierarchyLabel": "",
+      "parentId": null
+    }
+  ],
+  "brandYarns": [],
+  "hashTags": [],
+  "garmentTypes": [
+    {
+      "id": 50,
+      "name": "Partywear",
+      "sequence": 18,
+      "status": "visible",
+      "description": "",
+      "hierarchyLabel": "",
+      "parentId": 28
+    }
+  ],
+  "mallDescription": "",
+  "description": null,
+  "patternDirectionImage": null,
+  "origin": "Korea",
+  "careAdvices": [
+    {
+      "title": "Knit",
+      "content": "When you receive a knit product, it may be stiff and wrinkled. This is because the fabric has been folded and compressed for shipping. To soften and straighten the fabric, you should condition it for 2-3 days at room temperature before using it."
+    }
+  ],
+  "careInstructions": [
+    "Hand wash only",
+    "Wash separately",
+    "Turn inside out before washing, Do not wring, Do not rub",
+    "Do not bleach",
+    "Flat dry",
+    "Do not tumble dry",
+    "Do not iron"
+  ],
+  "price": {
+    "discountRate": 0,
+    "inclusiveSalePrice": 18.38,
+    "inclusiveSalePriceBeforeDiscount": 18.38,
+    "inclusiveDiscountRate": 0
+  },
+  "madeToOrderPrice": 11.97,
+  "matchingQualities": [],
+  "qualityOptions": [],
+  "isFtaApplicable": false,
+  "availabilityStatus": "add_to_swatch_cart"
+}

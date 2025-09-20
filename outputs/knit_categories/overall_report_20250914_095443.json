@@ -1,0 +1,57 @@
+{
+  "total_categories": 10,
+  "done": 10,
+  "total_links": 1558,
+  "category_results": {
+    "Single": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\knit_categories\\Single\\Single_links_20250914_095055.json"
+    },
+    "Jacquard Knit": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\knit_categories\\Jacquard Knit\\Jacquard Knit_links_20250914_095119.json"
+    },
+    "Double": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\knit_categories\\Double\\Double_links_20250914_095148.json"
+    },
+    "Pile Knit": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\knit_categories\\Pile Knit\\Pile Knit_links_20250914_095214.json"
+    },
+    "Tricot": {
+      "links_count": 80,
+      "pages_scraped": 2,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\knit_categories\\Tricot\\Tricot_links_20250914_095239.json"
+    },
+    "Crepe Knit": {
+      "links_count": 51,
+      "pages_scraped": 2,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\knit_categories\\Crepe Knit\\Crepe Knit_links_20250914_095304.json"
+    },
+    "Pique": {
+      "links_count": 83,
+      "pages_scraped": 2,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\knit_categories\\Pique\\Pique_links_20250914_095330.json"
+    },
+    "Mesh": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\knit_categories\\Mesh\\Mesh_links_20250914_095355.json"
+    },
+    "Low Gauge Knit": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\knit_categories\\Low Gauge Knit\\Low Gauge Knit_links_20250914_095419.json"
+    },
+    "Lace Knit": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\knit_categories\\Lace Knit\\Lace Knit_links_20250914_095443.json"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "total_categories": 9,
+  "completed_categories": 9,
+  "total_links": 1604,
+  "start_time": 1757775123.5496466,
+  "category_results": {
+    "Plain": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\categories\\Plain\\Plain_links_20250913_225230.json"
+    },
+    "Twill_Weave": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\categories\\Twill_Weave\\Twill_Weave_links_20250913_225257.json"
+    },
+    "Satin_Weave": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\categories\\Satin_Weave\\Satin_Weave_links_20250913_225326.json"
+    },
+    "Jacquard_Weave": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\categories\\Jacquard_Weave\\Jacquard_Weave_links_20250913_225353.json"
+    },
+    "Pile_Weave": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\categories\\Pile_Weave\\Pile_Weave_links_20250913_225424.json"
+    },
+    "Dobby": {
+      "links_count": 192,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\categories\\Dobby\\Dobby_links_20250913_225453.json"
+    },
+    "Double_Weave": {
+      "links_count": 148,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\categories\\Double_Weave\\Double_Weave_links_20250913_225532.json"
+    },
+    "Eyelet": {
+      "links_count": 131,
+      "pages_scraped": 3,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\categories\\Eyelet\\Eyelet_links_20250913_225605.json"
+    },
+    "Ripstop": {
+      "links_count": 173,
+      "pages_scraped": 4,
+      "file_path": "C:\\Users\\oscar\\Downloads\\swatchon2\\outputs\\categories\\Ripstop\\Ripstop_links_20250913_225635.json"
+    }
+  },
+  "end_time": 1757775395.6261673,
+  "total_duration": 272.0765206813812
+}
