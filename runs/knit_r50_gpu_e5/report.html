@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'/>
+<title>Classification Report</title>
+<style>
+body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 16px; }
+section { margin-bottom: 24px; }
+img { max-width: 100%; height: auto; border: 1px solid #ddd; }
+table { border-collapse: collapse; width: 100%; }
+th, td { padding: 6px 8px; border: 1px solid #ddd; text-align: left; }
+</style>
+</head>
+<body>
+<h2>模型分类报告</h2>
+<p><b>测试集准确率</b>: 0.646 &nbsp; <b>宏平均F1</b>: 0.644 &nbsp; <b>最佳验证准确率</b>: 0.714 (epoch 5)</p>
+<section>
+  <h3>混淆矩阵</h3>
+  <img src="confusion_matrix.png" alt="confusion matrix"/>
+</section>
+<section>
+  <h3>各类别准确率（召回）</h3>
+  <img src="per_class_accuracy.png" alt="per class accuracy"/>
+  <p>详表见 <code>per_class_metrics.csv</code></p>
+</section>
+</body>
+</html>

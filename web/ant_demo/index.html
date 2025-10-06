@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fabric Classification Demo | Ant Design</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5/dist/reset.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5/dist/antd.min.css" />
+  <style>
+    :root { --brand:#7a5cff; --brand2:#00d4ff; }
+    body { margin: 0; padding: 0; background: #0f1220; }
+    .container { width: min(1600px, 96vw); margin: 0 auto; }
+    .hero { background: radial-gradient(1200px 400px at 20% -10%, rgba(122,92,255,.35), transparent 60%), radial-gradient(1000px 380px at 90% 0%, rgba(0,212,255,.25), transparent 60%), linear-gradient(180deg, #101428, #0f1220); padding: 48px 0 36px; color: #fff; }
+    .hero .title { margin: 0 0 8px; font-size: 34px; letter-spacing: .3px; }
+    .hero .subtitle { margin: 0 0 20px; color: rgba(255,255,255,.75); }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .layout { padding: 24px 0 36px; }
+    .layout .grid2 { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+    .panel { background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.08); padding: 16px; }
+    .sidebar { position: sticky; top: 16px; align-self: start; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+    .thumb { width: 100%; height: 300px; object-fit: cover; border-radius: 12px; }
+    .card-hover { transition: transform .18s ease, box-shadow .18s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 26px rgba(0,0,0,.15); }
+    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px; }
+    .dist { display: flex; flex-wrap: wrap; gap: 8px; }
+    .footer { margin-top: 40px; color: rgba(255,255,255,.6); text-align: center; font-size: 12px; }
+    /* Loading overlay & top bar */
+    .loading-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(15,18,32,.45); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); z-index: 9999; }
+    .topbar { position: fixed; left:0; top:0; height:3px; width:100%; background: linear-gradient(90deg, var(--brand), var(--brand2)); z-index:9999; opacity:.9; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React, Dayjs & Antd CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/antd@5/dist/antd.min.js"></script>
+  <script>
+  const { useState, useEffect } = React;
+  const { ConfigProvider, App: AntApp, Typography, Select, Button, Switch, Card, Progress, Tag, Space, message, Divider, Statistic, Input, Slider, Skeleton, Spin } = antd;
+
+  function App() {
+    const [dark, setDark] = useState(false);
+    const [models, setModels] = useState([]);
+    const [model, setModel] = useState(null);
+    const [files, setFiles] = useState([]);
+    const [previews, setPreviews] = useState([]);
+    const [results, setResults] = useState([]);
+    const [loading, setLoading] = useState(false);
+    // Filters / UI state
+    const [threshold, setThreshold] = useState(50); // confidence >= threshold
+    const [filterClass, setFilterClass] = useState(null);
+    const [query, setQuery] = useState('');
+    const [externalOnly, setExternalOnly] = useState(true);
+
+    useEffect(() => {
+      fetch('http://127.0.0.1:8000/api/models').then(r=>r.json()).then(d => {
+        setModels(d.models || []);
+        if (d.models && d.models.length) setModel(d.models[0].name);
+
+
+
+      }).catch(() => message.error('Failed to fetch model list'));
+    }, []);
+
+    function onPickFiles(ev) {
+      const list = Array.from(ev.target.files || []);
+      const imgs = list.filter(f=>/\.(jpg|jpeg|png|bmp|webp)$/i.test(f.name));
+      setFiles(imgs);
+      setResults([]);
+      const p = imgs.map(f => ({ url: URL.createObjectURL(f), name: f.name }));
+      setPreviews(p);
+      message.success(`Selected ${imgs.length} image${imgs.length>1?'s':''}`);
+      setTimeout(()=>{ const el = document.getElementById('selected-section'); if(el) el.scrollIntoView({ behavior:'smooth', block:'start' }); }, 50);
+    }
+
+    function onPickFolder(ev) {
+      const list = Array.from(ev.target.files || []);
+      const imgs = list.filter(f=>/\.(jpg|jpeg|png|bmp|webp)$/i.test(f.name));
+      setFiles(imgs);
+      setResults([]);
+      const p = imgs.map(f => ({ url: URL.createObjectURL(f), name: f.name }));
+      setPreviews(p);
+      message.success(`Loaded folder: ${imgs.length} images`);
+      setTimeout(()=>{ const el = document.getElementById('selected-section'); if(el) el.scrollIntoView({ behavior:'smooth', block:'start' }); }, 50);
+    }
+
+    function topK(probs, k=3) {
+      const entries = Object.entries(probs || {});
+      entries.sort((a,b)=>b[1]-a[1]);
+      return entries.slice(0, k);
+    }
+
+    // Helpers for color and stats
+    function classColor(name) {
+      const palette = ['#1677ff','#13c2c2','#52c41a','#eb2f96','#faad14','#2f54eb','#fa541c','#722ed1','#a0d911','#b37feb'];
+      const n = Math.abs(String(name||'').split('').reduce((a,c)=>a+c.charCodeAt(0),0));
+      return palette[n % palette.length];
+    }
+
+    async function onPredict() {
+      if (!model || !files.length) { message.warning('Please select a model and upload images'); return; }
+      setLoading(true);
+      try {
+        const fd = new FormData();
+        fd.append('model_name', model);
+        fd.append('external_only', externalOnly ? 'true' : 'false');
+        files.forEach(f => fd.append('files', f));
+        const r = await fetch('http://127.0.0.1:8000/api/predict', { method:'POST', body: fd });
+        const data = await r.json();
+        if (data.skipped) { message.info(`Skipped ${data.skipped} images (matched training set)`); }
+        const out = (data.predictions || []).map((p,i) => ({
+          filename: p.filename,
+          pred: p.pred,
+          confidence: p.confidence,
+          probs: p.probs || {},
+          preview: previews[i]?.url
+        }));
+        setResults(out);
+      } catch (e) {
+        console.error(e);
+        message.error('Inference failed. Please check backend service.');
+      } finally { setLoading(false); }
+    }
+
+    function downloadCSV() {
+      if (!results.length) return;
+      const rows = [['filename','pred','confidence'], ...results.map(r=>[r.filename, r.pred, r.confidence.toFixed(4)])];
+      const csv = rows.map(r=>r.join(',')).join('\n');
+      const blob = new Blob([csv], { type:'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'predictions.csv'; a.click(); URL.revokeObjectURL(url);
+    }
+
+    async function loadDemoPack() {
+      try {
+        const resp = await fetch('demo_ext/woven_vs_knit/manifest.json');
+        if (!resp.ok) throw new Error('manifest not found');
+        const man = await resp.json();
+        const items = man.items || [];
+        if (!items.length) { message.warning('Demo pack is empty'); return; }
+        const fetched = await Promise.all(items.map(async it => {
+          const url = it.rel_path;
+          const r = await fetch(url);
+          if (!r.ok) throw new Error('fetch failed: '+url);
+          const blob = await r.blob();
+          const fname = it.label + '_' + (url.split('/').pop() || 'img.jpg');
+          const file = new File([blob], fname, { type: blob.type || 'image/jpeg' });
+          return { file, preview: URL.createObjectURL(blob) };
+        }));
+        const imgs = fetched.map(x => x.file);
+        setFiles(imgs);
+        setResults([]);
+        setPreviews(fetched.map(x => ({ url: x.preview, name: x.file.name })));
+        message.success(`Loaded demo pack: ${imgs.length} images`);
+        setTimeout(()=>{ const el = document.getElementById('selected-section'); if(el) el.scrollIntoView({ behavior:'smooth', block:'start' }); }, 80);
+      } catch (e) {
+        console.error(e);
+        message.error('Failed to load demo pack');
+      }
+    }
+
+
+    return (
+      React.createElement(ConfigProvider, { componentSize: 'large', theme: { algorithm: dark ? antd.theme.darkAlgorithm : antd.theme.defaultAlgorithm, token: { fontSize: 16, borderRadius: 10, colorPrimary: '#7a5cff' } } },
+        React.createElement(AntApp, null,
+          React.createElement('div', { className: 'hero' },
+            React.createElement('div', { className: 'inner container' },
+              React.createElement(Typography.Title, { className: 'title', style: { color:'#fff' } }, 'Fabric Classification Demo'),
+              React.createElement(Typography.Paragraph, { className: 'subtitle' }, ''),
+              React.createElement('div', { className: 'actions' },
+                React.createElement(Select, { style: { minWidth: 260 }, value: model, onChange: setModel, options: models.map(m => ({ label: m.name, value: m.name })) }),
+                React.createElement('label', { className: 'ant-btn' },
+                  React.createElement('input', { type: 'file', multiple: true, accept: 'image/*', onChange: onPickFiles, style: { display:'none' } }),
+                  'Select Images'),
+                React.createElement('label', { className: 'ant-btn' },
+                  React.createElement('input', { type: 'file', webkitdirectory: '', directory: '', multiple: true, onChange: onPickFolder, style: { display:'none' } }),
+                  'Load Folder'),
+                React.createElement('label', { className: 'ant-btn' },
+                  React.createElement('input', { type: 'file', accept: 'image/*', capture: 'environment', onChange: onPickFiles, style: { display:'none' } }),
+                  'Camera'),
+                React.createElement(Button, { onClick: loadDemoPack }, 'Load Demo Pack'),
+                React.createElement(Button, { type: 'primary', onClick: onPredict, loading, disabled: !files.length }, `Run Prediction${files.length ? ' ('+files.length+')' : ''}`),
+                React.createElement(Button, { onClick: downloadCSV, disabled: !results.length }, 'Export CSV'),
+                React.createElement(Button, { onClick: ()=>{ setFiles([]); setPreviews([]); setResults([]); } }, 'Clear Selection'),
+                React.createElement(Space, { style: { marginLeft: 'auto', color:'#fff', gap: 12 } },
+                  React.createElement('span', null, 'External-only'), React.createElement(Switch, { checked: externalOnly, onChange: setExternalOnly }),
+                  React.createElement('span', null, 'Dark'), React.createElement(Switch, { checked: dark, onChange: setDark })
+                )
+              )
+            )
+          ),
+
+          React.createElement('div', { className: 'container layout' },
+            React.createElement('div', { className: 'grid2' },
+              React.createElement('div', { className: 'sidebar panel' },
+                React.createElement(Typography.Title, { level: 5 }, 'Filters'),
+                React.createElement('div', { style: { marginTop: 8 } },
+                  React.createElement(Typography.Text, { strong: true }, 'Confidence threshold: ', threshold, '%'),
+                  React.createElement(Slider, { min:0, max:100, value: threshold, onChange: setThreshold })
+                ),
+                React.createElement('div', { style: { marginTop: 12 } },
+                  React.createElement(Typography.Text, { strong: true }, 'Filter by class'),
+                  React.createElement(Select, { style:{ width:'100%', marginTop: 6 }, allowClear:true, placeholder:'All classes', value: filterClass, onChange: setFilterClass,
+                    options: (models.find(m=>m.name===model)?.classes || []).map(c=>({label:c, value:c}))
+                  })
+                ),
+                React.createElement('div', { style: { marginTop: 12 } },
+                  React.createElement(Typography.Text, { strong: true }, 'Search filename'),
+                  React.createElement(Input, { placeholder:'type to search...', value: query, onChange: e=>setQuery(e.target.value), style:{ marginTop:6 } })
+                ),
+                React.createElement('div', { style: { marginTop: 12, display:'flex', gap:8 } },
+                  React.createElement(Button, { onClick: ()=>{ setThreshold(0); setFilterClass(null); setQuery(''); } }, 'Clear Filters')
+                )
+              ),
+
+              React.createElement('div', { style: { position: 'relative' } },
+                loading && React.createElement('div', { className:'topbar' }),
+                loading && React.createElement('div', { className:'loading-overlay' }, React.createElement(Spin, { size:'large', tip: 'Running prediction...' })),
+                React.createElement('div', { className: 'content' },
+                results.length ? React.createElement('div', { className: 'panel', style:{ marginBottom: 16 } },
+                  React.createElement('div', { className: 'summary' },
+                    React.createElement(Statistic, { title:'Images', value: results.length }),
+                    React.createElement(Statistic, { title:'Avg. Confidence', value: Math.round((results.reduce((s,r)=>s+r.confidence,0)/results.length || 0)*100), suffix:'%' }),
+                    React.createElement('div', null,
+                      React.createElement(Typography.Text, { strong:true }, 'Top Classes'),
+                      React.createElement('div', { className: 'dist', style:{ marginTop:8 } },
+                        Object.entries(results.reduce((acc,r)=>{acc[r.pred]=(acc[r.pred]||0)+1; return acc;}, {})).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([k,v])=>
+                          React.createElement(Tag, { key:k, color: '#' + (Math.abs([...k].reduce((a,c)=>a+c.charCodeAt(0),0)).toString(16)+'00000').slice(0,6) }, `${k} · ${v}`)
+                        )
+                      )
+                    )
+                  )
+                ) : null,
+
+                (previews.length && !results.length) ? (
+                  React.createElement('div', { id:'selected-section', className: 'panel', style:{ marginBottom: 16 } },
+                    React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 } },
+                      React.createElement(Typography.Title, { level: 5 }, `Selected (${previews.length})`),
+                      React.createElement(Button, { type:'text', onClick: ()=>{ setFiles([]); setPreviews([]); setResults([]); } }, 'Clear Selection')
+                    ),
+                    React.createElement('div', { className: 'grid' },
+                      previews.map((p, idx) => (
+                        React.createElement(Card, { key: idx, hoverable: true, className:'card-hover', cover: React.createElement('img', { className: 'thumb', src: p.url, alt: p.name }) },
+                          React.createElement(Typography.Text, { type: 'secondary' }, p.name)
+                        )
+                      ))
+                    )
+                  )
+                ) : null,
+
+
+                loading && !results.length ? React.createElement('div', { className:'grid' },
+                  (previews.length?previews:new Array(6).fill(0)).slice(0,6).map((_,i)=>
+                    React.createElement(Card, { key:i, className:'card-hover' },
+                      React.createElement(Skeleton.Image, { style:{ width:'100%', height:300, borderRadius:12 } }),
+                      React.createElement(Skeleton, { active:true, title:false, paragraph:{ rows:2 } })
+                    )
+                  )
+                ) : null,
+
+                results.length ? React.createElement('div', { className: 'grid' },
+                  results.filter(r => {
+                    if (filterClass && r.pred !== filterClass) return false;
+                    if (threshold>0 && (r.confidence*100) < threshold) return false;
+                    if (query && !r.filename.toLowerCase().includes(query.toLowerCase())) return false;
+                    return true;
+                  }).map((r, idx) => (
+                    React.createElement(Card, { key: idx, hoverable: true, className:'card-hover', cover: React.createElement('img', { className: 'thumb', src: r.preview, alt: r.filename }) },
+                      React.createElement('div', { style: { display:'flex', justifyContent:'space-between', alignItems:'center' } },
+                        React.createElement(Tag, { color: '#'+(Math.abs([...r.pred].reduce((a,c)=>a+c.charCodeAt(0),0)).toString(16)+'00000').slice(0,6), style: { fontSize: 14, padding: '2px 8px' } }, r.pred),
+                        React.createElement('div', { style: { width: 160 } }, React.createElement(Progress, { percent: Math.round(r.confidence * 100), size: 'small' }))
+                      ),
+                      React.createElement('div', { style: { marginTop: 6 } },
+                        topK(r.probs, 3).map(([cls, v]) => (
+                          React.createElement('div', { key: cls, style: { display:'flex', justifyContent:'space-between' } },
+                            React.createElement('span', null, cls),
+                            React.createElement('span', { style: { color:'#666' } }, (v*100).toFixed(1) + '%')
+                          )
+                        ))
+                      ),
+                      React.createElement(Typography.Text, { type: 'secondary' }, r.filename)
+                    )
+                  ))
+                ) : null,
+
+                  React.createElement('div', { className: 'footer' }, 'For local demo only. Model inference runs on 127.0.0.1')
+                )
+              )
+            )
+          )
+        )
+      )
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  </script>
+</body>
+</html>
+

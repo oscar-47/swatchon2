@@ -1,0 +1,66 @@
+{
+  "created_at": 1759309659.186209,
+  "note": "Offline demo pack for Woven vs Knit from Wikimedia Commons",
+  "classes": [
+    "Knit",
+    "Woven"
+  ],
+  "items": [
+    {
+      "label": "Knit",
+      "rel_path": "demo_ext/woven_vs_knit/Knit/Beadknitting_JPG_2.jpg",
+      "filename": "Beadknitting_JPG_2.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/1/18/Beadknitting.JPG",
+      "license": "Wikimedia Commons (see source)"
+    },
+    {
+      "label": "Knit",
+      "rel_path": "demo_ext/woven_vs_knit/Knit/Blue_Gray_knit_texture_jpg_2.jpg",
+      "filename": "Blue_Gray_knit_texture_jpg_2.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Blue_Gray_knit_texture.jpg",
+      "license": "Wikimedia Commons (see source)"
+    },
+    {
+      "label": "Knit",
+      "rel_path": "demo_ext/woven_vs_knit/Knit/Circular_knitted_clothing_pieces_-_Body_shaping_shirt_and_tights_-_tights_described_as_opaque_-_Emjay_Rosso_jpg_1.jpg",
+      "filename": "Circular_knitted_clothing_pieces_-_Body_shaping_shirt_and_tights_-_tights_described_as_opaque_-_Emjay_Rosso_jpg_1.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/95/Circular_knitted_clothing_pieces_-_Body_shaping_shirt_and_tights_-_tights_described_as_opaque_-_Emjay_Rosso.jpg",
+      "license": "Wikimedia Commons (see source)"
+    },
+    {
+      "label": "Knit",
+      "rel_path": "demo_ext/woven_vs_knit/Knit/Double_knit_structure__28weft_knitted_29_jpg.jpg",
+      "filename": "Double_knit_structure__28weft_knitted_29_jpg.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Double_knit_structure_%28weft_knitted%29.jpg",
+      "license": "Wikimedia Commons (see source)"
+    },
+    {
+      "label": "Knit",
+      "rel_path": "demo_ext/woven_vs_knit/Knit/Flat_knitting_JPG.jpg",
+      "filename": "Flat_knitting_JPG.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Flat_knitting.JPG",
+      "license": "Wikimedia Commons (see source)"
+    },
+    {
+      "label": "Knit",
+      "rel_path": "demo_ext/woven_vs_knit/Knit/Fuschia_with_White_Knit_Fabric_jpg.jpg",
+      "filename": "Fuschia_with_White_Knit_Fabric_jpg.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/9/90/Fuschia_with_White_Knit_Fabric.jpg",
+      "license": "Wikimedia Commons (see source)"
+    },
+    {
+      "label": "Knit",
+      "rel_path": "demo_ext/woven_vs_knit/Knit/Knitted_fake_fur_jpg.jpg",
+      "filename": "Knitted_fake_fur_jpg.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Knitted_fake_fur.jpg",
+      "license": "Wikimedia Commons (see source)"
+    },
+    {
+      "label": "Knit",
+      "rel_path": "demo_ext/woven_vs_knit/Knit/Knitting_faggoting_002_jpg.jpg",
+      "filename": "Knitting_faggoting_002_jpg.jpg",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Knitting_faggoting_002.jpg",
+      "license": "Wikimedia Commons (see source)"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "classes": [
+    "Knit",
+    "Woven"
+  ],
+  "samples": [
+    {
+      "path": "outputs/woven_category_details\\Dobby\\13240.jpg",
+      "pred": "Woven",
+      "confidence": 0.9783389568328857
+    },
+    {
+      "path": "outputs/woven_category_details\\Dobby\\13741.jpg",
+      "pred": "Woven",
+      "confidence": 0.9512197375297546
+    },
+    {
+      "path": "outputs/woven_category_details\\Dobby\\19317.jpg",
+      "pred": "Woven",
+      "confidence": 0.9646244645118713
+    },
+    {
+      "path": "outputs/woven_category_details\\Dobby\\19331.jpg",
+      "pred": "Woven",
+      "confidence": 0.9991123080253601
+    },
+    {
+      "path": "outputs/woven_category_details\\Dobby\\19527.jpg",
+      "pred": "Woven",
+      "confidence": 0.5167807340621948
+    },
+    {
+      "path": "outputs/woven_category_details\\Dobby\\19916.jpg",
+      "pred": "Woven",
+      "confidence": 0.725131094455719
+    },
+    {
+      "path": "outputs/woven_category_details\\Dobby\\21164.jpg",
+      "pred": "Woven",
+      "confidence": 0.9583935737609863
+    },
+    {
+      "path": "outputs/woven_category_details\\Dobby\\21913.jpg",
+      "pred": "Woven",
+      "confidence": 0.9999212026596069
+    },
+    {
+      "path": "outputs/woven_category_details\\Dobby\\22897.jpg",
+      "pred": "Woven",
+      "confidence": 0.9844580292701721
+    },
+    {
+      "path": "outputs/woven_category_details\\Dobby\\23557.jpg",
+      "pred": "Woven",
+      "confidence": 0.9968528151512146
+    },
+    {
+      "path": "outputs/woven_category_details\\Dobby\\24911.jpg",
+      "pred": "Woven",
+      "confidence": 0.99834144115448
+    },
+    {
+      "path": "outputs/woven_category_details\\Dobby\\27323.jpg",
+      "pred": "Woven",
+      "confidence": 0.9982346296310425
+    }
+  ]
+}

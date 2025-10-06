@@ -1,0 +1,68 @@
+{
+  "classes": [
+    "Knit",
+    "Woven"
+  ],
+  "samples": [
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\22769.jpg",
+      "pred": "Knit",
+      "confidence": 0.9127398729324341
+    },
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\23230.jpg",
+      "pred": "Knit",
+      "confidence": 0.8996783494949341
+    },
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\23231.jpg",
+      "pred": "Knit",
+      "confidence": 0.9987943172454834
+    },
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\23232.jpg",
+      "pred": "Knit",
+      "confidence": 0.9842028617858887
+    },
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\23462.jpg",
+      "pred": "Knit",
+      "confidence": 0.9429238438606262
+    },
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\24777.jpg",
+      "pred": "Knit",
+      "confidence": 0.9827069640159607
+    },
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\24780.jpg",
+      "pred": "Knit",
+      "confidence": 0.9849362969398499
+    },
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\24781.jpg",
+      "pred": "Knit",
+      "confidence": 0.7540097236633301
+    },
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\24782.jpg",
+      "pred": "Knit",
+      "confidence": 0.9170286059379578
+    },
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\24783.jpg",
+      "pred": "Woven",
+      "confidence": 0.9530861973762512
+    },
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\24786.jpg",
+      "pred": "Knit",
+      "confidence": 0.9741815328598022
+    },
+    {
+      "path": "outputs/knit_category_details\\Crepe Knit\\25459.jpg",
+      "pred": "Knit",
+      "confidence": 0.908780038356781
+    }
+  ]
+}

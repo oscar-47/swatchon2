@@ -1,0 +1,13 @@
+source_file,gallery_path,pred,confidence
+22769.jpg,images/90315706353a.jpg,Knit,0.9127
+23230.jpg,images/94b1daf8f3d9.jpg,Knit,0.8997
+23231.jpg,images/8528e465c3e8.jpg,Knit,0.9988
+23232.jpg,images/3b6887f36a64.jpg,Knit,0.9842
+23462.jpg,images/8fa2e6715993.jpg,Knit,0.9429
+24777.jpg,images/26ce5b1a595d.jpg,Knit,0.9827
+24780.jpg,images/bfb866c0124f.jpg,Knit,0.9849
+24781.jpg,images/41457bcbf892.jpg,Knit,0.7540
+24782.jpg,images/b806a1d951db.jpg,Knit,0.9170
+24783.jpg,images/8d69bcf9a997.jpg,Woven,0.9531
+24786.jpg,images/9d023e086076.jpg,Knit,0.9742
+25459.jpg,images/985d0a390732.jpg,Knit,0.9088

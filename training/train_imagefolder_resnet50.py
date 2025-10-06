@@ -85,11 +85,12 @@ def stratified_split(items: List[Tuple[str, int]], n_classes: int, train_ratio=0
 
 def build_transforms(img_size: int):
     train_tf = transforms.Compose([
-        transforms.RandomResizedCrop(img_size, scale=(0.8, 1.0)),
+        transforms.RandomResizedCrop(img_size, scale=(0.75, 1.0)),
         transforms.RandomHorizontalFlip(p=0.5),
-        transforms.RandomRotation(10),
-        transforms.ColorJitter(0.1, 0.1, 0.1, 0.05),
+        transforms.RandomRotation(12),
+        transforms.ColorJitter(0.15, 0.15, 0.15, 0.08),
         transforms.ToTensor(),
+        transforms.RandomErasing(p=0.25, scale=(0.02, 0.15), ratio=(0.3, 3.3), value='random'),
         transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
     ])
     eval_tf = transforms.Compose([
@@ -118,6 +119,7 @@ class TrainConfig:
     class_weight: str
     accum_steps: int
     patience: int
+    label_smoothing: float
 
 
 def accuracy(logits: torch.Tensor, targets: torch.Tensor) -> float:
@@ -239,19 +241,20 @@ def main():
     parser = argparse.ArgumentParser(description="Train ResNet50 on an ImageFolder-style dataset (Woven/Knit)")
     parser.add_argument("--data-root", required=True, help="Root with class subfolders")
     parser.add_argument("--out", default=os.path.join("runs", "exp"), help="Output dir for checkpoints and logs")
-    parser.add_argument("--epochs", type=int, default=5)
+    parser.add_argument("--epochs", type=int, default=25)
     parser.add_argument("--img-size", type=int, default=224)
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--num-workers", type=int, default=4)
     parser.add_argument("--optimizer", choices=["adamw", "sgd"], default="adamw")
-    parser.add_argument("--lr", type=float, default=3e-4)
+    parser.add_argument("--lr", type=float, default=5e-4)
     parser.add_argument("--wd", type=float, default=0.05)
     parser.add_argument("--sched", choices=["cosine", "step", "none"], default="cosine")
     parser.add_argument("--amp", action="store_true")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--class-weight", choices=["none", "auto"], default="none")
     parser.add_argument("--accum-steps", type=int, default=1)
-    parser.add_argument("--patience", type=int, default=10)
+    parser.add_argument("--patience", type=int, default=12)
+    parser.add_argument("--label-smoothing", type=float, default=0.05)
     args = parser.parse_args()
 
     cfg = TrainConfig(
@@ -270,6 +273,7 @@ def main():
         class_weight=args.class_weight,
         accum_steps=max(1, args.accum_steps),
         patience=args.patience,
+        label_smoothing=args.label_smoothing,
     )
 
     os.makedirs(cfg.out_dir, exist_ok=True)
@@ -306,8 +310,8 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = build_model(n_classes).to(device)
 
-    # Class weights
-    criterion = nn.CrossEntropyLoss()
+    # Class weights + label smoothing
+    criterion = nn.CrossEntropyLoss(label_smoothing=float(getattr(cfg, 'label_smoothing', 0.0) or 0.0))
     if cfg.class_weight == "auto":
         # compute class counts from train set
         counts = [0] * n_classes
@@ -319,7 +323,7 @@ def main():
             w = total / (n_classes * max(1, c))
             weights.append(w)
         w_tensor = torch.tensor(weights, dtype=torch.float32, device=device)
-        criterion = nn.CrossEntropyLoss(weight=w_tensor)
+        criterion = nn.CrossEntropyLoss(weight=w_tensor, label_smoothing=float(getattr(cfg, 'label_smoothing', 0.0) or 0.0))
 
     optimizer = get_optimizer(model, cfg)
     scheduler = get_scheduler(optimizer, cfg, steps_per_epoch=max(1, len(dl_train)))
