@@ -44,8 +44,6 @@
 
   function App() {
     const [dark, setDark] = useState(false);
-    const [models, setModels] = useState([]);
-    const [model, setModel] = useState(null);
     const [files, setFiles] = useState([]);
     const [previews, setPreviews] = useState([]);
     const [results, setResults] = useState([]);
@@ -56,15 +54,7 @@
     const [query, setQuery] = useState('');
     const [externalOnly, setExternalOnly] = useState(true);
 
-    useEffect(() => {
-      fetch('/api/models').then(r=>r.json()).then(d => {
-        setModels(d.models || []);
-        if (d.models && d.models.length) setModel(d.models[0].name);
-
-
-
-      }).catch(() => message.error('Failed to fetch model list'));
-    }, []);
+    // No need to fetch models anymore - automatic 2-stage classification
 
     function onPickFiles(ev) {
       const list = Array.from(ev.target.files || []);
@@ -102,11 +92,10 @@
     }
 
     async function onPredict() {
-      if (!model || !files.length) { message.warning('Please select a model and upload images'); return; }
+      if (!files.length) { message.warning('Please upload images'); return; }
       setLoading(true);
       try {
         const fd = new FormData();
-        fd.append('model_name', model);
         fd.append('external_only', externalOnly ? 'true' : 'false');
         files.forEach(f => fd.append('files', f));
         const r = await fetch('/api/predict', { method:'POST', body: fd });
@@ -117,13 +106,17 @@
             filename: p.filename,
             confidence: p.confidence,
             needs_ocr: p.needs_ocr,
-            pred: p.pred
+            pred: p.pred,
+            stage1: p.stage1,
+            stage2: p.stage2
           });
           return {
             filename: p.filename,
             pred: p.pred,
             confidence: p.confidence,
-            probs: p.probs || {},
+            stage1: p.stage1,
+            stage2: p.stage2,
+            probs: p.stage2?.probs || {},
             needs_ocr: p.needs_ocr || false,
             ocr_text: null,
             ocr_confidence: null,
@@ -215,10 +208,9 @@
         React.createElement(AntApp, null,
           React.createElement('div', { className: 'hero' },
             React.createElement('div', { className: 'inner container' },
-              React.createElement(Typography.Title, { className: 'title', style: { color:'#fff' } }, 'Fabric Classification Demov2'),
-              React.createElement(Typography.Paragraph, { className: 'subtitle' }, ''),
+              React.createElement(Typography.Title, { className: 'title', style: { color:'#fff' } }, 'Fabric Classification - 2-Stage System'),
+              React.createElement(Typography.Paragraph, { className: 'subtitle' }, 'Stage 1: Knit/Woven → Stage 2: Subcategory Classification'),
               React.createElement('div', { className: 'actions' },
-                React.createElement(Select, { style: { minWidth: 260 }, value: model, onChange: setModel, options: models.map(m => ({ label: m.name, value: m.name })) }),
                 React.createElement('label', { className: 'ant-btn' },
                   React.createElement('input', { type: 'file', multiple: true, accept: 'image/*', onChange: onPickFiles, style: { display:'none' } }),
                   'Select Images'),
@@ -247,12 +239,6 @@
                 React.createElement('div', { style: { marginTop: 8 } },
                   React.createElement(Typography.Text, { strong: true }, 'Confidence threshold: ', threshold, '%'),
                   React.createElement(Slider, { min:0, max:100, value: threshold, onChange: setThreshold })
-                ),
-                React.createElement('div', { style: { marginTop: 12 } },
-                  React.createElement(Typography.Text, { strong: true }, 'Filter by class'),
-                  React.createElement(Select, { style:{ width:'100%', marginTop: 6 }, allowClear:true, placeholder:'All classes', value: filterClass, onChange: setFilterClass,
-                    options: (models.find(m=>m.name===model)?.classes || []).map(c=>({label:c, value:c}))
-                  })
                 ),
                 React.createElement('div', { style: { marginTop: 12 } },
                   React.createElement(Typography.Text, { strong: true }, 'Search filename'),

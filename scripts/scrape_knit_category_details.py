@@ -353,9 +353,9 @@ def process_link(link: str, out_json: str, sleep_sec: float, max_retries: int, j
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Scrape up to N=150 details per KNIT category, reading links from outputs/knit_categories and saving JSON+JPG per category folder")
-    parser.add_argument("--limit", type=int, default=150, help="Max items per category (default 150)")
-    parser.add_argument("--base-out", default=os.path.join("outputs", "knit_category_details"), help="Base output directory for detail JSON/JPG")
+    parser = argparse.ArgumentParser(description="Scrape KNIT category details with adaptive limits based on model performance")
+    parser.add_argument("--limit", type=int, default=None, help="Override max items per category (default: use adaptive limits)")
+    parser.add_argument("--base-out", default=os.path.join("outputs", "knit_category_details_hq"), help="Base output directory for detail JSON/JPG (HQ = High Quality)")
     parser.add_argument("--links-root", default=os.path.join("outputs", "knit_categories"), help="Root directory where knit link JSONs are saved")
     parser.add_argument("--sleep", type=float, default=0.5, help="Base sleep seconds between items (used for backoff)")
     parser.add_argument("--concurrency", type=int, default=3, help="Parallel detail workers (default 3)")
@@ -365,28 +365,47 @@ def main():
 
     os.makedirs(args.base_out, exist_ok=True)
 
-    # Order matters; iterate by the fixed list
+    # Adaptive limits based on model performance analysis
+    # P0 (极差): 300-400, P1 (数据不足): 200-250, P2 (中等): 250-300, Good: 150
+    CATEGORY_LIMITS = {
+        "Jacquard Knit": 400,    # P0: 39.1% accuracy - CRITICAL
+        "Crepe Knit": 250,       # P1: 66.7% but only 51 images
+        "Tricot": 250,           # P1: 58.3% with only 80 images
+        "Pique": 250,            # P1: 61.5% with only 83 images
+        "Double": 300,           # P2: 65.2% - moderate improvement needed
+        "Low Gauge Knit": 300,   # P2: 60.9% - moderate improvement needed
+        "Pile Knit": 300,        # P2: 56.5% - moderate improvement needed
+        "Lace Knit": 150,        # Good: 73.9% - maintain current
+        "Mesh": 150,             # Good: 82.6% - maintain current
+        "Single": 150,           # Excellent: 78.3% - maintain current
+    }
+
+    # Order matters; iterate by the fixed list (prioritize P0 and P1)
     category_keys = [
-        "Single",
-        "Jacquard Knit",
-        "Double",
-        "Pile Knit",
-        "Tricot",
-        "Crepe Knit",
-        "Pique",
-        "Mesh",
-        "Low Gauge Knit",
-        "Lace Knit",
+        "Jacquard Knit",   # P0 - HIGHEST PRIORITY
+        "Crepe Knit",      # P1
+        "Tricot",          # P1
+        "Pique",           # P1
+        "Double",          # P2
+        "Low Gauge Knit",  # P2
+        "Pile Knit",       # P2
+        "Single",          # Good
+        "Mesh",            # Good
+        "Lace Knit",       # Good
     ]
 
     for key in category_keys:
         disp = DISPLAY_NAME[key]
         out_dir = os.path.join(args.base_out, disp)
         os.makedirs(out_dir, exist_ok=True)
-        print(f"\n===== {disp} =====")
-        print(f"Loading links from {args.links_root} (limit {args.limit})...")
-        links = load_links_from_latest(args.links_root, disp, args.limit)
-        print(f"Loaded {len(links)} links for {disp}")
+
+        # Use adaptive limit or override
+        category_limit = args.limit if args.limit is not None else CATEGORY_LIMITS.get(key, 150)
+
+        print(f"\n===== {disp} (Target: {category_limit} images) =====")
+        print(f"Loading links from {args.links_root}...")
+        links = load_links_from_latest(args.links_root, disp, category_limit)
+        print(f"Loaded {len(links)} links for {disp} (target: {category_limit})")
 
         total = len(links)
         if total == 0:

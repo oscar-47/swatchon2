@@ -297,6 +297,27 @@ def scrape_first_item_detail(preset_url: Optional[str] = None, out_json: Optiona
             if not image_src and isinstance(q.get("image"), dict):
                 image_src = q["image"].get("original") or q["image"].get("large") or q["image"].get("url") or image_src
 
+        # CRITICAL FIX: Force upgrade to original/large quality images
+        # Small images (200-300px) lose critical texture details needed for fabric classification
+        if image_src:
+            if "/images/small/" in image_src:
+                # Try original first, fallback to large
+                original_url = image_src.replace("/images/small/", "/images/original/")
+                large_url = image_src.replace("/images/small/", "/images/large/")
+                # We'll try original first in download, with large as fallback
+                image_src = original_url
+                print(f"[QUALITY UPGRADE] small -> original: {image_src}")
+            elif "/images/medium/" in image_src:
+                original_url = image_src.replace("/images/medium/", "/images/original/")
+                large_url = image_src.replace("/images/medium/", "/images/large/")
+                image_src = original_url
+                print(f"[QUALITY UPGRADE] medium -> original: {image_src}")
+            elif "/images/large/" in image_src:
+                # Large is already good quality, but try original anyway
+                original_url = image_src.replace("/images/large/", "/images/original/")
+                image_src = original_url
+                print(f"[QUALITY UPGRADE] large -> original: {image_src}")
+
         # 4) Extract specifications under qda-fabric-specification quality-detail-accordion
         specs: Dict[str, str] = {}
         try:
@@ -443,18 +464,65 @@ def scrape_first_item_detail(preset_url: Optional[str] = None, out_json: Optiona
                     "Referer": target_url or "https://swatchon.com/",
                     "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
                 }
-                for attempt in range(3):
-                    try:
-                        req = urllib.request.Request(img_url, headers=headers)
-                        with urllib.request.urlopen(req, timeout=30) as resp:
-                            data = resp.read()
-                        with open(img_out, "wb") as imgf:
-                            imgf.write(data)
-                        break
-                    except Exception:
-                        time.sleep((2 ** attempt) * random.uniform(0.6, 1.4))
-        except Exception:
-            pass
+
+                # PRIORITY: Download original quality images, fallback to large if original not available
+                # Low quality images lose critical texture details needed for fabric classification
+                download_success = False
+
+                # Try original quality first
+                if "/images/original/" in img_url:
+                    # Try downloading original quality (with retries for network issues)
+                    for attempt in range(3):
+                        try:
+                            req = urllib.request.Request(img_url, headers=headers)
+                            with urllib.request.urlopen(req, timeout=30) as resp:
+                                data = resp.read()
+                            with open(img_out, "wb") as imgf:
+                                imgf.write(data)
+                            download_success = True
+                            print(f"[SUCCESS] Downloaded original quality image")
+                            break
+                        except urllib.error.HTTPError as e:
+                            if e.code == 404:
+                                # Original doesn't exist, will try large fallback
+                                print(f"[INFO] Original quality not available (404), will try large quality")
+                                break
+                            elif attempt == 2:  # Last attempt for other errors
+                                print(f"[ERROR] Failed to download original quality image after 3 attempts: {e}")
+                            else:
+                                time.sleep((2 ** attempt) * random.uniform(0.6, 1.4))
+                        except Exception as e:
+                            if attempt == 2:  # Last attempt
+                                print(f"[ERROR] Failed to download original quality image after 3 attempts: {e}")
+                            else:
+                                time.sleep((2 ** attempt) * random.uniform(0.6, 1.4))
+
+                # Fallback to large quality if original failed or not available
+                if not download_success:
+                    # Try to get large quality URL
+                    large_url = img_url.replace("/images/original/", "/images/large/")
+                    if large_url != img_url or "/images/large/" in img_url:
+                        print(f"[INFO] Attempting large quality fallback: {large_url}")
+                        for attempt in range(3):
+                            try:
+                                req = urllib.request.Request(large_url, headers=headers)
+                                with urllib.request.urlopen(req, timeout=30) as resp:
+                                    data = resp.read()
+                                with open(img_out, "wb") as imgf:
+                                    imgf.write(data)
+                                download_success = True
+                                print(f"[SUCCESS] Downloaded large quality image (fallback)")
+                                break
+                            except Exception as e:
+                                if attempt == 2:  # Last attempt
+                                    print(f"[ERROR] Failed to download large quality image after 3 attempts: {e}")
+                                    print(f"[ERROR] URL: {large_url}")
+                                else:
+                                    time.sleep((2 ** attempt) * random.uniform(0.6, 1.4))
+                    else:
+                        print(f"[WARNING] Image URL is not original or large quality, skipping download: {img_url}")
+        except Exception as e:
+            print(f"[ERROR] Image download exception: {e}")
 
         print(json.dumps(result, ensure_ascii=False, indent=2))
 

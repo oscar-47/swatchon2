@@ -78,12 +78,11 @@ def accept_cookies(page) -> None:
 
 def collect_page_links(page, page_num: int, category_name: str) -> List[str]:
     try:
-        container = page.locator("div.search-items").first
-        if container.count() == 0:
-            return []
-        container.wait_for(state="visible", timeout=10000)
-        cards = container.locator(".c-quality")
+        # New website structure uses .fabric-card instead of .c-quality
+        # Look for <a> tags with href="/fabric/..."
+        cards = page.locator("a[href^='/fabric/']")
         total = cards.count()
+        print(f"  [DEBUG] Found {total} fabric links on page {page_num}")
         if total == 0:
             return []
         page_links: List[str] = []
@@ -100,7 +99,8 @@ def collect_page_links(page, page_num: int, category_name: str) -> List[str]:
             except Exception:
                 continue
         return page_links
-    except Exception:
+    except Exception as e:
+        print(f"  [ERROR] collect_page_links exception: {e}")
         return []
 
 
@@ -127,24 +127,30 @@ def scrape_category(category_name: str, category_config: dict, target_count: int
         while len(all_links) < target_count and current_page <= max_pages:
             try:
                 url = build_category_page_url(category_config["categoryIds"], current_page)
+                print(f"  [DEBUG] Visiting page {current_page}: {url}")
                 response = page.goto(url, wait_until="domcontentloaded", timeout=30000)
                 if not response or response.status != 200:
+                    print(f"  [WARN] Page {current_page} returned status: {response.status if response else 'None'}")
                     current_page += 1
                     continue
                 try:
                     page.wait_for_load_state("networkidle", timeout=15000)
                 except PlaywrightTimeoutError:
+                    print(f"  [DEBUG] Page {current_page} networkidle timeout (normal)")
                     pass
                 try:
                     page.wait_for_selector(".c-quality", timeout=10000)
                     time.sleep(1.5)
                 except PlaywrightTimeoutError:
+                    print(f"  [WARN] Page {current_page} .c-quality selector not found!")
                     pass
                 if not cookies_accepted:
                     accept_cookies(page)
                     cookies_accepted = True
                 page_links = collect_page_links(page, current_page, category_name)
+                print(f"  [DEBUG] Page {current_page} collected {len(page_links)} links")
                 if not page_links:
+                    print(f"  [WARN] Page {current_page} returned 0 links, stopping")
                     break
                 before = len(all_links)
                 all_links.update(page_links)
@@ -155,11 +161,13 @@ def scrape_category(category_name: str, category_config: dict, target_count: int
                     "new_unique_links": len(all_links) - before,
                     "total_unique_links": len(all_links),
                 })
+                print(f"  [INFO] Page {current_page}: {len(page_links)} links found, {len(all_links)} total unique")
                 if len(all_links) >= target_count:
                     break
                 current_page += 1
                 time.sleep(0.8)
-            except Exception:
+            except Exception as e:
+                print(f"  [ERROR] Page {current_page} exception: {e}")
                 current_page += 1
                 continue
         context.close()
@@ -179,11 +187,28 @@ def main():
     print("Knit categories link scraper starting...")
     base_output_dir = os.path.join(os.getcwd(), "outputs", "knit_categories")
     os.makedirs(base_output_dir, exist_ok=True)
+
+    # Adaptive target counts based on model performance
+    # P0 (极差): 400-500, P1 (数据不足): 250-300, P2 (中等): 300, Good: 150 (保持不变)
+    CATEGORY_TARGET_COUNTS = {
+        "Jacquard Knit": 500,    # P0: 39.1% accuracy - CRITICAL
+        "Crepe Knit": 300,       # P1: 66.7% but only 51 images
+        "Tricot": 300,           # P1: 58.3% with only 80 images
+        "Pique": 300,            # P1: 61.5% with only 83 images
+        "Double": 350,           # P2: 65.2% - moderate improvement needed
+        "Low Gauge Knit": 350,   # P2: 60.9% - moderate improvement needed
+        "Pile Knit": 350,        # P2: 56.5% - moderate improvement needed
+        "Lace Knit": 200,        # Good: 73.9% - keep current (slight buffer)
+        "Mesh": 200,             # Good: 82.6% - keep current (slight buffer)
+        "Single": 200,           # Excellent: 78.3% - keep current (slight buffer)
+    }
+
     overall = {"total_categories": len(CATEGORIES), "done": 0, "total_links": 0, "category_results": {}}
     for i, (category_name, category_config) in enumerate(CATEGORIES.items(), 1):
         try:
-            print(f"\nProcessing {i}/{len(CATEGORIES)}: {category_name}")
-            result = scrape_category(category_name, category_config, target_count=150)
+            target = CATEGORY_TARGET_COUNTS.get(category_name, 200)
+            print(f"\nProcessing {i}/{len(CATEGORIES)}: {category_name} (target: {target} links)")
+            result = scrape_category(category_name, category_config, target_count=target)
             cat_dir = os.path.join(base_output_dir, category_name)
             os.makedirs(cat_dir, exist_ok=True)
             out_path = os.path.join(cat_dir, f"{category_name}_links_{time.strftime('%Y%m%d_%H%M%S')}.json")

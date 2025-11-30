@@ -1,83 +1,78 @@
 {
-  "id": 42931,
-  "code": "QL-042931",
+  "id": 50881,
+  "code": "QL-050881",
   "status": "published",
-  "title": "Sequin Polyester Embellished Tulle",
-  "storeId": 1398,
-  "assuranceLevel": "ag_not_assured",
+  "title": "Polyester-blend Houndstooth Stretch Twill",
+  "storeId": 2448,
+  "assuranceLevel": null,
   "preferenceCriterion": null,
-  "landingUrl": "/wholesale-fabric/Polyester-Lace-Tulle+-+Embellishment-Piece+dye-42931",
-  "stretchability": "non_stretchable",
+  "landingUrl": "/wholesale-fabric/Polyester-Viscose+Rayon-Spandex-Twill+Weave-Twill-Yarn+Dye-50881",
+  "stretchability": null,
   "metric": {
-    "width": 52,
-    "weight": 236,
-    "thickness": 0.79
+    "width": 58,
+    "weight": 288,
+    "thickness": 0.59
   },
   "saleSwatchPoint": 1,
   "isPrintOrderable": false,
   "isSwatchOrderable": true,
+  "isSwatchOffered": true,
+  "isSwatchInStock": true,
   "isIndividualSwatchOrderable": true,
   "isNewArrival": false,
-  "isCoreCollection": false,
+  "isCoreCollection": true,
   "version": 1,
   "medias": [
     {
+      "classType": "image",
+      "large": "https://d1fnkfov8k8p66.cloudfront.net/images/large/QL-050881_e83e91aa-014e-4eb6-8496-fb39ffe2104c_IMG_1476.jpg",
+      "medium": "https://d1fnkfov8k8p66.cloudfront.net/images/medium/QL-050881_e83e91aa-014e-4eb6-8496-fb39ffe2104c_IMG_1476.jpg",
+      "small": "https://d1fnkfov8k8p66.cloudfront.net/images/small/QL-050881_e83e91aa-014e-4eb6-8496-fb39ffe2104c_IMG_1476.jpg",
+      "imageType": "yardage_pattern",
+      "badgeText": null
+    },
+    {
       "classType": "video",
       "videoType": "swatch",
-      "thumbnail": "https://d1fnkfov8k8p66.cloudfront.net/videos/resized/thumbs/small/QL-042931_3cbb4206-8581-4024-904d-7d83f498eae1_IMG_2935-00001.jpg",
-      "path": "https://d1fnkfov8k8p66.cloudfront.net/videos/resized/QL-042931_3cbb4206-8581-4024-904d-7d83f498eae1_IMG_2935.mp4",
+      "thumbnail": "https://d1fnkfov8k8p66.cloudfront.net/videos/resized/thumbs/small/QL-050881_56659711-6faf-4d06-98df-2e3caa1dab6e_IMG_3451-00001.jpg",
+      "path": "https://d1fnkfov8k8p66.cloudfront.net/videos/resized/QL-050881_56659711-6faf-4d06-98df-2e3caa1dab6e_IMG_3451.mp4",
       "badgeText": null
     }
   ],
   "qualityPriceTagGroups": {
     "standardOrder": {
-      "id": 692863,
+      "id": 694796,
       "salesType": "standard_order",
       "printMethod": "none",
       "qualityPriceTags": [
         {
-          "id": 2027403,
-          "salePrice": 19.81,
-          "salePriceBeforeDiscount": 19.81,
+          "id": 2032771,
+          "salePrice": 10.83,
+          "salePriceBeforeDiscount": 10.83,
           "discountRate": 0,
           "relativeDiscountRate": null,
           "relativeDiscountRateBeforeDiscount": null,
           "range": "sample",
           "quantityGteq": 1,
           "quantityLt": 50,
-          "inclusiveSalePrice": 25.48,
-          "unitShippingFee": 5.67,
-          "inclusiveSalePriceBeforeDiscount": 25.48,
+          "inclusiveSalePrice": 14.6,
+          "unitShippingFee": 3.77,
+          "inclusiveSalePriceBeforeDiscount": 14.6,
           "inclusiveDiscountRate": 0
         },
         {
-          "id": 2027404,
-          "salePrice": 14.59,
-          "salePriceBeforeDiscount": 14.59,
+          "id": 2032772,
+          "salePrice": 6.43,
+          "salePriceBeforeDiscount": 6.43,
           "discountRate": 0,
-          "relativeDiscountRate": 26,
-          "relativeDiscountRateBeforeDiscount": 26,
+          "relativeDiscountRate": 41,
+          "relativeDiscountRateBeforeDiscount": 41,
           "range": "bulk",
           "quantityGteq": 50,
-          "quantityLt": 100,
-          "inclusiveSalePrice": 20.45,
-          "unitShippingFee": 5.86,
-          "inclusiveSalePriceBeforeDiscount": 20.45,
-          "inclusiveDiscountRate": 0
-        },
-        {
-          "id": 2027405,
-          "salePrice": 12.52,
-          "salePriceBeforeDiscount": 12.52,
-          "discountRate": 0,
-          "relativeDiscountRate": 37,
-          "relativeDiscountRateBeforeDiscount": 37,
-          "range": "bulk",
-          "quantityGteq": 100,
           "quantityLt": null,
-          "inclusiveSalePrice": 18.38,
-          "unitShippingFee": 5.86,
-          "inclusiveSalePriceBeforeDiscount": 18.38,
+          "inclusiveSalePrice": 9.53,
+          "unitShippingFee": 3.1,
+          "inclusiveSalePriceBeforeDiscount": 9.53,
           "inclusiveDiscountRate": 0
         }
       ]
@@ -88,14 +83,15 @@
   },
   "swatchChargedPrice": 3.0,
   "customDutyInfo": {
-    "dutyMinimumPriceCurrency": null,
-    "dutyMinimumPrice": null,
-    "dutyRate": 10.0
+    "dutyMinimumPriceCurrency": "aud",
+    "dutyMinimumPrice": 1000.0,
+    "dutyRate": 5.0
   },
   "shippingDepartureCountry": {
     "name": "Korea",
     "code": "KR",
     "callingCode": "82",
+    "tinName": "사업자등록번호",
     "autoVerification": false,
     "availableFreightsWithLeadtime": [
       {
@@ -115,32 +111,34 @@
   },
   "supplyType": "standard",
   "stockMoq": 1,
-  "productionMoq": 200,
+  "productionMoq": 500,
   "madeToOrderMoq": 800,
+  "hasSwatchRestockNoti": false,
   "stockLeadtimeRange": {
-    "min": 6,
-    "max": 10
+    "min": 10,
+    "max": 14
   },
   "productionLeadtimeRange": {
-    "min": 23,
-    "max": 27
+    "min": 48,
+    "max": 52
   },
   "printLeadtimeRange": null,
   "store": {
-    "id": 1398,
+    "id": 2448,
     "status": "open",
-    "code": "KR0H576",
+    "code": "KRSW990",
     "storeType": "type_b",
-    "supplierType": "uncontrolled_ddm",
+    "supplierType": "subordinate",
     "isCertified": false,
-    "introduction": null,
-    "specialty": null,
+    "introduction": "",
+    "specialty": "",
     "monthlyCapacity": null,
     "foundedOn": null,
     "country": {
       "name": "Korea",
       "code": "KR",
       "callingCode": "82",
+      "tinName": "사업자등록번호",
       "autoVerification": false,
       "availableFreightsWithLeadtime": [
         {
@@ -161,8 +159,8 @@
   },
   "products": [
     {
-      "id": 568322,
-      "code": "PD-00568322",
+      "id": 673850,
+      "code": "PD-00673850",
       "status": "published",
       "productType": "actual_color",
       "isStockSampleOrderable": true,
@@ -170,35 +168,35 @@
       "isDyeOrderable": true,
       "isOnSwatch": true,
       "stock": 0.0,
+      "labelColorNumber": "D/Brown",
       "newColor": false,
-      "labelColorNumber": "1",
       "image": {
-        "large": "https://d1fnkfov8k8p66.cloudfront.net/images/large/PD-00568322_bc9b1788-01cb-4336-8acd-c8ffc1c54a7f_IMG_2770.jpg",
-        "medium": "https://d1fnkfov8k8p66.cloudfront.net/images/medium/PD-00568322_bc9b1788-01cb-4336-8acd-c8ffc1c54a7f_IMG_2770.jpg",
-        "small": "https://d1fnkfov8k8p66.cloudfront.net/images/small/PD-00568322_bc9b1788-01cb-4336-8acd-c8ffc1c54a7f_IMG_2770.jpg",
+        "large": "https://d1fnkfov8k8p66.cloudfront.net/images/large/PD-00673850_33348480-9dc1-4570-b43f-ecf09d3a5fe1_IMG_3436.jpg",
+        "medium": "https://d1fnkfov8k8p66.cloudfront.net/images/medium/PD-00673850_33348480-9dc1-4570-b43f-ecf09d3a5fe1_IMG_3436.jpg",
+        "small": "https://d1fnkfov8k8p66.cloudfront.net/images/small/PD-00673850_33348480-9dc1-4570-b43f-ecf09d3a5fe1_IMG_3436.jpg",
         "caption": null
       },
       "purchaseInfo": {
-        "stockMoq": 21,
-        "stockLeadTime": 3,
-        "productionMoq": 200,
-        "productionLeadTime": 20,
+        "stockMoq": 50,
+        "stockLeadTime": 7,
+        "productionMoq": 500,
+        "productionLeadTime": 45,
         "supplierStock": null,
         "supplierStockCheckedAt": null,
         "ordinaryStock": null,
-        "productionInfoCheckedAt": "2024-06-06T23:38:07+09:00",
+        "productionInfoCheckedAt": "2025-06-24T08:36:08+09:00",
         "ordinaryStockCheckedAt": null
       },
       "colors": [
         {
-          "id": 25,
-          "name": "Purple",
-          "sequence": 23,
+          "id": 9,
+          "name": "Brown",
+          "sequence": 7,
           "status": "visible",
           "description": null,
           "hierarchyLabel": "",
           "parentId": null,
-          "hexcode": "#52307C",
+          "hexcode": "#6F4433",
           "colorType": "normal"
         }
       ],
@@ -206,8 +204,8 @@
       "purchasePriceSurplus": 0.0
     },
     {
-      "id": 568323,
-      "code": "PD-00568323",
+      "id": 673851,
+      "code": "PD-00673851",
       "status": "published",
       "productType": "actual_color",
       "isStockSampleOrderable": true,
@@ -215,44 +213,44 @@
       "isDyeOrderable": true,
       "isOnSwatch": true,
       "stock": 0.0,
+      "labelColorNumber": "D/Grey",
       "newColor": false,
-      "labelColorNumber": "2",
       "image": {
-        "large": "https://d1fnkfov8k8p66.cloudfront.net/images/large/PD-00568323_bf34d8c3-696c-45a5-a692-da7695dfb80e_IMG_2771.jpg",
-        "medium": "https://d1fnkfov8k8p66.cloudfront.net/images/medium/PD-00568323_bf34d8c3-696c-45a5-a692-da7695dfb80e_IMG_2771.jpg",
-        "small": "https://d1fnkfov8k8p66.cloudfront.net/images/small/PD-00568323_bf34d8c3-696c-45a5-a692-da7695dfb80e_IMG_2771.jpg",
+        "large": "https://d1fnkfov8k8p66.cloudfront.net/images/large/PD-00673851_456a0ccf-d81c-40ca-ae77-296a41ce8ee2_IMG_3437.jpg",
+        "medium": "https://d1fnkfov8k8p66.cloudfront.net/images/medium/PD-00673851_456a0ccf-d81c-40ca-ae77-296a41ce8ee2_IMG_3437.jpg",
+        "small": "https://d1fnkfov8k8p66.cloudfront.net/images/small/PD-00673851_456a0ccf-d81c-40ca-ae77-296a41ce8ee2_IMG_3437.jpg",
         "caption": null
       },
       "purchaseInfo": {
-        "stockMoq": 21,
-        "stockLeadTime": 3,
-        "productionMoq": 200,
-        "productionLeadTime": 20,
+        "stockMoq": 50,
+        "stockLeadTime": 7,
+        "productionMoq": 500,
+        "productionLeadTime": 45,
         "supplierStock": null,
         "supplierStockCheckedAt": null,
         "ordinaryStock": null,
-        "productionInfoCheckedAt": "2024-06-06T23:38:07+09:00",
+        "productionInfoCheckedAt": "2025-06-24T08:36:08+09:00",
         "ordinaryStockCheckedAt": null
       },
       "colors": [
         {
-          "id": 15,
-          "name": "Yellow",
-          "sequence": 10,
+          "id": 28,
+          "name": "Charcoal",
+          "sequence": 26,
           "status": "visible",
           "description": null,
           "hierarchyLabel": "",
           "parentId": null,
-          "hexcode": "#FEE715",
-          "colorType": "normal"
+          "hexcode": "#555555",
+          "colorType": "grayscale"
         }
       ],
       "colorEffects": [],
       "purchasePriceSurplus": 0.0
     },
     {
-      "id": 568324,
-      "code": "PD-00568324",
+      "id": 673852,
+      "code": "PD-00673852",
       "status": "published",
       "productType": "actual_color",
       "isStockSampleOrderable": true,
@@ -260,35 +258,35 @@
       "isDyeOrderable": true,
       "isOnSwatch": true,
       "stock": 0.0,
+      "labelColorNumber": "Olive",
       "newColor": false,
-      "labelColorNumber": "3",
       "image": {
-        "large": "https://d1fnkfov8k8p66.cloudfront.net/images/large/PD-00568324_b8108701-e0d1-4a5a-98c7-6b48694dd888_IMG_2772.jpg",
-        "medium": "https://d1fnkfov8k8p66.cloudfront.net/images/medium/PD-00568324_b8108701-e0d1-4a5a-98c7-6b48694dd888_IMG_2772.jpg",
-        "small": "https://d1fnkfov8k8p66.cloudfront.net/images/small/PD-00568324_b8108701-e0d1-4a5a-98c7-6b48694dd888_IMG_2772.jpg",
+        "large": "https://d1fnkfov8k8p66.cloudfront.net/images/large/PD-00673852_fef7bcfe-7020-4575-b740-6f6ad67772b2_IMG_3438.jpg",
+        "medium": "https://d1fnkfov8k8p66.cloudfront.net/images/medium/PD-00673852_fef7bcfe-7020-4575-b740-6f6ad67772b2_IMG_3438.jpg",
+        "small": "https://d1fnkfov8k8p66.cloudfront.net/images/small/PD-00673852_fef7bcfe-7020-4575-b740-6f6ad67772b2_IMG_3438.jpg",
         "caption": null
       },
       "purchaseInfo": {
-        "stockMoq": 21,
-        "stockLeadTime": 3,
-        "productionMoq": 200,
-        "productionLeadTime": 20,
+        "stockMoq": 50,
+        "stockLeadTime": 7,
+        "productionMoq": 500,
+        "productionLeadTime": 45,
         "supplierStock": null,
         "supplierStockCheckedAt": null,
         "ordinaryStock": null,
-        "productionInfoCheckedAt": "2024-06-06T23:38:07+09:00",
+        "productionInfoCheckedAt": "2025-06-24T08:36:08+09:00",
         "ordinaryStockCheckedAt": null
       },
       "colors": [
         {
-          "id": 14,
-          "name": "Pale Green",
-          "sequence": 12,
+          "id": 16,
+          "name": "Green",
+          "sequence": 14,
           "status": "visible",
           "description": null,
           "hierarchyLabel": "",
           "parentId": null,
-          "hexcode": "#B9EAB3",
+          "hexcode": "#378805",
           "colorType": "normal"
         }
       ],
@@ -303,13 +301,13 @@
   "sustainabilityInks": [],
   "categories": [
     {
-      "id": 218,
-      "name": "Embellished Tulle",
-      "sequence": 72,
+      "id": 186,
+      "name": "Twill",
+      "sequence": 20,
       "status": "visible",
-      "description": "Embroidered tulle is tulle adorned with various threads and/or beads, giving it a raised and textured feeling.",
-      "hierarchyLabel": "Knit > Lace Knit > ",
-      "parentId": 257
+      "description": "Twill is a type of fabric that is OtherCharacterized by its diagonal weave pattern. This pattern is created by weaving warp and weft threads in a specific way, which gives the fabric a distinctive and durable texture.",
+      "hierarchyLabel": "Woven > Twill Weave > ",
+      "parentId": 239
     }
   ],
   "contents": [
@@ -318,37 +316,41 @@
       "name": "Polyester",
       "abbreviation": "P",
       "hierarchyLabel": "Synthetic > ",
-      "ratio": 100
+      "ratio": 70
+    },
+    {
+      "id": 28,
+      "name": "Viscose Rayon",
+      "abbreviation": "Rayon",
+      "hierarchyLabel": "Regenerated > ",
+      "ratio": 26
+    },
+    {
+      "id": 26,
+      "name": "Spandex",
+      "abbreviation": "SP",
+      "hierarchyLabel": "Synthetic > ",
+      "ratio": 4
     }
   ],
   "otherCharacters": [
     {
-      "id": 112,
-      "name": "Piece Dye",
-      "sequence": 13,
+      "id": 73,
+      "name": "Yarn Dye",
+      "sequence": 15,
       "status": "visible",
-      "description": null,
+      "description": "Yarn dye is the process of coloring yarn before it is used to make fabric. It results in even color and enhanced color fastness in the finished fabric.",
       "hierarchyLabel": "Dye Method > ",
       "parentId": 72
     }
   ],
-  "finishes": [
-    {
-      "id": 92,
-      "name": "Sequin",
-      "sequence": 35,
-      "status": "visible",
-      "description": "Sequin fabric is a stylish material covered with flat plastic or metal embellishments that come in various sizes, shapes, and colors. It creates a sparkling, eye-catching effect and is commonly used for partywear, evening gowns, and stage costumes.",
-      "hierarchyLabel": "Decoration > ",
-      "parentId": 3
-    }
-  ],
+  "finishes": [],
   "performances": [],
   "patterns": [
     {
-      "id": 74,
-      "name": "Solid",
-      "sequence": 1,
+      "id": 95,
+      "name": "Houndstooth",
+      "sequence": 22,
       "status": "visible",
       "description": null,
       "hierarchyLabel": "",
@@ -359,9 +361,27 @@
   "hashTags": [],
   "garmentTypes": [
     {
-      "id": 50,
-      "name": "Partywear",
-      "sequence": 18,
+      "id": 35,
+      "name": "Suits",
+      "sequence": 22,
+      "status": "visible",
+      "description": "",
+      "hierarchyLabel": "",
+      "parentId": 28
+    },
+    {
+      "id": 49,
+      "name": "Outer",
+      "sequence": 16,
+      "status": "visible",
+      "description": "",
+      "hierarchyLabel": "",
+      "parentId": 28
+    },
+    {
+      "id": 52,
+      "name": "Trousers",
+      "sequence": 26,
       "status": "visible",
       "description": "",
       "hierarchyLabel": "",
@@ -374,28 +394,29 @@
   "origin": "Korea",
   "careAdvices": [
     {
-      "title": "Knit",
-      "content": "When you receive a knit product, it may be stiff and wrinkled. This is because the fabric has been folded and compressed for shipping. To soften and straighten the fabric, you should condition it for 2-3 days at room temperature before using it."
+      "title": "Regenerated > Viscose Rayon",
+      "content": "This fabric can shrink or become distorted if it get wet. Store it in a cool, dry, well-ventilated location."
     }
   ],
   "careInstructions": [
     "Hand wash only",
     "Wash separately",
-    "Turn inside out before washing, Do not wring, Do not rub",
+    "Turn inside out before washing, Do not wring",
     "Do not bleach",
-    "Flat dry",
-    "Do not tumble dry",
-    "Do not iron"
+    "Line dry",
+    "Iron on low heat on reverse side if needed"
   ],
   "price": {
+    "representingPrice": 6.43,
     "discountRate": 0,
-    "inclusiveSalePrice": 18.38,
-    "inclusiveSalePriceBeforeDiscount": 18.38,
+    "inclusiveSalePrice": 9.53,
+    "inclusiveSalePriceBeforeDiscount": 9.53,
     "inclusiveDiscountRate": 0
   },
-  "madeToOrderPrice": 11.97,
+  "madeToOrderPrice": 6.15,
   "matchingQualities": [],
   "qualityOptions": [],
   "isFtaApplicable": false,
+  "addedToSwatchCart": false,
   "availabilityStatus": "add_to_swatch_cart"
 }

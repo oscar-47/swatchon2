@@ -84,44 +84,37 @@ def collect_page_links(page, page_num: int, category_name: str) -> List[str]:
     print(f"[debug] {category_name} - 开始收集第 {page_num} 页链接...", flush=True)
     
     try:
-        # 查找搜索容器
-        container = page.locator("div.search-items").first
-        if container.count() == 0:
-            print(f"[error] {category_name} - 第 {page_num} 页未找到搜索结果容器", flush=True)
-            return []
-        
-        container.wait_for(state="visible", timeout=10000)
-        
-        # 查找产品卡片
-        cards = container.locator(".c-quality")
+        # New website structure uses .fabric-card instead of .c-quality
+        # Look for <a> tags with href="/fabric/..."
+        cards = page.locator("a[href^='/fabric/']")
         total = cards.count()
         print(f"[debug] {category_name} - 第 {page_num} 页找到 {total} 个产品卡片", flush=True)
-        
+
         if total == 0:
             print(f"[warning] {category_name} - 第 {page_num} 页没有找到产品卡片", flush=True)
             return []
-        
+
         page_links: List[str] = []
-        
-        # 提取每个卡片的链接 - 直接从div的href属性获取
+
+        # 提取每个卡片的链接
         for i in range(total):
             try:
                 c = cards.nth(i)
                 href = c.get_attribute("href", timeout=2000)
-                
+
                 if href:
                     # 规范化URL
                     if href.startswith("/"):
                         href = "https://swatchon.com" + href
                     elif not href.startswith("http"):
                         href = "https://swatchon.com/" + href
-                    
+
                     page_links.append(href)
-                    
+
             except Exception as e:
                 print(f"[debug] {category_name} - 第 {page_num} 页卡片 {i+1} 处理失败: {e}", flush=True)
                 continue
-        
+
         print(f"[success] {category_name} - 第 {page_num} 页成功提取 {len(page_links)} 个链接", flush=True)
         return page_links
         
@@ -276,13 +269,28 @@ def main():
         "category_results": {}
     }
     
+    # Adaptive target counts based on model performance
+    # P0 (极差): 500-600, P2 (中等): 300-350, Good/Excellent: 200 (slight buffer)
+    CATEGORY_TARGET_COUNTS = {
+        "Dobby": 600,            # P0: 21.7% accuracy - CRITICAL!!!
+        "Double_Weave": 350,     # P2: 60.9% - moderate improvement
+        "Jacquard_Weave": 350,   # P2: 60.9% - moderate improvement
+        "Plain": 350,            # P2: 65.2% - moderate improvement
+        "Satin_Weave": 350,      # P2: 65.2% - moderate improvement
+        "Eyelet": 200,           # Excellent: 95.2% - keep current (buffer)
+        "Pile_Weave": 200,       # Excellent: 95.7% - keep current (buffer)
+        "Ripstop": 200,          # Good: 87.0% - keep current (buffer)
+        "Twill_Weave": 200,      # Good: 87.0% - keep current (buffer)
+    }
+
     # 依次爬取每个分类
     for i, (category_name, category_config) in enumerate(CATEGORIES.items(), 1):
         try:
-            print(f"\n🏗️  处理分类 {i}/{len(CATEGORIES)}: {category_name}")
-            
+            target = CATEGORY_TARGET_COUNTS.get(category_name, 200)
+            print(f"\n🏗️  处理分类 {i}/{len(CATEGORIES)}: {category_name} (target: {target} links)")
+
             # 爬取分类
-            category_result = scrape_category(category_name, category_config, target_count=150)
+            category_result = scrape_category(category_name, category_config, target_count=target)
             all_results[category_name] = category_result
             
             # 保存分类结果

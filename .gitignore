@@ -1,0 +1,81 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Data and Images
+outputs/
+demo/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.webp
+*.jfif
+
+# Models
+runs/
+*.pth
+*.pt
+*.ckpt
+*.h5
+*.pkl
+*.pickle
+
+# Datasets
+data/
+datasets/
+images/
+
+# IDE
+.idea/
+.vscode/
+.claude/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+nul
+
+# Logs
+*.log
+logs/
+
+# Node modules
+node_modules/
+package-lock.json
+
+# Temporary files
+*.tmp
+*.temp
+
+# JSON data files (except configs)
+outputs/**/*.json
+!requirements.txt
+
+# Specific output folders
+outputs/categories/
+outputs/knit_categories/
+outputs/knit_category_details/
+outputs/knit_category_details_hq/
+outputs/woven_category_details/
+outputs/woven_category_details_hq/
+
+# Test outputs
+test_*.jpg
+test_*.json

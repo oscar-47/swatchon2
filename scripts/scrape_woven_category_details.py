@@ -8,6 +8,7 @@ import subprocess
 import re
 from typing import List, Dict, Set
 from urllib.parse import urlsplit
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 # --- Anti-bot/stealth helpers (lightweight) ---
@@ -270,6 +271,51 @@ def extract_numeric_id(url: str) -> str:
     )
 
 
+# Load links from latest file under outputs/categories/<CategoryName>
+
+def _find_latest_links_file(links_root: str, category_name: str) -> str | None:
+    try:
+        d = os.path.join(links_root, category_name)
+        if not os.path.isdir(d):
+            return None
+        files = [os.path.join(d, f) for f in os.listdir(d) if f.lower().endswith('.json')]
+        if not files:
+            return None
+        # For woven we prefer the largest file (older crawls often have more complete data)
+        files.sort(key=lambda p: os.path.getsize(p), reverse=True)
+        return files[0]
+    except Exception:
+        return None
+
+
+def load_links_from_latest(links_root: str, category_name: str, limit: int = 150) -> List[str]:
+    fpath = _find_latest_links_file(links_root, category_name)
+    if not fpath:
+        print(f"[warn] No link file found in {os.path.join(links_root, category_name)}")
+        return []
+    try:
+        with open(fpath, 'r', encoding='utf-8') as f:
+            obj = json.load(f)
+    except Exception as e:
+        print(f"[warn] Failed to read links file: {fpath} -> {e}")
+        return []
+    links: List[str] = []
+    if isinstance(obj, dict):
+        cand = obj.get('all_links') or obj.get('links') or []
+        if isinstance(cand, list):
+            links = [str(x) for x in cand]
+    elif isinstance(obj, list):
+        links = [str(x) for x in obj]
+    # de-duplicate preserving order
+    seen: Set[str] = set()
+    uniq: List[str] = []
+    for u in links:
+        if u not in seen:
+            seen.add(u)
+            uniq.append(u)
+    return uniq[:limit]
+
+
 def run_detail_scrape(url: str, out_json: str) -> int:
     cmd = [sys.executable, os.path.join("scripts", "swatchon_scrape_detail.py"), url, "--out", out_json]
     proc = subprocess.run(cmd, capture_output=True, text=True)
@@ -285,26 +331,63 @@ def run_detail_scrape(url: str, out_json: str) -> int:
     return 0
 
 
+# Same retry wrapper as knit script
+
+def process_link(link: str, out_json: str, sleep_sec: float, max_retries: int, jitter: float):
+    """Run detail scrape with retries and jitter. Returns a tuple (status, name, out_json)."""
+    name = os.path.splitext(os.path.basename(out_json))[0]
+    if os.path.exists(out_json):
+        return ("skip", name, out_json)
+    attempt = 0
+    while attempt <= max_retries:
+        rc = run_detail_scrape(link, out_json)
+        if rc == 0:
+            return ("ok", name, out_json)
+        # backoff + jitter
+        delay = max(0.0, (2 ** attempt) * sleep_sec + random.uniform(0, max(0.0, jitter)))
+        time.sleep(delay)
+        attempt += 1
+    return ("fail", name, out_json)
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Scrape up to N=150 details per woven category, saving JSON+JPG per category folder")
-    parser.add_argument("--limit", type=int, default=150, help="Max items per category (default 150)")
-    parser.add_argument("--base-out", default=os.path.join("outputs", "category_details"), help="Base output directory")
-    parser.add_argument("--sleep", type=float, default=0.5, help="Sleep seconds between items")
+    parser = argparse.ArgumentParser(description="Scrape WOVEN category details with adaptive limits based on model performance")
+    parser.add_argument("--limit", type=int, default=None, help="Override max items per category (default: use adaptive limits)")
+    parser.add_argument("--base-out", default=os.path.join("outputs", "woven_category_details_hq"), help="Base output directory (HQ = High Quality)")
+    parser.add_argument("--links-root", default=os.path.join("outputs", "categories"), help="Root directory where woven link JSONs are saved")
+    parser.add_argument("--sleep", type=float, default=0.5, help="Base sleep seconds between items (used for backoff)")
+    parser.add_argument("--concurrency", type=int, default=3, help="Parallel detail workers (default 3)")
+    parser.add_argument("--max-retries", type=int, default=2, help="Max retries per item on failure (default 2)")
+    parser.add_argument("--jitter", type=float, default=0.5, help="Random jitter seconds added to backoff")
     args = parser.parse_args()
 
     os.makedirs(args.base_out, exist_ok=True)
 
-    # Order matters; iterate by the fixed list
+    # Adaptive limits based on model performance analysis
+    # P0 (极差): 400-500, P2 (中等): 250-300, Good: 150
+    CATEGORY_LIMITS = {
+        "Dobby": 500,            # P0: 21.7% accuracy - CRITICAL!!!
+        "Double_Weave": 300,     # P2: 60.9% - moderate improvement needed
+        "Jacquard_Weave": 300,   # P2: 60.9% - moderate improvement needed
+        "Plain": 300,            # P2: 65.2% - moderate improvement needed
+        "Satin_Weave": 300,      # P2: 65.2% - moderate improvement needed
+        "Eyelet": 150,           # Excellent: 95.2% - maintain (补齐到150)
+        "Pile_Weave": 150,       # Excellent: 95.7% - maintain current
+        "Ripstop": 150,          # Good: 87.0% - maintain current
+        "Twill_Weave": 150,      # Good: 87.0% - maintain current
+    }
+
+    # Order matters; iterate by priority (P0 first)
     category_keys = [
-        "Plain",
-        "Twill_Weave",
-        "Satin_Weave",
-        "Jacquard_Weave",
-        "Pile_Weave",
-        "Dobby",
-        "Double_Weave",
-        "Eyelet",
-        "Ripstop",
+        "Dobby",           # P0 - HIGHEST PRIORITY!!!
+        "Double_Weave",    # P2
+        "Jacquard_Weave",  # P2
+        "Plain",           # P2
+        "Satin_Weave",     # P2
+        "Eyelet",          # Good (补齐)
+        "Pile_Weave",      # Excellent
+        "Ripstop",         # Good
+        "Twill_Weave",     # Good
     ]
 
     for key in category_keys:
@@ -312,24 +395,44 @@ def main():
         disp = DISPLAY_NAME[key]
         out_dir = os.path.join(args.base_out, disp)
         os.makedirs(out_dir, exist_ok=True)
-        print(f"\n===== {disp} =====")
-        print(f"Collecting links (limit {args.limit})...")
-        links = collect_links_for_category(disp, cfg, target_count=args.limit)
-        print(f"Collected {len(links)} links for {disp}")
 
-        for i, link in enumerate(links, 1):
-            name = extract_numeric_id(link) or f"item_{i:03d}"
-            out_json = os.path.join(out_dir, f"{name}.json")
-            if os.path.exists(out_json):
-                print(f"[{i}/{len(links)}] Skip existing {name}")
-                continue
-            print(f"[{i}/{len(links)}] {name}")
-            rc = run_detail_scrape(link, out_json)
-            if rc != 0:
-                print(f"  -> FAILED: exit={rc}")
-            else:
-                print(f"  -> OK: {out_json} (+ JPG)")
-            time.sleep(args.sleep)
+        # Use adaptive limit or override
+        category_limit = args.limit if args.limit is not None else CATEGORY_LIMITS.get(key, 150)
+
+        print(f"\n===== {disp} (Target: {category_limit} images) =====")
+        print(f"Loading links from {args.links_root}...")
+        # NOTE: For woven, the links directory names follow the internal keys (e.g. "Double_Weave"),
+        # not the human-readable display names (e.g. "Double Weave"). So we must use `key` here.
+        links = load_links_from_latest(args.links_root, key, category_limit)
+        print(f"Loaded {len(links)} links for {disp} (target: {category_limit})")
+
+        total = len(links)
+        if total == 0:
+            print("No links found. Skipping.")
+            continue
+
+        # Submit tasks to thread pool (same as knit script)
+        with ThreadPoolExecutor(max_workers=max(1, args.concurrency)) as executor:
+            futures = []
+            for i, link in enumerate(links, 1):
+                name = extract_numeric_id(link) or f"item_{i:03d}"
+                out_json = os.path.join(out_dir, f"{name}.json")
+                if os.path.exists(out_json):
+                    print(f"[{i}/{total}] Skip existing {name}")
+                    continue
+                futures.append(executor.submit(process_link, link, out_json, args.sleep, args.max_retries, args.jitter))
+
+            done = 0
+            for fut in as_completed(futures):
+                status, name, out_path = fut.result()
+                done += 1
+                prefix = f"[{done}/{len(futures)}]"
+                if status == "ok":
+                    print(f"{prefix} {name} -> OK (+ JPG)")
+                elif status == "skip":
+                    print(f"{prefix} {name} -> SKIP")
+                else:
+                    print(f"{prefix} {name} -> FAILED")
 
     print("\nAll categories done.")
 
