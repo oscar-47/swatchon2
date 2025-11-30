@@ -1,7 +1,8 @@
 from io import BytesIO
-from typing import Dict, List
+from typing import Dict, List, Optional
 import os
 import hashlib
+from datetime import datetime
 
 import torch
 from fastapi import FastAPI, UploadFile, File, Form
@@ -10,6 +11,8 @@ from fastapi.staticfiles import StaticFiles
 from PIL import Image
 
 from server.models.loader import build_eval_transform, load_checkpoint
+from server.ocr_parser import OCRFieldParser
+from server.double_verifier import DoubleStructureVerifier
 
 # OCR Configuration
 OCR_ENABLED = True
@@ -17,9 +20,9 @@ CONFIDENCE_THRESHOLD = 0.60  # Trigger OCR if confidence < 60%
 
 # Model registry: name -> checkpoint path
 MODEL_REGISTRY: Dict[str, str] = {
-    "woven_vs_knit": os.path.join("runs", "woven_vs_knit_r50_gpu_e5", "best.pth"),
-    "woven_multi": os.path.join("runs", "woven_r50_gpu_e5", "best.pth"),
-    "knit_multi": os.path.join("runs", "knit_r50_gpu_e5", "best.pth"),
+    "woven_vs_knit": os.path.join("simple_model_v2", "models_stage1", "stage1_knit_woven_best.pth"),
+    "woven_multi": os.path.join("simple_model_v2", "models_stage2_woven", "stage2_woven_best.pth"),
+    "knit_multi": os.path.join("simple_model_v2", "models_stage2_knit", "stage2_knit_best.pth"),
 }
 
 app = FastAPI(title="Swatchon Classifier API", version="0.2")
@@ -43,6 +46,10 @@ class ModelCache:
         # Initialize OCR engine (lazy initialization)
         self.ocr = None
         self.ocr_initialized = False
+        
+        # Initialize OCR parser and double verifier
+        self.ocr_parser = OCRFieldParser()
+        self.double_verifier = DoubleStructureVerifier(similarity_threshold=0.75)
 
     def get(self, name: str):
         if name not in MODEL_REGISTRY:
@@ -152,6 +159,62 @@ if os.path.isfile(TRAIN_HASHES_PATH):
     except Exception:
         TRAIN_HASHES = set()
 
+
+def two_stage_predict(img_pil: Image.Image):
+    """
+    Two-stage prediction:
+    1. Stage 1: Classify as Knit or Woven
+    2. Stage 2: Subcategory classification based on stage 1 result
+    
+    Returns: dict with prediction, confidence, and stage details
+    """
+    # Stage 1: Knit vs Woven
+    model1, classes1, tfm, device = CACHE.get("woven_vs_knit")
+    x = tfm(img_pil).unsqueeze(0).to(device)
+    
+    with torch.no_grad(), torch.amp.autocast("cuda", enabled=(device.type == "cuda")):
+        logits1 = model1(x)
+        probs1 = torch.softmax(logits1, dim=1)[0]
+        conf1, idx1 = torch.max(probs1, dim=0)
+    
+    stage1_pred = classes1[int(idx1)]
+    stage1_conf = float(conf1)
+    stage1_probs = {classes1[i]: float(probs1[i]) for i in range(len(classes1))}
+    
+    # Stage 2: Subcategory classification
+    if stage1_pred == "Knit":
+        model2, classes2, tfm, device = CACHE.get("knit_multi")
+    else:  # Woven
+        model2, classes2, tfm, device = CACHE.get("woven_multi")
+    
+    with torch.no_grad(), torch.amp.autocast("cuda", enabled=(device.type == "cuda")):
+        logits2 = model2(x)
+        probs2 = torch.softmax(logits2, dim=1)[0]
+        conf2, idx2 = torch.max(probs2, dim=0)
+    
+    stage2_pred = classes2[int(idx2)]
+    stage2_conf = float(conf2)
+    stage2_probs = {classes2[i]: float(probs2[i]) for i in range(len(classes2))}
+    
+    # Final prediction: MainType_SubType
+    final_pred = f"{stage1_pred}_{stage2_pred}"
+    final_conf = stage1_conf * stage2_conf  # Combined confidence
+    
+    return {
+        "prediction": final_pred,
+        "confidence": final_conf,
+        "stage1": {
+            "prediction": stage1_pred,
+            "confidence": stage1_conf,
+            "probs": stage1_probs
+        },
+        "stage2": {
+            "prediction": stage2_pred,
+            "confidence": stage2_conf,
+            "probs": stage2_probs
+        }
+    }
+
 def sha256_bytes(data: bytes) -> str:
     h = hashlib.sha256()
     h.update(data)
@@ -234,7 +297,111 @@ async def recognize_label(file: UploadFile = File(...)):
         }
 
 
+@app.post("/api/create_metadata")
+async def create_fabric_metadata(
+    fabric_image: UploadFile = File(...),
+    label_image: Optional[UploadFile] = File(None),
+    back_image: Optional[UploadFile] = File(None)
+):
+    """
+    Complete Fabric Metadata Creation API
+    
+    Integrates:
+    1. Two-stage image classification (Knit/Woven -> Subcategory)
+    2. OCR parsing (composition, weight, pattern, etc.)
+    3. Optional double-layer verification
+    
+    Returns complete metadata format.
+    """
+    try:
+        # Step 1: Two-stage image classification
+        fabric_data = await fabric_image.read()
+        img = Image.open(BytesIO(fabric_data)).convert("RGB")
+        
+        result = two_stage_predict(img)
+        
+        # Build metadata structure
+        metadata = {
+            "fabric_id": hashlib.md5(fabric_data).hexdigest()[:12],
+            "timestamp": datetime.now().isoformat(),
+            "structure": {
+                "primary": result["stage1"]["prediction"],
+                "secondary": result["stage2"]["prediction"],
+                "full_category": result["prediction"],
+                "confidence": round(result["confidence"], 3),
+                "stage1_confidence": round(result["stage1"]["confidence"], 3),
+                "stage2_confidence": round(result["stage2"]["confidence"], 3),
+                "model_version": "stage1+stage2_resnet50",
+                "stage1_probabilities": {k: round(v, 3) for k, v in result["stage1"]["probs"].items()},
+                "stage2_probabilities": {k: round(v, 3) for k, v in result["stage2"]["probs"].items()}
+            },
+            "specifications": {},
+            "double_check": {
+                "performed": False
+            }
+        }
+        
+        # Step 2: OCR parsing (if label provided)
+        if label_image:
+            label_data = await label_image.read()
+            label_img = Image.open(BytesIO(label_data)).convert("RGB")
+            ocr_result = CACHE.recognize_ocr(label_img)
+            
+            if ocr_result:
+                parsed_fields = CACHE.ocr_parser.parse_all_fields(ocr_result["text"])
+                metadata["specifications"] = {
+                    "composition": parsed_fields.get("composition"),
+                    "weight": parsed_fields.get("weight"),
+                    "pattern": parsed_fields.get("pattern"),
+                    "width": parsed_fields.get("width"),
+                    "thickness": parsed_fields.get("thickness"),
+                    "sustainability": parsed_fields.get("sustainability"),
+                    "origin": parsed_fields.get("origin")
+                }
+                metadata["ocr_raw_text"] = ocr_result["text"]
+                metadata["ocr_confidence"] = round(ocr_result["confidence"], 3)
+        
+        # Step 3: Double structure verification (if back image provided)
+        if back_image:
+            back_data = await back_image.read()
+            back_img = Image.open(BytesIO(back_data)).convert("RGB")
+            
+            verification = CACHE.double_verifier.verify_double_structure(img, back_img)
+            metadata["double_check"] = {
+                "performed": True,
+                "is_double_structure": verification["is_double_structure"],
+                "similarity_score": verification["overall_similarity"],
+                "confidence_level": verification["confidence_level"],
+                "suggestion": verification["suggestion"]
+            }
+        
+        return {
+            "success": True,
+            "metadata": metadata
+        }
+        
+    except Exception as e:
+        import traceback
+        return {
+            "success": False,
+            "message": str(e),
+            "traceback": traceback.format_exc()
+        }
+
+
 # Mount static files for frontend (after API routes to avoid conflicts)
-FRONTEND_DIST = os.path.join(REPO_ROOT, "web", "ant_demo")
+FRONTEND_DIST = os.path.join(REPO_ROOT, "production", "web", "ant_demo")
 if os.path.isdir(FRONTEND_DIST):
-    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="static")
+    from fastapi.responses import FileResponse
+    
+    # Serve v2 as default
+    @app.get("/")
+    async def read_root():
+        return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))
+    
+    # Serve v3 at /v3
+    @app.get("/v3")
+    async def read_v3():
+        return FileResponse(os.path.join(FRONTEND_DIST, "index_v3.html"))
+    
+    app.mount("/static", StaticFiles(directory=FRONTEND_DIST), name="static")
