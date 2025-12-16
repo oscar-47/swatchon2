@@ -59,28 +59,28 @@ if missing_models:
 
 # 4. 检查前端文件
 print("\n🎨 检查前端文件...")
-frontend_dist = "web_demo/frontend/dist"
+frontend_dist = "production/web/ant_demo"
 if os.path.isdir(frontend_dist):
-    index_html = os.path.join(frontend_dist, "index.html")
+    index_html = os.path.join(frontend_dist, "index_v3.html")
     if os.path.exists(index_html):
         print(f"  ✓ 前端已构建: {frontend_dist}")
     else:
-        print(f"  ✗ 缺少 index.html")
+        print(f"  ✗ 缺少 index_v3.html")
 else:
     print(f"  ✗ 前端目录不存在: {frontend_dist}")
 
 # 5. 检查端口
-print("\n🔌 检查端口 5000...")
+print("\n🔌 检查端口 8000...")
 import socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-result = sock.connect_ex(('127.0.0.1', 5000))
+result = sock.connect_ex(('127.0.0.1', 8000))
 sock.close()
 
 if result == 0:
-    print("  ⚠️  端口 5000 已被占用")
+    print("  ⚠️  端口 8000 已被占用")
     print("  请先关闭占用该端口的程序，或使用其他端口")
 else:
-    print("  ✓ 端口 5000 可用")
+    print("  ✓ 端口 8000 可用")
 
 print("\n" + "=" * 60)
 print("🎯 准备启动服务器...")
@@ -89,13 +89,13 @@ print("=" * 60)
 # 6. 启动服务器
 try:
     import uvicorn
-    print("\n启动命令: uvicorn server.app:app --host 0.0.0.0 --port 5000")
+    print("\n启动命令: uvicorn server.app:app --host 0.0.0.0 --port 8000")
     print("\n访问地址:")
-    print("  - 前端界面: http://localhost:5000")
-    print("  - API文档:  http://localhost:5000/docs")
+    print("  - 前端界面: http://localhost:8000")
+    print("  - API文档:  http://localhost:8000/docs")
     print("\n按 Ctrl+C 停止服务器\n")
 
-    uvicorn.run("server.app:app", host="0.0.0.0", port=5000, reload=False)
+    uvicorn.run("server.app:app", host="0.0.0.0", port=8000, reload=False)
 except KeyboardInterrupt:
     print("\n\n👋 服务器已停止")
 except Exception as e:

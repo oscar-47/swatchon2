@@ -1,4 +1,5 @@
 import os
+import json
 from typing import Tuple, List
 
 import torch
@@ -29,27 +30,42 @@ def build_eval_transform(img_size: int = 224):
     ])
 
 
-def load_checkpoint(ckpt_path: str, device: torch.device, classes: List[str] = None) -> Tuple[nn.Module, List[str]]:
-    """Load model checkpoint. If classes not provided, try to read from checkpoint."""
+def load_checkpoint(ckpt_path: str, device: torch.device) -> Tuple[nn.Module, List[str]]:
+    """Load model checkpoint. Classes are read from checkpoint or JSON file."""
     ckpt = torch.load(ckpt_path, map_location=device)
-    
-    # Try to get classes from checkpoint or use provided classes
-    if classes is None:
-        classes = ckpt.get("classes")
+
+    # Try to get classes from checkpoint
+    classes = ckpt.get("classes")
+
+    # If not found, try to load from JSON file in same directory
+    if not classes:
+        ckpt_dir = os.path.dirname(ckpt_path)
+        json_files = [f for f in os.listdir(ckpt_dir) if f.endswith('_results.json')]
+
+        if json_files:
+            json_path = os.path.join(ckpt_dir, json_files[0])
+            with open(json_path, 'r') as f:
+                results = json.load(f)
+                classes = results.get('classes')
+
+        # Fallback for stage1 (Knit vs Woven)
         if not classes:
-            raise RuntimeError("Checkpoint missing 'classes' and no classes provided")
-    
-    # Build model
+            if 'stage1' in ckpt_path:
+                classes = ['Knit', 'Woven']
+            else:
+                raise RuntimeError(f"Cannot determine classes for {ckpt_path}")
+
+    # Build model with correct number of classes
     model = build_model(len(classes)).to(device)
-    
-    # Load state dict - handle both old format (direct 'model') and new format ('model_state')
+
+    # Load state dict - handle different checkpoint formats
     if 'model_state' in ckpt:
         model.load_state_dict(ckpt["model_state"])
     elif 'model' in ckpt:
         model.load_state_dict(ckpt["model"])
     else:
-        raise RuntimeError("Checkpoint missing both 'model' and 'model_state' keys")
-    
+        model.load_state_dict(ckpt)
+
     model.eval()
     return model, classes
 

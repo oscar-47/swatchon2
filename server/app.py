@@ -394,12 +394,17 @@ FRONTEND_DIST = os.path.join(REPO_ROOT, "production", "web", "ant_demo")
 if os.path.isdir(FRONTEND_DIST):
     from fastapi.responses import FileResponse
     
-    # Serve v2 as default
+    # Serve v3 as default
     @app.get("/")
     async def read_root():
+        return FileResponse(os.path.join(FRONTEND_DIST, "index_v3.html"))
+    
+    # Serve v2 at /v2
+    @app.get("/v2")
+    async def read_v2():
         return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))
     
-    # Serve v3 at /v3
+    # Serve v3 at /v3 (alias)
     @app.get("/v3")
     async def read_v3():
         return FileResponse(os.path.join(FRONTEND_DIST, "index_v3.html"))

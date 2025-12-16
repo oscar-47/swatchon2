@@ -19,21 +19,11 @@ from server.double_verifier import DoubleStructureVerifier
 OCR_ENABLED = True
 CONFIDENCE_THRESHOLD = 0.60  # Trigger OCR if confidence < 60%
 
-# Model registry: name -> (checkpoint path, class list)
-# 新的三阶段模型架构
-MODEL_REGISTRY: Dict[str, tuple] = {
-    "stage1_knit_woven": (
-        os.path.join("runs", "stage1_knit_woven", "best.pth"),
-        ["Knit", "Woven"]
-    ),
-    "stage2_woven": (
-        os.path.join("runs", "stage2_woven", "best.pth"),
-        ["Corduroy", "Jacquard", "Plain", "Satin", "Twill"]
-    ),
-    "stage2_knit": (
-        os.path.join("runs", "stage2_knit", "best.pth"),
-        ["French_Terry", "Jacquard", "Mesh", "Rib", "Single_Jersey"]
-    ),
+# Model registry: name -> checkpoint path
+MODEL_REGISTRY: Dict[str, str] = {
+    "stage1_knit_woven": os.path.join("simple_model_v2", "models_stage1", "stage1_knit_woven_best.pth"),
+    "stage2_woven": os.path.join("simple_model_v2", "models_stage2_woven", "stage2_woven_best.pth"),
+    "stage2_knit": os.path.join("simple_model_v2", "models_stage2_knit", "stage2_knit_best.pth"),
 }
 
 app = FastAPI(title="Swatchon Classifier API", version="0.3")
@@ -66,10 +56,10 @@ class ModelCache:
         if name not in MODEL_REGISTRY:
             raise ValueError(f"Unknown model: {name}")
         if name not in self._cache:
-            ckpt_path, classes = MODEL_REGISTRY[name]
+            ckpt_path = MODEL_REGISTRY[name]
             if not os.path.isfile(ckpt_path):
                 raise FileNotFoundError(f"Checkpoint not found: {ckpt_path}")
-            model, _ = load_checkpoint(ckpt_path, self.device, classes)
+            model, classes = load_checkpoint(ckpt_path, self.device)
             self._cache[name] = {"model": model, "classes": classes}
         return self._cache[name]["model"], self._cache[name]["classes"], self.tfm, self.device
 
