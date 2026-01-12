@@ -20,9 +20,9 @@ CONFIDENCE_THRESHOLD = 0.60  # Trigger OCR if confidence < 60%
 
 # Model registry: name -> checkpoint path
 MODEL_REGISTRY: Dict[str, str] = {
-    "woven_vs_knit": os.path.join("simple_model_v2", "models_stage1", "stage1_knit_woven_best.pth"),
-    "woven_multi": os.path.join("simple_model_v2", "models_stage2_woven", "stage2_woven_best.pth"),
-    "knit_multi": os.path.join("simple_model_v2", "models_stage2_knit", "stage2_knit_best.pth"),
+    "woven_vs_knit": os.path.join("runs", "stage1_knit_woven_best.pth"),
+    "woven_multi": os.path.join("runs", "stage2_woven_best.pth"),
+    "knit_multi": os.path.join("runs", "stage2_knit_best.pth"),
 }
 
 app = FastAPI(title="Swatchon Classifier API", version="0.2")
