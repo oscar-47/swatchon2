@@ -27,6 +27,7 @@ demo/
 
 # Models
 runs/
+runs*/
 *.pth
 *.pt
 *.ckpt
@@ -79,3 +80,34 @@ outputs/woven_category_details_hq/
 # Test outputs
 test_*.jpg
 test_*.json
+scripts/config/api_keys.json
+
+# SSL certificates
+certs/
+*.pem
+*.key
+
+# Internal records / agent memory / planning docs
+.ufoo/
+.impeccable.md
+docs/V3_Technical_Implementation_Plan.md
+docs/FabricFlow_Tool_Report.md
+docs/FabricFlow_WebTool_Plan.md
+docs/phase2_upload_qc_plan.md
+docs/scraping_plan_phase2.md
+docs/web_demo_todo_checklist.md
+docs/threshold_and_preprocessing_notes.md
+
+# Internal datasets / QC working files
+FabricFlow_Dataset/
+FabricFlow_Dataset_Guide.docx
+FabricFlow_Data_Gap_Analysis_Sources_NEW.docx
+Jacquard_Relabel_QC.xlsx
+jacquard_relabel_mapping.csv
+qc_excel/
+*.docx
+*.xlsx
+*.csv
+
+# Misc / scratch
+download.html

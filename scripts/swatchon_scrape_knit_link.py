@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import os
 import sys
 import json
 import time
+import argparse
+import urllib.request
 from typing import List, Set, Dict
-
-from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
 # Knit categories mapping (name -> categoryIds/url)
 CATEGORIES: Dict[str, Dict[str, str]] = {
@@ -50,140 +52,126 @@ CATEGORIES: Dict[str, Dict[str, str]] = {
     },
 }
 
+CONFIG_PATH = os.path.join("scripts", "config", "targets_phase1_fabricflow.json")
 
-def build_category_page_url(category_ids: str, page: int) -> str:
-    return f"https://swatchon.com/wholesale-fabric?categoryIds={category_ids}&sort=&page={page}&from=/wholesale-fabric"
+# SwatchOn API base for direct queries (bypasses Nuxt frontend pagination issues)
+SWATCHON_API_BASE = "https://api.swatchon.com/api/mall/v1/search/qualities"
+SWATCHON_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}
+PER_PAGE = 48
 
 
-def accept_cookies(page) -> None:
+def parse_only_categories(only_arg: str | None) -> Set[str]:
+    """Parse --only argument to a normalized category-name set."""
+    if not only_arg:
+        return set()
+    return {name.strip().lower() for name in only_arg.split(",") if name.strip()}
+
+
+def load_phase_targets() -> Dict[str, int]:
+    """Load optional per-class targets from phase config."""
+    if not os.path.exists(CONFIG_PATH):
+        return {}
     try:
-        cookie_selectors = [
-            "button:has-text('Accept')",
-            "button:has-text('I agree')",
-            "button:has-text('同意')",
-            "text=Accept",
-        ]
-        for sel in cookie_selectors:
-            try:
-                btn = page.locator(sel).first
-                if btn and btn.count() > 0 and btn.is_visible():
-                    btn.click()
-                    page.wait_for_timeout(800)
-                    return
-            except Exception:
-                continue
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            obj = json.load(f)
+        out: Dict[str, int] = {}
+        for item in obj.get("class_plan", []):
+            key = item.get("key")
+            target = item.get("target")
+            if isinstance(key, str) and isinstance(target, int):
+                out[key] = target
+        return out
     except Exception:
-        pass
+        return {}
 
 
-def collect_page_links(page, page_num: int, category_name: str) -> List[str]:
-    try:
-        # New website structure uses .fabric-card instead of .c-quality
-        # Look for <a> tags with href="/fabric/..."
-        cards = page.locator("a[href^='/fabric/']")
-        total = cards.count()
-        print(f"  [DEBUG] Found {total} fabric links on page {page_num}")
-        if total == 0:
-            return []
-        page_links: List[str] = []
-        for i in range(total):
-            try:
-                c = cards.nth(i)
-                href = c.get_attribute("href", timeout=2000)
-                if href:
-                    if href.startswith("/"):
-                        href = "https://swatchon.com" + href
-                    elif not href.startswith("http"):
-                        href = "https://swatchon.com/" + href
-                    page_links.append(href)
-            except Exception:
-                continue
-        return page_links
-    except Exception as e:
-        print(f"  [ERROR] collect_page_links exception: {e}")
-        return []
+def fetch_api_page(category_ids: str, page: int, retries: int = 3) -> dict:
+    """Fetch one page of results from SwatchOn search API with retries."""
+    url = (
+        f"{SWATCHON_API_BASE}?sort=&page={page}&perPage={PER_PAGE}"
+        f"&categoryIds={category_ids}&preferredCurrency=usd&shippingCountry=US"
+    )
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, headers=SWATCHON_HEADERS)
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read())
+        except Exception as e:
+            if attempt < retries - 1:
+                time.sleep(1 + attempt)
+            else:
+                raise
 
 
-def scrape_category(category_name: str, category_config: dict, target_count: int = 150, max_pages: int = 20) -> dict:
+def scrape_category(category_name: str, category_config: dict, target_count: int = 150, max_pages: int = 50) -> dict:
+    """Scrape product links via SwatchOn API (no browser needed)."""
     all_links: Set[str] = set()
     page_results = []
-    with sync_playwright() as p:
-        browser = p.chromium.launch(
-            headless=True,
-            args=["--no-sandbox", "--disable-blink-features=AutomationControlled", "--disable-dev-shm-usage"],
-        )
-        context = browser.new_context(
-            user_agent=(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
-            ),
-            locale="en-US",
-            viewport={"width": 1920, "height": 1080},
-        )
-        page = context.new_page()
-        page.set_default_timeout(30000)
-        current_page = 1
-        cookies_accepted = False
-        while len(all_links) < target_count and current_page <= max_pages:
-            try:
-                url = build_category_page_url(category_config["categoryIds"], current_page)
-                print(f"  [DEBUG] Visiting page {current_page}: {url}")
-                response = page.goto(url, wait_until="domcontentloaded", timeout=30000)
-                if not response or response.status != 200:
-                    print(f"  [WARN] Page {current_page} returned status: {response.status if response else 'None'}")
-                    current_page += 1
-                    continue
-                try:
-                    page.wait_for_load_state("networkidle", timeout=15000)
-                except PlaywrightTimeoutError:
-                    print(f"  [DEBUG] Page {current_page} networkidle timeout (normal)")
-                    pass
-                try:
-                    page.wait_for_selector(".c-quality", timeout=10000)
-                    time.sleep(1.5)
-                except PlaywrightTimeoutError:
-                    print(f"  [WARN] Page {current_page} .c-quality selector not found!")
-                    pass
-                if not cookies_accepted:
-                    accept_cookies(page)
-                    cookies_accepted = True
-                page_links = collect_page_links(page, current_page, category_name)
-                print(f"  [DEBUG] Page {current_page} collected {len(page_links)} links")
-                if not page_links:
-                    print(f"  [WARN] Page {current_page} returned 0 links, stopping")
-                    break
-                before = len(all_links)
-                all_links.update(page_links)
-                page_results.append({
-                    "page": current_page,
-                    "url": url,
-                    "links_found": len(page_links),
-                    "new_unique_links": len(all_links) - before,
-                    "total_unique_links": len(all_links),
-                })
-                print(f"  [INFO] Page {current_page}: {len(page_links)} links found, {len(all_links)} total unique")
-                if len(all_links) >= target_count:
-                    break
-                current_page += 1
-                time.sleep(0.8)
-            except Exception as e:
-                print(f"  [ERROR] Page {current_page} exception: {e}")
-                current_page += 1
-                continue
-        context.close()
-        browser.close()
-        return {
-            "category": category_name,
-            "timestamp": time.time(),
-            "target_count": target_count,
-            "actual_count": len(all_links),
-            "pages_scraped": len(page_results),
-            "page_details": page_results,
-            "all_links": sorted(list(all_links)),
-        }
+    category_ids = category_config["categoryIds"]
+    current_page = 1
+
+    while current_page <= max_pages:
+        try:
+            data = fetch_api_page(category_ids, current_page)
+            total = data.get("total", 0)
+            items = data.get("items", [])
+
+            if not items:
+                print(f"  [INFO] Page {current_page} returned 0 items, stopping")
+                break
+
+            before = len(all_links)
+            for item in items:
+                landing = item.get("landingUrl", "")
+                if landing:
+                    full_url = "https://swatchon.com" + landing
+                    all_links.add(full_url)
+
+            page_results.append({
+                "page": current_page,
+                "links_found": len(items),
+                "new_unique_links": len(all_links) - before,
+                "total_unique_links": len(all_links),
+            })
+            print(f"  [INFO] Page {current_page}: {len(items)} items, {len(all_links)}/{total} unique links")
+
+            if len(all_links) >= total or current_page * PER_PAGE >= total:
+                break
+            if len(all_links) >= target_count:
+                break
+
+            current_page += 1
+            time.sleep(0.3)
+
+        except Exception as e:
+            print(f"  [ERROR] Page {current_page} exception: {e}")
+            current_page += 1
+            time.sleep(1)
+            continue
+
+    return {
+        "category": category_name,
+        "timestamp": time.time(),
+        "target_count": target_count,
+        "actual_count": len(all_links),
+        "pages_scraped": len(page_results),
+        "page_details": page_results,
+        "all_links": sorted(list(all_links)),
+    }
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Scrape SwatchOn knit category links")
+    parser.add_argument(
+        "--only",
+        type=str,
+        default="",
+        help="Run only selected categories, comma-separated (example: Tricot,Mesh)",
+    )
+    args = parser.parse_args()
+
+    selected_only = parse_only_categories(args.only)
+
     print("Knit categories link scraper starting...")
     base_output_dir = os.path.join(os.getcwd(), "outputs", "knit_categories")
     os.makedirs(base_output_dir, exist_ok=True)
@@ -202,12 +190,25 @@ def main():
         "Mesh": 200,             # Good: 82.6% - keep current (slight buffer)
         "Single": 200,           # Excellent: 78.3% - keep current (slight buffer)
     }
+    phase_targets = load_phase_targets()
+    if "Tricot" in phase_targets:
+        CATEGORY_TARGET_COUNTS["Tricot"] = phase_targets["Tricot"]
 
-    overall = {"total_categories": len(CATEGORIES), "done": 0, "total_links": 0, "category_results": {}}
-    for i, (category_name, category_config) in enumerate(CATEGORIES.items(), 1):
+    run_items = [
+        (name, cfg)
+        for name, cfg in CATEGORIES.items()
+        if not selected_only or name.lower() in selected_only
+    ]
+    if selected_only and not run_items:
+        print(f"[ERROR] No matched categories for --only={args.only}")
+        print(f"[INFO] Available: {', '.join(CATEGORIES.keys())}")
+        sys.exit(2)
+
+    overall = {"total_categories": len(run_items), "done": 0, "total_links": 0, "category_results": {}}
+    for i, (category_name, category_config) in enumerate(run_items, 1):
         try:
             target = CATEGORY_TARGET_COUNTS.get(category_name, 200)
-            print(f"\nProcessing {i}/{len(CATEGORIES)}: {category_name} (target: {target} links)")
+            print(f"\nProcessing {i}/{len(run_items)}: {category_name} (target: {target} links)")
             result = scrape_category(category_name, category_config, target_count=target)
             cat_dir = os.path.join(base_output_dir, category_name)
             os.makedirs(cat_dir, exist_ok=True)
@@ -218,7 +219,7 @@ def main():
             overall["total_links"] += result["actual_count"]
             overall["category_results"][category_name] = {"links_count": result["actual_count"], "pages_scraped": result["pages_scraped"], "file_path": out_path}
             print(f"Saved -> {out_path}")
-            if i < len(CATEGORIES):
+            if i < len(run_items):
                 time.sleep(2)
         except Exception as e:
             print(f"Category {category_name} failed: {e}")
@@ -231,4 +232,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -7,34 +7,48 @@ from datetime import datetime
 import torch
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image
+
+from collections import Counter
 
 from server.models.loader import build_eval_transform, load_checkpoint
 from server.ocr_parser import OCRFieldParser
 from server.double_verifier import DoubleStructureVerifier
+from server.quality_inspector import QualityInspector
 
 # OCR Configuration
 OCR_ENABLED = True
 CONFIDENCE_THRESHOLD = 0.60  # Trigger OCR if confidence < 60%
 
-# Model registry: name -> checkpoint path
-MODEL_REGISTRY: Dict[str, str] = {
-    "woven_vs_knit": os.path.join("runs", "stage1_knit_woven_best.pth"),
-    "woven_multi": os.path.join("runs", "stage2_woven_best.pth"),
-    "knit_multi": os.path.join("runs", "stage2_knit_best.pth"),
+# Model registry: name -> (checkpoint path, stage_key)
+MODEL_REGISTRY: Dict[str, tuple] = {
+    "woven_vs_knit": (os.path.join("runs", "stage1_knit_vs_woven_vs_others_best.pth"), "stage1"),
+    "woven_multi": (os.path.join("runs", "stage2_woven_7class_best.pth"), "stage2_woven"),
+    "knit_multi": (os.path.join("runs", "stage2_knit_6class_best.pth"), "stage2_knit"),
 }
 
-app = FastAPI(title="Swatchon Classifier API", version="0.2")
+app = FastAPI(title="FabricFlow API", version="2.0")
 
 # Allow local dev frontends
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def no_cache_html(request, call_next):
+    """Disable browser caching for HTML pages during development."""
+    response = await call_next(request)
+    if "text/html" in response.headers.get("content-type", ""):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+    return response
 
 
 class ModelCache:
@@ -55,10 +69,10 @@ class ModelCache:
         if name not in MODEL_REGISTRY:
             raise ValueError(f"Unknown model: {name}")
         if name not in self._cache:
-            ckpt_path = MODEL_REGISTRY[name]
+            ckpt_path, stage_key = MODEL_REGISTRY[name]
             if not os.path.isfile(ckpt_path):
                 raise FileNotFoundError(f"Checkpoint not found: {ckpt_path}")
-            model, classes = load_checkpoint(ckpt_path, self.device)
+            model, classes = load_checkpoint(ckpt_path, self.device, stage_key=stage_key)
             self._cache[name] = {"model": model, "classes": classes}
         return self._cache[name]["model"], self._cache[name]["classes"], self.tfm, self.device
 
@@ -162,57 +176,70 @@ if os.path.isfile(TRAIN_HASHES_PATH):
 
 def two_stage_predict(img_pil: Image.Image):
     """
-    Two-stage prediction:
-    1. Stage 1: Classify as Knit or Woven
-    2. Stage 2: Subcategory classification based on stage 1 result
-    
-    Returns: dict with prediction, confidence, and stage details
+    Two-stage cascade prediction (ConvNeXt):
+    1. Stage 1: Classify as KNIT, WOVEN, or OTHERS
+    2. Stage 2: Subcategory classification (skipped for OTHERS)
+
+    Returns: dict with prediction, confidence, and stage details.
     """
-    # Stage 1: Knit vs Woven
+    # Stage 1: KNIT / WOVEN / OTHERS
     model1, classes1, tfm, device = CACHE.get("woven_vs_knit")
     x = tfm(img_pil).unsqueeze(0).to(device)
-    
+
     with torch.no_grad(), torch.amp.autocast("cuda", enabled=(device.type == "cuda")):
         logits1 = model1(x)
         probs1 = torch.softmax(logits1, dim=1)[0]
         conf1, idx1 = torch.max(probs1, dim=0)
-    
+
     stage1_pred = classes1[int(idx1)]
     stage1_conf = float(conf1)
     stage1_probs = {classes1[i]: float(probs1[i]) for i in range(len(classes1))}
-    
+
+    # If OTHERS, skip stage 2
+    if stage1_pred == "OTHERS":
+        return {
+            "prediction": "Others",
+            "l1": "OTHERS",
+            "confidence": stage1_conf,
+            "stage1": {
+                "prediction": stage1_pred,
+                "confidence": stage1_conf,
+                "probs": stage1_probs,
+            },
+            "stage2": None,
+        }
+
     # Stage 2: Subcategory classification
-    if stage1_pred == "Knit":
+    if stage1_pred == "KNIT":
         model2, classes2, tfm, device = CACHE.get("knit_multi")
-    else:  # Woven
+    else:
         model2, classes2, tfm, device = CACHE.get("woven_multi")
-    
+
     with torch.no_grad(), torch.amp.autocast("cuda", enabled=(device.type == "cuda")):
         logits2 = model2(x)
         probs2 = torch.softmax(logits2, dim=1)[0]
         conf2, idx2 = torch.max(probs2, dim=0)
-    
+
     stage2_pred = classes2[int(idx2)]
     stage2_conf = float(conf2)
     stage2_probs = {classes2[i]: float(probs2[i]) for i in range(len(classes2))}
-    
-    # Final prediction: MainType_SubType
-    final_pred = f"{stage1_pred}_{stage2_pred}"
-    final_conf = stage1_conf * stage2_conf  # Combined confidence
-    
+
+    final_conf = stage1_conf * stage2_conf
+
     return {
-        "prediction": final_pred,
+        "prediction": stage2_pred,
+        "l1": stage1_pred,
         "confidence": final_conf,
         "stage1": {
             "prediction": stage1_pred,
             "confidence": stage1_conf,
-            "probs": stage1_probs
+            "probs": stage1_probs,
         },
         "stage2": {
             "prediction": stage2_pred,
             "confidence": stage2_conf,
-            "probs": stage2_probs
-        }
+            "probs": stage2_probs,
+        },
     }
 
 def sha256_bytes(data: bytes) -> str:
@@ -225,10 +252,15 @@ def sha256_bytes(data: bytes) -> str:
 def list_models():
     return {
         "models": [
-            {"name": k, "checkpoint": v, "classes": (CACHE.get(k)[1] if os.path.exists(v) else None)}
+            {
+                "name": k,
+                "checkpoint": v[0],
+                "stage_key": v[1],
+                "classes": (CACHE.get(k)[1] if os.path.exists(v[0]) else None),
+            }
             for k, v in MODEL_REGISTRY.items()
         ],
-        "hashes_loaded": len(TRAIN_HASHES)
+        "hashes_loaded": len(TRAIN_HASHES),
     }
 
 
@@ -269,17 +301,19 @@ async def predict(model_name: str = Form(...), files: List[UploadFile] = File(..
 
 @app.post("/api/ocr")
 async def recognize_label(file: UploadFile = File(...)):
-    """OCR recognition for fabric label images"""
+    """OCR recognition for fabric label images — returns raw text + parsed fields"""
     try:
         data = await file.read()
         img = Image.open(BytesIO(data)).convert("RGB")
         ocr_result = CACHE.recognize_ocr(img)
 
         if ocr_result:
+            parsed = CACHE.ocr_parser.parse_all_fields(ocr_result["text"])
             return {
                 "success": True,
                 "text": ocr_result["text"],
-                "confidence": ocr_result["confidence"]
+                "confidence": ocr_result["confidence"],
+                "parsed": parsed
             }
         else:
             return {
@@ -299,41 +333,112 @@ async def recognize_label(file: UploadFile = File(...)):
 
 @app.post("/api/create_metadata")
 async def create_fabric_metadata(
-    fabric_image: UploadFile = File(...),
+    fabric_images: List[UploadFile] = File(...),
     label_image: Optional[UploadFile] = File(None),
     back_image: Optional[UploadFile] = File(None)
 ):
     """
-    Complete Fabric Metadata Creation API
+    Complete Fabric Metadata Creation API (V3 Multi-View)
     
     Integrates:
-    1. Two-stage image classification (Knit/Woven -> Subcategory)
-    2. OCR parsing (composition, weight, pattern, etc.)
-    3. Optional double-layer verification
-    
-    Returns complete metadata format.
+    1. Quality Control: Sharpness, exposure, and content validation
+    2. Multi-view consensus: Requires all fabric images to match with high confidence (>90%)
+    3. OCR parsing
+    4. Optional double-layer verification
     """
     try:
-        # Step 1: Two-stage image classification
-        fabric_data = await fabric_image.read()
-        img = Image.open(BytesIO(fabric_data)).convert("RGB")
+        # --- Step 0: Quality Control & Image Loading ---
+        loaded_fabric_imgs = []
+        raw_bytes_list = []
+        qc_issues = []
+
+        for idx, f_file in enumerate(fabric_images):
+            f_data = await f_file.read()
+            raw_bytes_list.append(f_data)
+            img = Image.open(BytesIO(f_data)).convert("RGB")
+            loaded_fabric_imgs.append(img)
+            
+            # Run QC
+            inspector_res = QualityInspector.inspect_image(
+                img, 
+                ocr_reader=(CACHE.ocr if CACHE.ocr_initialized else None)
+            )
+            
+            # Store full inspection details (convert numpy types to native Python)
+            details = inspector_res["details"]
+            qc_issues.append({
+                "image_index": idx,
+                "passed": bool(inspector_res["passed"]),
+                "issues": list(inspector_res["issues"]),
+                "details": {
+                    "sharpness": {
+                        "score": float(details["sharpness"]["score"]),
+                        "passed": bool(details["sharpness"]["passed"]),
+                        "message": str(details["sharpness"]["message"]),
+                        "threshold": float(details["sharpness"]["threshold"])
+                    },
+                    "exposure": {
+                        "score": float(details["exposure"]["score"]),
+                        "passed": bool(details["exposure"]["passed"]),
+                        "message": str(details["exposure"]["message"]),
+                        "range": str(details["exposure"]["range"])
+                    },
+                    "text_check": {
+                        "count": int(details["text_check"]["count"]),
+                        "passed": bool(details["text_check"]["passed"]),
+                        "message": str(details["text_check"]["message"])
+                    }
+                }
+            })
+
+        # Check if any image failed
+        failed_images = [img_qc for img_qc in qc_issues if not img_qc["passed"]]
         
-        result = two_stage_predict(img)
+        if failed_images:
+            return {
+                "success": False,
+                "message": "Quality Control Failed",
+                "issues": [f"Image {item['image_index']+1}: {', '.join(item['issues'])}" for item in failed_images],
+                "quality_details": qc_issues  # Return full details for frontend visualization
+            }
+
+        # --- Step 1: Multi-View Consensus Classification ---
+        predictions = []
+        for img in loaded_fabric_imgs:
+            predictions.append(two_stage_predict(img))
+            
+        # Consensus Logic — majority vote
+        pred_counts = Counter(p["prediction"] for p in predictions)
+        majority_pred, majority_count = pred_counts.most_common(1)[0]
+        majority_ratio = majority_count / len(predictions)
+
+        # For single image: always pass. For multiple: require >50% agreement.
+        if len(predictions) > 1 and majority_ratio <= 0.5:
+            return {
+                "success": False,
+                "message": "Consensus Failed: No majority agreement among images",
+                "details": [f"Img {i+1}: {p['prediction']} ({p['confidence']:.2f})" for i, p in enumerate(predictions)]
+            }
+
+        # Use the highest-confidence prediction from the majority class
+        majority_preds = [p for p in predictions if p["prediction"] == majority_pred]
+        best_result = max(majority_preds, key=lambda x: x["confidence"])
         
         # Build metadata structure
+        # Use MD5 of first image as ID
+        fabric_id = hashlib.md5(raw_bytes_list[0]).hexdigest()[:12]
+        
         metadata = {
-            "fabric_id": hashlib.md5(fabric_data).hexdigest()[:12],
+            "fabric_id": fabric_id,
             "timestamp": datetime.now().isoformat(),
             "structure": {
-                "primary": result["stage1"]["prediction"],
-                "secondary": result["stage2"]["prediction"],
-                "full_category": result["prediction"],
-                "confidence": round(result["confidence"], 3),
-                "stage1_confidence": round(result["stage1"]["confidence"], 3),
-                "stage2_confidence": round(result["stage2"]["confidence"], 3),
-                "model_version": "stage1+stage2_resnet50",
-                "stage1_probabilities": {k: round(v, 3) for k, v in result["stage1"]["probs"].items()},
-                "stage2_probabilities": {k: round(v, 3) for k, v in result["stage2"]["probs"].items()}
+                "primary": best_result["stage1"]["prediction"],
+                "secondary": best_result["stage2"]["prediction"] if best_result["stage2"] else None,
+                "full_category": best_result["prediction"],
+                "confidence": round(best_result["confidence"], 3),
+                "model_version": "convnext_stage1s+stage2t_multiview",
+                "consensus_count": len(fabric_images),
+                "all_confidences": [round(p["confidence"], 3) for p in predictions]
             },
             "specifications": {},
             "double_check": {
@@ -345,6 +450,7 @@ async def create_fabric_metadata(
         if label_image:
             label_data = await label_image.read()
             label_img = Image.open(BytesIO(label_data)).convert("RGB")
+            # Run QC on label too? Maybe just simple check
             ocr_result = CACHE.recognize_ocr(label_img)
             
             if ocr_result:
@@ -366,7 +472,8 @@ async def create_fabric_metadata(
             back_data = await back_image.read()
             back_img = Image.open(BytesIO(back_data)).convert("RGB")
             
-            verification = CACHE.double_verifier.verify_double_structure(img, back_img)
+            # Use the first fabric image (front) for comparison
+            verification = CACHE.double_verifier.verify_double_structure(loaded_fabric_imgs[0], back_img)
             metadata["double_check"] = {
                 "performed": True,
                 "is_double_structure": verification["is_double_structure"],
@@ -382,31 +489,43 @@ async def create_fabric_metadata(
         
     except Exception as e:
         import traceback
+        import logging
+        logging.exception("create_fabric_metadata failed")
         return {
             "success": False,
-            "message": str(e),
-            "traceback": traceback.format_exc()
+            "message": "Internal server error",
         }
 
 
-# Mount static files for frontend (after API routes to avoid conflicts)
-FRONTEND_DIST = os.path.join(REPO_ROOT, "production", "web", "ant_demo")
-if os.path.isdir(FRONTEND_DIST):
-    from fastapi.responses import FileResponse
-    
-    # Serve v3 as default
+# Serve CA certificate for iPad trust installation
+CA_PEM_PATH = os.path.join(REPO_ROOT, "certs", "ca.pem")
+
+
+@app.get("/certs/ca.pem")
+async def serve_ca_cert():
+    if os.path.isfile(CA_PEM_PATH):
+        return FileResponse(CA_PEM_PATH, media_type="application/x-pem-file", filename="ca.pem")
+    from fastapi import HTTPException
+    raise HTTPException(status_code=404, detail="CA certificate not found")
+
+
+# Frontend routes — web/ is the primary frontend directory
+MOCK_DIR = os.path.join(REPO_ROOT, "web")
+if os.path.isdir(MOCK_DIR):
     @app.get("/")
     async def read_root():
-        return FileResponse(os.path.join(FRONTEND_DIST, "index_v3.html"))
-    
-    # Serve v2 at /v2
-    @app.get("/v2")
-    async def read_v2():
-        return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))
-    
-    # Serve v3 at /v3 (alias)
-    @app.get("/v3")
-    async def read_v3():
-        return FileResponse(os.path.join(FRONTEND_DIST, "index_v3.html"))
-    
-    app.mount("/static", StaticFiles(directory=FRONTEND_DIST), name="static")
+        return FileResponse(os.path.join(MOCK_DIR, "mock_demo.html"))
+
+    @app.get("/tablet")
+    async def read_mock_tablet():
+        return FileResponse(os.path.join(MOCK_DIR, "mock_tablet.html"))
+
+    @app.get("/passport")
+    async def read_passport():
+        return FileResponse(os.path.join(MOCK_DIR, "passport_view.html"))
+
+    # Serve web/ sub-directories (assets, js, css) so relative paths in HTML work
+    for sub in ("assets", "js", "css"):
+        sub_path = os.path.join(MOCK_DIR, sub)
+        if os.path.isdir(sub_path):
+            app.mount(f"/{sub}", StaticFiles(directory=sub_path), name=f"mock_{sub}")

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FabricFlow — Landing Page Options (For Review)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    background: #0f172a;
+    color: #f8fafc;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    padding: 40px 48px 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .page-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .page-header p {
+    font-size: 14px;
+    color: #94a3b8;
+    line-height: 1.6;
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .badge-draft { background: #1e3a5f; color: #60a5fa; }
+
+  /* ── SECTION ── */
+  .section {
+    padding: 40px 48px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  /* ── OPTIONS GRID ── */
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .option-card {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .option-card:hover { border-color: rgba(255,255,255,0.16); }
+
+  .option-header {
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .opt-pill {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .opt-a { background: #1e3a5f; color: #60a5fa; }
+  .opt-b { background: #1e1b4b; color: #a78bfa; }
+  .opt-c { background: #1c2f1f; color: #34d399; }
+
+  .opt-label { font-size: 14px; font-weight: 600; }
+  .opt-desc { font-size: 12px; color: #64748b; margin-top: 1px; }
+
+  /* ── IFRAME PREVIEW ── */
+  .preview-wrap {
+    position: relative;
+    overflow: hidden;
+    background: #0f172a;
+  }
+  .preview-wrap.tablet-wrap {
+    height: 320px;
+  }
+  .preview-wrap.web-wrap {
+    height: 220px;
+  }
+  .preview-wrap iframe {
+    border: none;
+    transform-origin: top left;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  /* Tablet iframe: 768×1024 → fits in card width ~320px */
+  .tablet-wrap iframe {
+    width: 768px;
+    height: 1024px;
+    transform: scale(0.417);
+  }
+  /* Web iframe: 1440×900 → fits in card width ~600px → scale  */
+  .web-wrap iframe {
+    width: 1440px;
+    height: 900px;
+    transform: scale(0.244);
+  }
+
+  /* ── FOOTER ACTIONS ── */
+  .option-footer {
+    padding: 12px 18px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .btn-open {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    background: rgba(255,255,255,0.07);
+    color: #e2e8f0;
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-open:hover { background: rgba(255,255,255,0.12); }
+  .btn-open svg { opacity: 0.6; flex-shrink: 0; }
+
+  /* ── LEGEND ── */
+  .legend {
+    padding: 28px 48px 40px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .legend-item {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .legend-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .legend-body { font-size: 12px; color: #64748b; line-height: 1.6; }
+  .legend-a .legend-title { color: #60a5fa; }
+  .legend-b .legend-title { color: #a78bfa; }
+  .legend-c .legend-title { color: #34d399; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>FabricFlow — Landing Page Options <span class="badge badge-draft">For Review</span></h1>
+  <p>Three illustration styles across Tablet (iPad) and Web (Desktop) versions. Click any preview to open full screen.</p>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TABLET SECTION
+════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Tablet Version &mdash; iPad (768 × 1024)</div>
+  <div class="options-grid">
+
+    <!-- A: Original AiLoupe -->
+    <div class="option-card">
+      <div class="option-header">
+        <div class="opt-pill opt-a">A</div>
+        <div>
+          <div class="opt-label">Option A &mdash; AiLoupe Original</div>
+          <div class="opt-desc">Current illustrations from AiLoupe User Guide</div>
+        </div>
+      </div>
+      <div class="preview-wrap tablet-wrap">
+        <iframe src="mock_tablet.html" title="Tablet Option A" loading="lazy"></iframe>
+      </div>
+      <div class="option-footer">
+        <a class="btn-open" href="mock_tablet.html" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open full screen
+        </a>
+      </div>
+    </div>
+
+    <!-- B: Custom SVG -->
+    <div class="option-card">
+      <div class="option-header">
+        <div class="opt-pill opt-b">B</div>
+        <div>
+          <div class="opt-label">Option B &mdash; Custom SVG</div>
+          <div class="opt-desc">FabricFlow-specific vector illustrations</div>
+        </div>
+      </div>
+      <div class="preview-wrap tablet-wrap">
+        <iframe src="mock_tablet.html?opt=B" title="Tablet Option B" loading="lazy"></iframe>
+      </div>
+      <div class="option-footer">
+        <a class="btn-open" href="mock_tablet.html?opt=B" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open full screen
+        </a>
+      </div>
+    </div>
+
+    <!-- C: Figma AI -->
+    <div class="option-card">
+      <div class="option-header">
+        <div class="opt-pill opt-c">C</div>
+        <div>
+          <div class="opt-label">Option C &mdash; Figma / AI-Generated</div>
+          <div class="opt-desc">Placeholder &mdash; replace with generated images</div>
+        </div>
+      </div>
+      <div class="preview-wrap tablet-wrap">
+        <iframe src="mock_tablet.html?opt=C" title="Tablet Option C" loading="lazy"></iframe>
+      </div>
+      <div class="option-footer">
+        <a class="btn-open" href="mock_tablet.html?opt=C" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open full screen
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     WEB SECTION
+════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Web Version &mdash; Desktop (1440 × 900)</div>
+  <div class="options-grid">
+
+    <!-- A -->
+    <div class="option-card">
+      <div class="option-header">
+        <div class="opt-pill opt-a">A</div>
+        <div>
+          <div class="opt-label">Option A &mdash; AiLoupe Original</div>
+          <div class="opt-desc">Current illustrations from AiLoupe User Guide</div>
+        </div>
+      </div>
+      <div class="preview-wrap web-wrap">
+        <iframe src="mock_demo.html" title="Web Option A" loading="lazy"></iframe>
+      </div>
+      <div class="option-footer">
+        <a class="btn-open" href="mock_demo.html" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open full screen
+        </a>
+      </div>
+    </div>
+
+    <!-- B -->
+    <div class="option-card">
+      <div class="option-header">
+        <div class="opt-pill opt-b">B</div>
+        <div>
+          <div class="opt-label">Option B &mdash; Custom SVG</div>
+          <div class="opt-desc">FabricFlow-specific vector illustrations</div>
+        </div>
+      </div>
+      <div class="preview-wrap web-wrap">
+        <iframe src="mock_demo.html?opt=B" title="Web Option B" loading="lazy"></iframe>
+      </div>
+      <div class="option-footer">
+        <a class="btn-open" href="mock_demo.html?opt=B" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open full screen
+        </a>
+      </div>
+    </div>
+
+    <!-- C -->
+    <div class="option-card">
+      <div class="option-header">
+        <div class="opt-pill opt-c">C</div>
+        <div>
+          <div class="opt-label">Option C &mdash; Figma / AI-Generated</div>
+          <div class="opt-desc">Placeholder &mdash; replace with generated images</div>
+        </div>
+      </div>
+      <div class="preview-wrap web-wrap">
+        <iframe src="mock_demo.html?opt=C" title="Web Option C" loading="lazy"></iframe>
+      </div>
+      <div class="option-footer">
+        <a class="btn-open" href="mock_demo.html?opt=C" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Open full screen
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     LEGEND
+════════════════════════════════════════════ -->
+<div class="legend">
+  <div class="legend-item legend-a">
+    <div class="legend-title">Option A — AiLoupe Original</div>
+    <div class="legend-body">Warm character-based illustrations from the AiLoupe User Guide (PNG assets). Consistent with AiLoupe branding and Elif's existing design language. Recommended if brand alignment is priority.</div>
+  </div>
+  <div class="legend-item legend-b">
+    <div class="legend-title">Option B — Custom SVG</div>
+    <div class="legend-body">Purpose-built FabricFlow illustrations: phone with fabric photos, AI scan frame with neural network, woven texture magnifier, and digital passport card. No external assets, fully scalable vectors.</div>
+  </div>
+  <div class="legend-item legend-c">
+    <div class="legend-title">Option C — Figma / AI-Generated</div>
+    <div class="legend-body">Placeholder layout showing where AI-generated (Figma AI, Nano Banana, or Midjourney) hand-drawn illustrations will go. Once images are ready, drop them into <code>assets/illustrations/</code> and update the JS switcher.</div>
+  </div>
+</div>
+
+</body>
+</html>

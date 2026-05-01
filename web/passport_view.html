@@ -1,0 +1,2238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fabric Digital Fabric Passport — FAB-2025-CN-0847</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════
+   BASE
+══════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Surfaces */
+  --surface-page:    oklch(0.980 0.004 85);
+  --surface-card:    oklch(0.995 0.002 85);
+  --surface-sunk:    oklch(0.955 0.006 85);
+
+  /* Ink */
+  --ink-primary:     oklch(0.18 0.020 250);
+  --ink-secondary:   oklch(0.42 0.012 250);
+  --ink-muted:       oklch(0.58 0.008 250);
+
+  /* Borders */
+  --rule:            oklch(0.90 0.006 250);
+  --rule-strong:     oklch(0.80 0.008 250);
+
+  /* Accent — burnt sienna */
+  --accent:          oklch(0.48 0.14 38);
+  --accent-soft:     oklch(0.92 0.04 38);
+
+  /* Semantic */
+  --ok:              oklch(0.52 0.09 155);
+  --warn:            oklch(0.62 0.11 75);
+  --danger:          oklch(0.48 0.14 25);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--surface-page);
+  color: var(--ink-primary);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'tnum';
+}
+
+/* Serif display family */
+.caslon { font-family: 'Libre Caslon Text', Georgia, serif; }
+.caslon-italic { font-family: 'Libre Caslon Text', Georgia, serif; font-style: italic; }
+
+/* Tabular numerals everywhere numbers live */
+.num { font-variant-numeric: tabular-nums; }
+
+/* ══════════════════════════════════
+   PAGE SYSTEM
+══════════════════════════════════ */
+.page { display: none; min-height: 100vh; }
+.page.active { display: block; }
+
+/* ══════════════════════════════════
+   BACK BAR
+══════════════════════════════════ */
+.pp-back-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface-page);
+  border-bottom: 1px solid var(--rule);
+  padding: 14px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pp-back-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 11px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.22em;
+  color: var(--ink-primary);
+  background: none; border: none; cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+.pp-back-btn:hover { color: var(--accent); }
+.pp-folio {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════════════════
+   HERO
+══════════════════════════════════ */
+.pp-hero {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 64px 48px 48px;
+}
+.pp-hero-eyebrow {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 14px;
+}
+.pp-hero-eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+  max-width: 240px;
+}
+
+.pp-hero-top {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 28px;
+  align-items: start;
+}
+.pp-hero-mark {
+  width: 56px; height: 56px;
+  border: 1px solid var(--ink-primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-primary);
+}
+.pp-hero-mark svg { display: block; }
+
+.pp-hero-info { min-width: 0; }
+.pp-hero-name {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 38px; font-weight: 400;
+  color: var(--ink-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+.pp-hero-id {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 11.5px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 20px;
+}
+.pp-hero-desc {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-secondary);
+  max-width: 62ch;
+  margin-bottom: 20px;
+}
+.pp-hero-tags {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.pp-tag {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 6px 12px;
+  border: 1px solid var(--accent);
+  color: var(--ink-primary);
+  background: transparent;
+  border-radius: 0;
+}
+.pp-tag-muted {
+  border-color: var(--rule-strong);
+  color: var(--ink-secondary);
+}
+
+.pp-hero-score {
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px;
+}
+.pp-hero-score-ring {
+  width: 96px; height: 96px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px;
+}
+.pp-hero-score-num {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 32px; font-weight: 400;
+  color: var(--ink-primary);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.pp-hero-score-lbl {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--accent);
+}
+.pp-hero-score-cap {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+/* Hero meta strip */
+.pp-hero-meta {
+  max-width: 1040px; margin: 0 auto;
+  padding: 0 48px 32px;
+}
+.pp-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule);
+}
+.pp-meta-cell {
+  padding: 18px 20px 18px 0;
+  border-right: 1px solid var(--rule);
+}
+.pp-meta-cell:last-child { border-right: none; }
+.pp-meta-cell:not(:first-child) { padding-left: 20px; }
+
+.pp-meta-key {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+}
+.pp-meta-val {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 15px;
+  color: var(--ink-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+.pp-meta-val em {
+  font-style: italic;
+  color: var(--ink-secondary);
+}
+
+/* ══════════════════════════════════
+   LEAD TIME STRIP
+══════════════════════════════════ */
+.pp-lt {
+  max-width: 1040px; margin: 0 auto;
+  padding: 0 48px 48px;
+}
+.pp-lt-title {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 14px;
+}
+.pp-lt-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--rule);
+}
+.pp-lt-cell {
+  padding: 16px 18px 16px 0;
+  border-bottom: 1px solid var(--rule);
+  border-right: 1px solid var(--rule);
+}
+.pp-lt-cell:last-child { border-right: none; }
+.pp-lt-cell:not(:first-child) { padding-left: 18px; }
+.pp-lt-label {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-bottom: 6px;
+}
+.pp-lt-val {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 16px;
+  color: var(--ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════════════════
+   TABS
+══════════════════════════════════ */
+.pp-tabs-wrap {
+  position: sticky; top: 53px; z-index: 99;
+  background: var(--surface-page);
+  border-bottom: 1px solid var(--rule);
+}
+.pp-tabs {
+  max-width: 1040px; margin: 0 auto;
+  padding: 0 48px;
+  display: flex;
+  gap: 36px;
+  overflow-x: auto;
+}
+.pp-tab-btn {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ink-muted);
+  background: transparent;
+  border: none;
+  padding: 18px 0;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s;
+}
+.pp-tab-btn:hover { color: var(--ink-primary); }
+.pp-tab-btn.active {
+  color: var(--ink-primary);
+  border-bottom-color: var(--ink-primary);
+  font-weight: 600;
+}
+
+/* ══════════════════════════════════
+   CONTENT
+══════════════════════════════════ */
+.pp-content {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 64px 48px 96px;
+}
+.pp-panel { display: none; }
+.pp-panel.active { display: block; }
+.pp-panel > * + * { margin-top: 0; }
+
+/* Section label — chapter § pattern */
+.section-label {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-top: 72px;
+  margin-bottom: 28px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.section-label:first-child { margin-top: 0; }
+.section-label::before {
+  content: attr(data-chapter);
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.section-label-text {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 24px; font-weight: 400;
+  color: var(--ink-primary);
+  letter-spacing: -0.012em;
+}
+.section-label-sub {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-left: auto;
+  padding-bottom: 2px;
+}
+
+/* ══════════════════════════════════
+   DATA ROWS — editorial tabular
+══════════════════════════════════ */
+.data-table {
+  border-top: 1px solid var(--rule-strong);
+}
+.data-row {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: baseline;
+}
+.data-row-key {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-muted);
+  padding-top: 2px;
+}
+.data-row-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.data-row-val {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 16px;
+  color: var(--ink-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+.data-row-val.accent { color: var(--accent); }
+.data-row-note {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+.data-row-val .status-ok { color: var(--ok); font-style: normal; }
+
+/* Inline check glyph */
+.glyph-check {
+  display: inline-block;
+  color: var(--ok);
+  margin-left: 4px;
+  font-family: 'Schibsted Grotesk', sans-serif;
+}
+
+/* ══════════════════════════════════
+   TWO-COLUMN DATA GRID
+══════════════════════════════════ */
+.data-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 48px;
+  border-top: 1px solid var(--rule-strong);
+}
+.data-grid-2 .data-row {
+  border-bottom: 1px solid var(--rule);
+  grid-template-columns: 180px 1fr;
+  gap: 16px;
+}
+
+/* ══════════════════════════════════
+   FIBRE COMPOSITION BAR — hairline track, single fill
+══════════════════════════════════ */
+.fibre-wrap {
+  padding: 8px 0 4px;
+}
+.fibre-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 80px;
+  gap: 20px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.fibre-row:first-child { border-top: 1px solid var(--rule-strong); }
+.fibre-name {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 15px;
+  color: var(--ink-primary);
+}
+.fibre-name em {
+  font-style: italic;
+  color: var(--ink-muted);
+  font-size: 12px;
+  display: block;
+  margin-top: 2px;
+}
+.fibre-track {
+  height: 4px;
+  background: var(--surface-sunk);
+  border: 1px solid var(--rule);
+  position: relative;
+}
+.fibre-fill {
+  position: absolute;
+  top: -1px; left: -1px; bottom: -1px;
+  background: var(--ink-primary);
+}
+.fibre-fill.accent { background: var(--accent); }
+.fibre-pct {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 15px; font-weight: 500;
+  color: var(--ink-primary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════════════════
+   ENVIRONMENT METRICS — no cards, labelled values
+══════════════════════════════════ */
+.env-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--rule-strong);
+}
+.env-item {
+  padding: 24px 24px 24px 0;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.env-item:nth-child(3n) { border-right: none; }
+.env-item:not(:nth-child(3n+1)) { padding-left: 24px; }
+
+.env-roman {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.env-label {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 12px;
+}
+.env-val-line {
+  display: baseline;
+  margin-bottom: 10px;
+}
+.env-val {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 28px; font-weight: 400;
+  color: var(--ink-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.015em;
+}
+.env-unit {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-left: 6px;
+}
+.env-bench {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 12.5px;
+  color: var(--ink-secondary);
+  line-height: 1.45;
+}
+.env-bench.good { color: var(--ok); }
+.env-bench.mid { color: var(--warn); }
+
+/* ══════════════════════════════════
+   RATING BARS — hairline tracks, single fill
+══════════════════════════════════ */
+.rating-list {
+  border-top: 1px solid var(--rule-strong);
+}
+.rating-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 64px;
+  gap: 20px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.rating-name {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 15px;
+  color: var(--ink-primary);
+}
+.rating-track {
+  height: 4px;
+  background: var(--surface-sunk);
+  border: 1px solid var(--rule);
+  position: relative;
+}
+.rating-fill {
+  position: absolute;
+  top: -1px; left: -1px; bottom: -1px;
+  background: var(--ink-primary);
+}
+.rating-fill.accent { background: var(--accent); }
+.rating-score {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 14px; font-weight: 500;
+  color: var(--ink-primary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.rating-score.accent { color: var(--accent); font-weight: 600; }
+
+/* ══════════════════════════════════
+   PROCESS STEPS — editorial numbered list
+══════════════════════════════════ */
+.process-list {
+  border-top: 1px solid var(--rule-strong);
+}
+.process-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 180px;
+  gap: 24px;
+  align-items: baseline;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.process-num {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+.process-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.process-name {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 17px;
+  color: var(--ink-primary);
+  line-height: 1.3;
+}
+.process-sub {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  max-width: 60ch;
+}
+.process-loc {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6;
+}
+.process-loc em {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 12px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink-muted);
+  display: block;
+}
+
+/* ══════════════════════════════════
+   CERTIFICATIONS — outlined chips
+══════════════════════════════════ */
+.cert-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.cert-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border: 1px solid var(--rule-strong);
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-primary);
+}
+.cert-badge.verified { border-color: var(--ink-primary); }
+.cert-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ink-muted);
+}
+.cert-dot.verified { background: var(--ok); }
+.cert-dot.pending { background: var(--warn); }
+
+/* ══════════════════════════════════
+   CIRCULARITY (EOL) — editorial prose blocks
+══════════════════════════════════ */
+.eol-list {
+  border-top: 1px solid var(--rule-strong);
+}
+.eol-row {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: baseline;
+}
+.eol-roman {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+}
+.eol-title {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 17px;
+  color: var(--ink-primary);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.eol-desc {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 14px;
+  color: var(--ink-secondary);
+  line-height: 1.6;
+  max-width: 65ch;
+}
+
+/* ══════════════════════════════════
+   SUPPLIER HEADER
+══════════════════════════════════ */
+.supplier-header {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 20px;
+  align-items: center;
+  padding: 24px 0;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+  margin-bottom: 36px;
+}
+.supplier-mark {
+  width: 48px; height: 48px;
+  border: 1px solid var(--ink-primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink-primary);
+}
+.supplier-name {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 20px;
+  color: var(--ink-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.supplier-meta {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+.supplier-score-pill {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-primary);
+  padding: 10px 18px;
+  border: 1px solid var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════════════════
+   KPI GRID — editorial, no cards
+══════════════════════════════════ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--rule-strong);
+}
+.kpi-cell {
+  padding: 24px 24px 24px 0;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.kpi-cell:nth-child(4n) { border-right: none; }
+.kpi-cell:not(:nth-child(4n+1)) { padding-left: 24px; }
+.kpi-label {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.kpi-val {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 30px; font-weight: 400;
+  color: var(--ink-primary);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.015em;
+  margin-bottom: 10px;
+}
+.kpi-val.accent { color: var(--accent); }
+.kpi-sub {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════
+   TIMELINE (Production cycle)
+══════════════════════════════════ */
+.tl-list {
+  border-top: 1px solid var(--rule-strong);
+}
+.tl-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 90px;
+  gap: 24px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.tl-label {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 15px;
+  color: var(--ink-primary);
+}
+.tl-track {
+  height: 4px;
+  background: var(--surface-sunk);
+  border: 1px solid var(--rule);
+  position: relative;
+}
+.tl-fill {
+  position: absolute;
+  top: -1px; left: -1px; bottom: -1px;
+  background: var(--ink-primary);
+}
+.tl-fill.accent { background: var(--accent); }
+.tl-days {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 13px; font-weight: 500;
+  color: var(--ink-secondary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.tl-total {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--rule-strong);
+  margin-bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.tl-total-label {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+.tl-total-val {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 18px;
+  color: var(--ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════════════════
+   GUIDE ITEM — editorial article block
+══════════════════════════════════ */
+.guide-list {
+  border-top: 1px solid var(--rule-strong);
+}
+.guide-item {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 24px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: baseline;
+}
+.guide-roman {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+}
+.guide-title {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 18px;
+  color: var(--ink-primary);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.guide-body {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 14.5px;
+  color: var(--ink-secondary);
+  line-height: 1.65;
+  max-width: 70ch;
+  margin-bottom: 12px;
+}
+.guide-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.guide-chip {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 5px 10px;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink-secondary);
+}
+.guide-chip.ok { border-color: var(--ok); color: var(--ok); }
+.guide-chip.warn { border-color: var(--warn); color: var(--warn); }
+.guide-chip.accent { border-color: var(--accent); color: var(--accent); }
+
+/* ══════════════════════════════════
+   COMPARE TABLE
+══════════════════════════════════ */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+}
+.compare-table th {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-muted);
+  padding: 16px 16px 16px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: bottom;
+}
+.compare-table th:not(:first-child) { padding-left: 16px; }
+.compare-table td {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 14px;
+  color: var(--ink-primary);
+  padding: 16px 16px 16px 0;
+  border-bottom: 1px solid var(--rule);
+  font-variant-numeric: tabular-nums;
+  vertical-align: top;
+}
+.compare-table td:not(:first-child) { padding-left: 16px; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table .td-strong { color: var(--ink-primary); }
+.compare-table .td-muted { color: var(--ink-muted); font-style: italic; }
+.compare-table .td-accent { color: var(--accent); }
+.compare-table .rating-stars {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+.compare-table .rating-note {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  color: var(--ink-muted);
+  font-size: 13px;
+  margin-left: 6px;
+}
+
+/* ══════════════════════════════════
+   TAG LIST (end-use)
+══════════════════════════════════ */
+.tag-list {
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+
+/* ══════════════════════════════════
+   ASK FABRICAI (end-of-passport taster)
+══════════════════════════════════ */
+.pp-ask {
+  max-width: 1040px; margin: 0 auto;
+  padding: 56px 48px;
+  border-top: 1px solid var(--rule-strong);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: center;
+}
+.pp-ask-body { min-width: 0; }
+.pp-ask-label {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 10px;
+}
+.pp-ask-label .pp-ask-chapter {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  margin-right: 10px;
+}
+.pp-ask-head {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 26px;
+  line-height: 1.25;
+  color: var(--ink-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+.pp-ask-head em {
+  color: var(--accent);
+  font-style: italic;
+}
+.pp-ask-sub {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-muted);
+  max-width: 56ch;
+}
+.pp-ask-action {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+}
+.pp-ask-btn {
+  background: transparent;
+  border: 1px solid var(--ink-primary);
+  padding: 14px 28px;
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-primary);
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.pp-ask-btn:hover { background: var(--ink-primary); color: var(--surface-card); }
+.pp-ask-hint {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+@media (max-width: 900px) {
+  .pp-ask { padding: 40px 24px; grid-template-columns: 1fr; gap: 20px; }
+  .pp-ask-action { align-items: flex-start; }
+}
+
+/* Chat drawer preview */
+.pp-ai-backdrop {
+  position: fixed; inset: 0; background: rgba(30,24,18,0.32);
+  backdrop-filter: blur(3px); z-index: 9998; opacity: 0;
+  pointer-events: none; transition: opacity 0.25s ease;
+}
+.pp-ai-backdrop.open { opacity: 1; pointer-events: auto; }
+.pp-ai-drawer {
+  position: fixed; top: 0; right: 0; height: 100vh; width: 460px;
+  max-width: 92vw; background: var(--surface-card); z-index: 9999;
+  box-shadow: -18px 0 48px rgba(30,24,18,0.18);
+  display: flex; flex-direction: column;
+  transform: translateX(100%); transition: transform 0.3s cubic-bezier(.22,.8,.28,1);
+  border-left: 1px solid var(--rule-strong);
+}
+.pp-ai-drawer.open { transform: translateX(0); }
+.pp-ai-head {
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--rule-soft);
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.pp-ai-head-text { min-width: 0; }
+.pp-ai-chapter {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.26em;
+  text-transform: uppercase; color: var(--accent);
+  font-variant-numeric: tabular-nums; margin-bottom: 6px;
+}
+.pp-ai-title {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 20px; color: var(--ink-primary); letter-spacing: -0.01em;
+}
+.pp-ai-title em { color: var(--accent); font-style: italic; }
+.pp-ai-sub {
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--ink-muted); margin-top: 6px;
+}
+.pp-ai-close {
+  background: transparent; border: 1px solid var(--rule-strong);
+  width: 32px; height: 32px; cursor: pointer; color: var(--ink-primary);
+  font-size: 16px; line-height: 1; border-radius: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.pp-ai-close:hover { background: var(--ink-primary); color: var(--surface-card); }
+.pp-ai-body {
+  flex: 1; overflow-y: auto; padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 14px;
+  background: var(--paper);
+}
+.pp-ai-msg {
+  max-width: 82%; padding: 12px 16px;
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 14px; line-height: 1.5;
+  border: 1px solid var(--rule-soft); background: var(--surface-card);
+  color: var(--ink-primary); white-space: pre-wrap;
+}
+.pp-ai-msg.user {
+  align-self: flex-end; background: var(--ink-primary); color: var(--surface-card);
+  border-color: var(--ink-primary);
+  font-family: 'Schibsted Grotesk', sans-serif; font-size: 13px;
+}
+.pp-ai-msg .pp-ai-tag {
+  display: block; font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+}
+.pp-ai-chips {
+  display: flex; flex-wrap: wrap; gap: 6px; padding: 0 24px 12px;
+}
+.pp-ai-chip {
+  background: transparent; border: 1px solid var(--rule-strong);
+  padding: 8px 12px; font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10.5px; letter-spacing: 0.12em; color: var(--ink-primary);
+  cursor: pointer; text-transform: none;
+}
+.pp-ai-chip:hover { background: var(--ink-primary); color: var(--surface-card); }
+.pp-ai-input-row {
+  display: flex; gap: 8px; padding: 14px 24px 20px;
+  border-top: 1px solid var(--rule-soft); background: var(--surface-card);
+}
+.pp-ai-input {
+  flex: 1; border: 1px solid var(--rule-strong);
+  padding: 12px 14px; font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 13px; color: var(--ink-primary);
+  background: var(--surface-card); outline: none;
+}
+.pp-ai-input:focus { border-color: var(--accent); }
+.pp-ai-send {
+  background: var(--ink-primary); border: 1px solid var(--ink-primary);
+  padding: 0 20px; font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--surface-card); cursor: pointer;
+}
+.pp-ai-send:hover { background: var(--accent); border-color: var(--accent); }
+.pp-ai-footer-note {
+  padding: 0 24px 18px; background: var(--surface-card);
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--ink-muted);
+}
+@media (max-width: 600px) { .pp-ai-drawer { width: 100vw; } }
+
+/* ══════════════════════════════════
+   FOOTER
+══════════════════════════════════ */
+.pp-footer {
+  max-width: 1040px; margin: 0 auto;
+  padding: 48px;
+  border-top: 1px solid var(--rule-strong);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: end;
+}
+.pp-footer-note {
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-muted);
+  max-width: 60ch;
+  line-height: 1.6;
+}
+.pp-footer-note + .pp-footer-note { margin-top: 4px; }
+.qr-placeholder {
+  width: 56px; height: 56px;
+  border: 1px solid var(--rule-strong);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+  padding: 6px;
+}
+.qr-cell { background: var(--ink-primary); }
+
+.pp-colophon {
+  max-width: 1040px; margin: 0 auto;
+  padding: 16px 48px 48px;
+  display: flex; justify-content: space-between;
+  font-family: 'Schibsted Grotesk', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════ */
+@media (max-width: 900px) {
+  .pp-hero, .pp-hero-meta, .pp-lt, .pp-content, .pp-footer, .pp-colophon, .pp-back-bar {
+    padding-left: 24px; padding-right: 24px;
+  }
+  .pp-tabs { padding-left: 24px; padding-right: 24px; }
+  .pp-hero-top { grid-template-columns: 48px 1fr; }
+  .pp-hero-score { grid-column: 1 / -1; align-self: start; margin-top: 16px; flex-direction: row; }
+  .pp-hero-name { font-size: 28px; }
+  .pp-meta-grid { grid-template-columns: repeat(2, 1fr); }
+  .pp-meta-cell { border-bottom: 1px solid var(--rule); }
+  .pp-meta-cell:nth-child(2n) { border-right: none; }
+  .pp-lt-grid { grid-template-columns: repeat(2, 1fr); }
+  .pp-lt-cell:nth-child(2n) { border-right: none; }
+  .data-row { grid-template-columns: 1fr; gap: 6px; }
+  .data-grid-2 { grid-template-columns: 1fr; }
+  .env-grid { grid-template-columns: repeat(2, 1fr); }
+  .env-item:nth-child(3n) { border-right: 1px solid var(--rule); }
+  .env-item:nth-child(2n) { border-right: none; }
+  .env-item:not(:nth-child(2n+1)) { padding-left: 24px; }
+  .rating-row { grid-template-columns: 140px 1fr 50px; }
+  .process-row { grid-template-columns: 32px 1fr; }
+  .process-loc { grid-column: 2; text-align: left; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .kpi-cell:nth-child(4n) { border-right: 1px solid var(--rule); }
+  .kpi-cell:nth-child(2n) { border-right: none; }
+  .kpi-cell:not(:nth-child(2n+1)) { padding-left: 24px; }
+  .tl-row { grid-template-columns: 140px 1fr 70px; }
+  .supplier-header { grid-template-columns: 40px 1fr; }
+  .supplier-score-pill { grid-column: 1 / -1; justify-self: start; }
+  .fibre-row { grid-template-columns: 140px 1fr 60px; }
+  .section-label { flex-wrap: wrap; }
+  .section-label-sub { margin-left: 0; flex-basis: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     FULL PASSPORT (landing page)
+══════════════════════════════════ -->
+<div id="page-passport" class="page active">
+
+  <!-- Sticky back bar -->
+  <div class="pp-back-bar">
+    <button class="pp-back-btn" onclick="goToPreview()">
+      <svg width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true">
+        <path d="M5 1L1 5L5 9M1 5H13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to main
+    </button>
+    <span class="pp-folio">No. FF · 001 — Passport</span>
+  </div>
+
+  <!-- Hero -->
+  <div class="pp-hero">
+    <div class="pp-hero-eyebrow">Fabric Digital Fabric Passport</div>
+
+    <div class="pp-hero-top">
+      <div class="pp-hero-mark" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="8" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M14 6V22M6 14H22M9 9L19 19M19 9L9 19" stroke="currentColor" stroke-width="0.9" opacity="0.55"/>
+        </svg>
+      </div>
+      <div class="pp-hero-info">
+        <h1 class="pp-hero-name">Organic Cotton Single Jersey Knit</h1>
+        <div class="pp-hero-id num">FAB-2025-CN-0847 · Batch LOT#24Q3-0112</div>
+        <p class="pp-hero-desc">A mid-weight combed ring-spun jersey in 70% GOTS-certified organic cotton, blended with 20% post-consumer recycled cotton and 10% Lycra® elastane. Suitable for next-to-skin apparel across seasons.</p>
+        <div class="pp-hero-tags">
+          <span class="pp-tag">GOTS Certified</span>
+          <span class="pp-tag">30% Recycled Fibre</span>
+          <span class="pp-tag">Fully Recyclable</span>
+          <span class="pp-tag pp-tag-muted">Knit · Single Jersey</span>
+        </div>
+      </div>
+      <div class="pp-hero-score">
+        <div class="pp-hero-score-ring">
+          <div class="pp-hero-score-num">82</div>
+          <div class="pp-hero-score-lbl">ESG</div>
+        </div>
+        <div class="pp-hero-score-cap">Overall Score — of 100</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meta strip -->
+  <div class="pp-hero-meta">
+    <div class="pp-meta-grid">
+      <div class="pp-meta-cell">
+        <div class="pp-meta-key">Origin</div>
+        <div class="pp-meta-val"><em>India →</em> China</div>
+      </div>
+      <div class="pp-meta-cell">
+        <div class="pp-meta-key">Supplier</div>
+        <div class="pp-meta-val">Guangdong Hengyuan</div>
+      </div>
+      <div class="pp-meta-cell">
+        <div class="pp-meta-key">Supplier Score</div>
+        <div class="pp-meta-val num">91 / 100</div>
+      </div>
+      <div class="pp-meta-cell">
+        <div class="pp-meta-key">On-Time Delivery</div>
+        <div class="pp-meta-val num">96.4%</div>
+      </div>
+      <div class="pp-meta-cell">
+        <div class="pp-meta-key">Updated</div>
+        <div class="pp-meta-val num">2025 · 11 · 15</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lead time strip -->
+  <div class="pp-lt">
+    <div class="pp-lt-title">Indicative Lead Times</div>
+    <div class="pp-lt-grid">
+      <div class="pp-lt-cell">
+        <div class="pp-lt-label">Sample development</div>
+        <div class="pp-lt-val num">7–10 days</div>
+      </div>
+      <div class="pp-lt-cell">
+        <div class="pp-lt-label">Small batch</div>
+        <div class="pp-lt-val num">25–30 days</div>
+      </div>
+      <div class="pp-lt-cell">
+        <div class="pp-lt-label">Bulk production</div>
+        <div class="pp-lt-val num">35–45 days</div>
+      </div>
+      <div class="pp-lt-cell">
+        <div class="pp-lt-label">Sea freight to EU</div>
+        <div class="pp-lt-val num">+22–28 days</div>
+      </div>
+      <div class="pp-lt-cell">
+        <div class="pp-lt-label">Rush, air freight</div>
+        <div class="pp-lt-val num">20 days min.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="pp-tabs-wrap">
+    <div class="pp-tabs">
+      <button class="pp-tab-btn active" onclick="ppTab('composition', this)">Composition</button>
+      <button class="pp-tab-btn" onclick="ppTab('environment', this)">Environment</button>
+      <button class="pp-tab-btn" onclick="ppTab('process', this)">Traceability</button>
+      <button class="pp-tab-btn" onclick="ppTab('performance', this)">Performance</button>
+      <button class="pp-tab-btn" onclick="ppTab('circularity', this)">Circularity</button>
+      <button class="pp-tab-btn" onclick="ppTab('supplier', this)">Supplier KPIs</button>
+      <button class="pp-tab-btn" onclick="ppTab('buying', this)">Buying Guide</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="pp-content">
+
+    <!-- ── Composition ── -->
+    <div id="pp-composition" class="pp-panel active">
+
+      <div class="section-label" data-chapter="§ 01">
+        <div class="section-label-text">Fibre Composition</div>
+        <div class="section-label-sub">by mass, finished fabric</div>
+      </div>
+
+      <div class="fibre-wrap">
+        <div class="fibre-row">
+          <div class="fibre-name">Organic Cotton <em>GOTS-certified, India</em></div>
+          <div class="fibre-track"><div class="fibre-fill accent" style="width:70%;"></div></div>
+          <div class="fibre-pct num">70%</div>
+        </div>
+        <div class="fibre-row">
+          <div class="fibre-name">Recycled Cotton <em>post-consumer, China</em></div>
+          <div class="fibre-track"><div class="fibre-fill" style="width:20%;"></div></div>
+          <div class="fibre-pct num">20%</div>
+        </div>
+        <div class="fibre-row">
+          <div class="fibre-name">Lycra® Elastane <em>stretch component</em></div>
+          <div class="fibre-track"><div class="fibre-fill" style="width:10%;"></div></div>
+          <div class="fibre-pct num">10%</div>
+        </div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 02">
+        <div class="section-label-text">Fabric Specifications</div>
+        <div class="section-label-sub">as produced</div>
+      </div>
+      <div class="data-grid-2">
+        <div class="data-row">
+          <div class="data-row-key">Weight</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">180 gsm</div>
+            <div class="data-row-note">Suitable for all-season wear</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Width</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">150 cm</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Construction</div>
+          <div class="data-row-body">
+            <div class="data-row-val">Plain Single Jersey</div>
+            <div class="data-row-note">Single-face knit</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Yarn Count</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">30S / 2</div>
+            <div class="data-row-note">Ring-spun combed</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Shrinkage</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">≤ 3%</div>
+            <div class="data-row-note">Pre-washed &amp; pre-shrunk</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Colour State</div>
+          <div class="data-row-body">
+            <div class="data-row-val">Greige (undyed)</div>
+            <div class="data-row-note">Available for custom dyeing</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 03">
+        <div class="section-label-text">Chemical Compliance</div>
+        <div class="section-label-sub">laboratory-verified</div>
+      </div>
+      <div class="data-table">
+        <div class="data-row">
+          <div class="data-row-key">REACH Regulation</div>
+          <div class="data-row-body">
+            <div class="data-row-val">Compliant <span class="glyph-check">✓</span></div>
+            <div class="data-row-note">No SVHC substances detected</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Hazardous Substances</div>
+          <div class="data-row-body">
+            <div class="data-row-val">Not Detected</div>
+            <div class="data-row-note">OEKO-TEX Standard 100</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Finishing Agent Residue</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">&lt; 0.5 ppm</div>
+            <div class="data-row-note">Trace softener residue</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Microplastic Release</div>
+          <div class="data-row-body">
+            <div class="data-row-val">Low Risk</div>
+            <div class="data-row-note">Cotton-dominant, biodegradable</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Environment ── -->
+    <div id="pp-environment" class="pp-panel">
+
+      <div class="section-label" data-chapter="§ 04">
+        <div class="section-label-text">Lifecycle Environmental Metrics</div>
+        <div class="section-label-sub">cradle to gate</div>
+      </div>
+
+      <div class="env-grid">
+        <div class="env-item">
+          <div class="env-roman">I.</div>
+          <div class="env-label">Carbon Footprint</div>
+          <div class="env-val-line"><span class="env-val">3.2</span><span class="env-unit">kg CO₂e / kg</span></div>
+          <div class="env-bench good">42% below industry average</div>
+        </div>
+        <div class="env-item">
+          <div class="env-roman">II.</div>
+          <div class="env-label">Water Consumption</div>
+          <div class="env-val-line"><span class="env-val">1,840</span><span class="env-unit">L / kg</span></div>
+          <div class="env-bench mid">Near industry average</div>
+        </div>
+        <div class="env-item">
+          <div class="env-roman">III.</div>
+          <div class="env-label">Energy Consumption</div>
+          <div class="env-val-line"><span class="env-val">18.5</span><span class="env-unit">MJ / kg</span></div>
+          <div class="env-bench good">28% below industry average</div>
+        </div>
+        <div class="env-item">
+          <div class="env-roman">IV.</div>
+          <div class="env-label">Acidification Potential</div>
+          <div class="env-val-line"><span class="env-val">0.04</span><span class="env-unit">kg SO₂e / kg</span></div>
+          <div class="env-bench good">Low</div>
+        </div>
+        <div class="env-item">
+          <div class="env-roman">V.</div>
+          <div class="env-label">Land Use</div>
+          <div class="env-val-line"><span class="env-val">0.8</span><span class="env-unit">m²·yr / kg</span></div>
+          <div class="env-bench good">35% lower via organic farming</div>
+        </div>
+        <div class="env-item">
+          <div class="env-roman">VI.</div>
+          <div class="env-label">Waste Generated</div>
+          <div class="env-val-line"><span class="env-val">120</span><span class="env-unit">g / kg</span></div>
+          <div class="env-bench good">Better than industry average</div>
+        </div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 05">
+        <div class="section-label-text">Carbon Emission Breakdown</div>
+        <div class="section-label-sub">by production stage</div>
+      </div>
+      <div class="rating-list">
+        <div class="rating-row">
+          <div class="rating-name">Raw Material Cultivation</div>
+          <div class="rating-track"><div class="rating-fill accent" style="width:38%;"></div></div>
+          <div class="rating-score accent num">38%</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Spinning &amp; Processing</div>
+          <div class="rating-track"><div class="rating-fill" style="width:22%;"></div></div>
+          <div class="rating-score num">22%</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Knitting</div>
+          <div class="rating-track"><div class="rating-fill" style="width:18%;"></div></div>
+          <div class="rating-score num">18%</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Dyeing &amp; Finishing</div>
+          <div class="rating-track"><div class="rating-fill" style="width:15%;"></div></div>
+          <div class="rating-score num">15%</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Logistics &amp; Transport</div>
+          <div class="rating-track"><div class="rating-fill" style="width:7%;"></div></div>
+          <div class="rating-score num">7%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Traceability ── -->
+    <div id="pp-process" class="pp-panel">
+
+      <div class="section-label" data-chapter="§ 06">
+        <div class="section-label-text">Upstream Supply Chain</div>
+        <div class="section-label-sub">raw material to finished fabric</div>
+      </div>
+
+      <div class="process-list">
+        <div class="process-row">
+          <div class="process-num">I.</div>
+          <div class="process-body">
+            <div class="process-name">Organic Cotton Cultivation</div>
+            <div class="process-sub">Gujarat State, India · GOTS-certified organic farm</div>
+          </div>
+          <div class="process-loc">India<em>June 2024</em></div>
+        </div>
+        <div class="process-row">
+          <div class="process-num">II.</div>
+          <div class="process-body">
+            <div class="process-name">Ginning &amp; Primary Processing</div>
+            <div class="process-sub">Fibre length 28 mm · Micronaire 4.2 · Trash content under 1%</div>
+          </div>
+          <div class="process-loc">India<em>July 2024</em></div>
+        </div>
+        <div class="process-row">
+          <div class="process-num">III.</div>
+          <div class="process-body">
+            <div class="process-name">Blending &amp; Opening</div>
+            <div class="process-sub">20% recycled cotton blended in — sourced from post-consumer garments in China</div>
+          </div>
+          <div class="process-loc">China<em>August 2024</em></div>
+        </div>
+        <div class="process-row">
+          <div class="process-num">IV.</div>
+          <div class="process-body">
+            <div class="process-name">Combed Ring Spinning</div>
+            <div class="process-sub">Ring-spun process · Count 30S/2 · Twist 760 T/m</div>
+          </div>
+          <div class="process-loc">Jiangsu, China<em>September 2024</em></div>
+        </div>
+        <div class="process-row">
+          <div class="process-num">V.</div>
+          <div class="process-body">
+            <div class="process-name">Circular Knitting</div>
+            <div class="process-sub">28G circular knitting machine · Greige weight 185 gsm · Width 160 cm</div>
+          </div>
+          <div class="process-loc">Guangdong, China<em>October 2024</em></div>
+        </div>
+        <div class="process-row">
+          <div class="process-num">VI.</div>
+          <div class="process-body">
+            <div class="process-name">Pre-shrinking &amp; Heat Setting</div>
+            <div class="process-sub">Ammonia-free treatment · Low-temperature setting · Wastewater recovery rate 92%</div>
+          </div>
+          <div class="process-loc">Guangdong, China<em>November 2024</em></div>
+        </div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 07">
+        <div class="section-label-text">Certifications &amp; Compliance</div>
+        <div class="section-label-sub">documents on file</div>
+      </div>
+      <div class="cert-grid">
+        <div class="cert-badge verified"><div class="cert-dot verified"></div>GOTS 4.0</div>
+        <div class="cert-badge verified"><div class="cert-dot verified"></div>OEKO-TEX Standard 100</div>
+        <div class="cert-badge verified"><div class="cert-dot verified"></div>BCI Better Cotton</div>
+        <div class="cert-badge verified"><div class="cert-dot verified"></div>Recycled Claim Standard</div>
+        <div class="cert-badge"><div class="cert-dot pending"></div>GRS — Under Review</div>
+      </div>
+    </div>
+
+    <!-- ── Performance ── -->
+    <div id="pp-performance" class="pp-panel">
+
+      <div class="section-label" data-chapter="§ 08">
+        <div class="section-label-text">Physical Performance</div>
+        <div class="section-label-sub">laboratory test results</div>
+      </div>
+
+      <div class="data-grid-2">
+        <div class="data-row">
+          <div class="data-row-key">Tensile Strength · Warp</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">320 N</div>
+            <div class="data-row-note">ISO 13934-1</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Tensile Strength · Weft</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">280 N</div>
+            <div class="data-row-note">ISO 13934-1</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Tear Strength</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">45 N</div>
+            <div class="data-row-note">ISO 13937-2</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Pilling Resistance</div>
+          <div class="data-row-body">
+            <div class="data-row-val">Grade 4</div>
+            <div class="data-row-note">ISO 12945-2 — excellent</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Abrasion Resistance</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">≥ 20,000 cycles</div>
+            <div class="data-row-note">Martindale test</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Air Permeability</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">180 mm/s</div>
+            <div class="data-row-note">ISO 9237</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 09">
+        <div class="section-label-text">Colour Fastness</div>
+        <div class="section-label-sub">grade 1–5 scale</div>
+      </div>
+      <div class="rating-list">
+        <div class="rating-row">
+          <div class="rating-name">Washing Fastness</div>
+          <div class="rating-track"><div class="rating-fill" style="width:90%;"></div></div>
+          <div class="rating-score num">4–5</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Rubbing Fastness · Dry</div>
+          <div class="rating-track"><div class="rating-fill" style="width:80%;"></div></div>
+          <div class="rating-score num">4</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Rubbing Fastness · Wet</div>
+          <div class="rating-track"><div class="rating-fill accent" style="width:60%;"></div></div>
+          <div class="rating-score accent num">3</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Light Fastness</div>
+          <div class="rating-track"><div class="rating-fill" style="width:80%;"></div></div>
+          <div class="rating-score num">4</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Perspiration Fastness</div>
+          <div class="rating-track"><div class="rating-fill" style="width:90%;"></div></div>
+          <div class="rating-score num">4–5</div>
+        </div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 10">
+        <div class="section-label-text">Recommended End-Use</div>
+        <div class="section-label-sub">application suitability</div>
+      </div>
+      <div class="tag-list">
+        <span class="pp-tag">T-shirts / Tops</span>
+        <span class="pp-tag">Underwear · Sleepwear</span>
+        <span class="pp-tag">Athleisure</span>
+        <span class="pp-tag">Childrenswear</span>
+        <span class="pp-tag">Yoga Wear</span>
+        <span class="pp-tag pp-tag-muted">Not recommended · Heavy-duty workwear</span>
+      </div>
+    </div>
+
+    <!-- ── Circularity ── -->
+    <div id="pp-circularity" class="pp-panel">
+
+      <div class="section-label" data-chapter="§ 11">
+        <div class="section-label-text">End-of-Life Assessment</div>
+        <div class="section-label-sub">recyclability pathways</div>
+      </div>
+
+      <div class="eol-list">
+        <div class="eol-row">
+          <div class="eol-roman">I.</div>
+          <div>
+            <div class="eol-title">Fibre-to-Fibre Recycling <em class="caslon-italic" style="color:var(--accent); font-size:13px;">— preferred pathway</em></div>
+            <div class="eol-desc">Lycra content below 15% allows direct mechanical recycling. Estimated regeneration rate 60–75%. Compliant with EU textile recycling technical requirements.</div>
+          </div>
+        </div>
+        <div class="eol-row">
+          <div class="eol-roman">II.</div>
+          <div>
+            <div class="eol-title">Chemical Recycling</div>
+            <div class="eol-desc">Low blend content allows cotton fibre separation via hydrolysis. Elastane threads must be removed prior to processing.</div>
+          </div>
+        </div>
+        <div class="eol-row">
+          <div class="eol-roman">III.</div>
+          <div>
+            <div class="eol-title">Biodegradation</div>
+            <div class="eol-desc">Cotton fibre component is biodegradable under industrial composting conditions. Lycra portion is non-biodegradable; separation recommended before disposal.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 12">
+        <div class="section-label-text">Circularity Scores</div>
+        <div class="section-label-sub">scored 0–100</div>
+      </div>
+      <div class="rating-list">
+        <div class="rating-row">
+          <div class="rating-name">Recyclability</div>
+          <div class="rating-track"><div class="rating-fill accent" style="width:85%;"></div></div>
+          <div class="rating-score accent num">85</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Recycled Content</div>
+          <div class="rating-track"><div class="rating-fill" style="width:70%;"></div></div>
+          <div class="rating-score num">70</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Material Purity</div>
+          <div class="rating-track"><div class="rating-fill" style="width:80%;"></div></div>
+          <div class="rating-score num">80</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Design for Disassembly</div>
+          <div class="rating-track"><div class="rating-fill" style="width:65%;"></div></div>
+          <div class="rating-score num">65</div>
+        </div>
+        <div class="rating-row">
+          <div class="rating-name">Improvement Potential</div>
+          <div class="rating-track"><div class="rating-fill" style="width:90%;"></div></div>
+          <div class="rating-score num">High</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Supplier KPIs ── -->
+    <div id="pp-supplier" class="pp-panel">
+
+      <div class="section-label" data-chapter="§ 13">
+        <div class="section-label-text">Primary Supplier</div>
+        <div class="section-label-sub">partnership record</div>
+      </div>
+
+      <div class="supplier-header">
+        <div class="supplier-mark">F.</div>
+        <div>
+          <div class="supplier-name">Guangdong Hengyuan Textile Technology Co., Ltd.</div>
+          <div class="supplier-meta">Primary supplier · Foshan, Guangdong · Six-year partnership · Last audit 18 October 2024 — <span style="color:var(--ok); font-style:normal;">Passed</span></div>
+        </div>
+        <div class="supplier-score-pill num">91 / 100 · Overall</div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 14">
+        <div class="section-label-text">Core KPIs</div>
+        <div class="section-label-sub">past twelve months</div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-cell">
+          <div class="kpi-label">On-Time Delivery</div>
+          <div class="kpi-val accent num">96.4%</div>
+          <div class="kpi-sub">Against 90% benchmark</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">Incoming Quality Pass</div>
+          <div class="kpi-val num">98.7%</div>
+          <div class="kpi-sub">AQL 2.5 standard</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">Colour Consistency</div>
+          <div class="kpi-val num">97.2%</div>
+          <div class="kpi-sub">ΔE ≤ 1.0 (CMC 2:1) — excellent</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">Weight Tolerance Pass</div>
+          <div class="kpi-val num">99.1%</div>
+          <div class="kpi-sub">±3% tolerance — outstanding</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">Complaint Response</div>
+          <div class="kpi-val num">24 h</div>
+          <div class="kpi-sub">First response — fast</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">Return / Exchange Rate</div>
+          <div class="kpi-val num">1.3%</div>
+          <div class="kpi-sub">Annual batch stats — below 2% target</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">Shrinkage Consistency</div>
+          <div class="kpi-val num">≤ 2.8%</div>
+          <div class="kpi-sub">Inter-batch variance &lt; 0.5% — stable</div>
+        </div>
+        <div class="kpi-cell">
+          <div class="kpi-label">Document Compliance</div>
+          <div class="kpi-val num">100%</div>
+          <div class="kpi-sub">Test report per batch — fully compliant</div>
+        </div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 15">
+        <div class="section-label-text">Production Cycle</div>
+        <div class="section-label-sub">working days breakdown</div>
+      </div>
+      <div class="tl-list">
+        <div class="tl-row">
+          <div class="tl-label">Order Confirmation</div>
+          <div class="tl-track"><div class="tl-fill" style="width:5%;"></div></div>
+          <div class="tl-days num">1–2 d</div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-label">Raw Material Sourcing</div>
+          <div class="tl-track"><div class="tl-fill" style="width:18%;"></div></div>
+          <div class="tl-days num">7–8 d</div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-label">Spinning / Yarn Prep</div>
+          <div class="tl-track"><div class="tl-fill accent" style="width:20%;"></div></div>
+          <div class="tl-days num">8–10 d</div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-label">Circular Knitting</div>
+          <div class="tl-track"><div class="tl-fill" style="width:15%;"></div></div>
+          <div class="tl-days num">6–7 d</div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-label">Dyeing &amp; Finishing</div>
+          <div class="tl-track"><div class="tl-fill" style="width:13%;"></div></div>
+          <div class="tl-days num">5–6 d</div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-label">QC Inspection</div>
+          <div class="tl-track"><div class="tl-fill" style="width:8%;"></div></div>
+          <div class="tl-days num">3 d</div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-label">Packing &amp; Shipment</div>
+          <div class="tl-track"><div class="tl-fill" style="width:5%;"></div></div>
+          <div class="tl-days num">2 d</div>
+        </div>
+        <div class="tl-total">
+          <div class="tl-total-label">Total factory lead time, bulk (excl. sea freight)</div>
+          <div class="tl-total-val num">32–38 working days</div>
+        </div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 16">
+        <div class="section-label-text">Supply Chain Risk</div>
+        <div class="section-label-sub">assessment</div>
+      </div>
+      <div class="data-table">
+        <div class="data-row">
+          <div class="data-row-key">Supplier Financial Health</div>
+          <div class="data-row-body">
+            <div class="data-row-val">Low Risk</div>
+            <div class="data-row-note">Annual revenue above CNY 80M · No overdue records</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Spare Production Capacity</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">30%</div>
+            <div class="data-row-note">Available to absorb rush order top-ups</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Raw Material Concentration</div>
+          <div class="data-row-body">
+            <div class="data-row-val accent">Medium Risk</div>
+            <div class="data-row-note">80% organic cotton from single farm; backup planned</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Backup Suppliers on Standby</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">2 suppliers</div>
+            <div class="data-row-note">Passed initial audit · Switch within 14 days</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Buying Guide ── -->
+    <div id="pp-buying" class="pp-panel">
+
+      <div class="section-label" data-chapter="§ 17">
+        <div class="section-label-text">Purchasing Parameters</div>
+        <div class="section-label-sub">at a glance</div>
+      </div>
+
+      <div class="data-grid-2">
+        <div class="data-row">
+          <div class="data-row-key">Minimum Order (MOQ)</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">300 kg / colour</div>
+            <div class="data-row-note">Custom colours 500 kg; stock colours no minimum</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Sample Fee</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">USD 80 / style</div>
+            <div class="data-row-note">Fully refundable against bulk; lab dip 3–5 days</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Meterage Equivalent</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">≈ 1,650 m</div>
+            <div class="data-row-note">At 180 gsm · 150 cm width</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Price Range (FOB)</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">USD 4.2 – 5.8 / kg</div>
+            <div class="data-row-note">Varies by colour and finishing process</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Payment Terms</div>
+          <div class="data-row-body">
+            <div class="data-row-val">30% deposit · 70% B/L</div>
+            <div class="data-row-note">Long-term clients may apply for Net 30</div>
+          </div>
+        </div>
+        <div class="data-row">
+          <div class="data-row-key">Stock Colours Available</div>
+          <div class="data-row-body">
+            <div class="data-row-val num">12 colours</div>
+            <div class="data-row-note">Shipping within 5 days · 50 kg minimum per colour</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 18">
+        <div class="section-label-text">Factors to Evaluate</div>
+        <div class="section-label-sub">critical considerations</div>
+      </div>
+
+      <div class="guide-list">
+        <div class="guide-item">
+          <div class="guide-roman">I.</div>
+          <div>
+            <div class="guide-title">Batch Consistency — Colour &amp; Weight Stability</div>
+            <p class="guide-body">Cross-batch colour variance is controlled at ΔE ≤ 1.0 (CMC 2:1) and weight deviation within ±3%. This fabric has passed three consecutive batch stability validations. Request a physical standard swatch with GTL lab matching report before placing the first order.</p>
+            <div class="guide-chips">
+              <span class="guide-chip ok">97.2% Batch Consistency</span>
+            </div>
+          </div>
+        </div>
+        <div class="guide-item">
+          <div class="guide-roman">II.</div>
+          <div>
+            <div class="guide-title">Shrinkage &amp; Post-Wash Dimensional Stability</div>
+            <p class="guide-body">Pre-washed and pre-shrunk to ≤ 3% in the warp direction. Pattern grading should include standard allowances. Recommended: machine wash under 40°C, low-heat tumble dry or air dry.</p>
+            <div class="guide-chips">
+              <span class="guide-chip ok">Pre-Shrinking Completed</span>
+              <span class="guide-chip warn">High-Heat Dry May Reach 5%</span>
+            </div>
+          </div>
+        </div>
+        <div class="guide-item">
+          <div class="guide-roman">III.</div>
+          <div>
+            <div class="guide-title">Dyeing Method &amp; Colour Fastness</div>
+            <p class="guide-body">Supplied as greige; can be reactive-dyed or low liquor-ratio dyed. For deep shades (black, navy, burgundy), confirm wet rubbing fastness meets Grade 3+. Stock colours come with full fastness documentation.</p>
+            <div class="guide-chips">
+              <span class="guide-chip accent">Custom Deep Shades Need Lab-Dip Time</span>
+            </div>
+          </div>
+        </div>
+        <div class="guide-item">
+          <div class="guide-roman">IV.</div>
+          <div>
+            <div class="guide-title">Certification Document Completeness</div>
+            <p class="guide-body">Full Transaction Certificate (TC) and third-party test reports (SGS, Intertek) are included, ready for brand-level DFP filing. Significantly reduces compliance audit burden for EU, UK, and US markets.</p>
+            <div class="guide-chips">
+              <span class="guide-chip ok">100% Document Completeness</span>
+              <span class="guide-chip ok">Aligned with EU ESPR</span>
+            </div>
+          </div>
+        </div>
+        <div class="guide-item">
+          <div class="guide-roman">V.</div>
+          <div>
+            <div class="guide-title">Stretch &amp; Recovery — Lycra Considerations</div>
+            <p class="guide-body">10% Lycra® provides 30–35% four-way stretch, suited to fitted silhouettes. Adjustable to 15–18% for yoga and compression, or to 5% for relaxed fit and improved recyclability (requires re-sampling).</p>
+            <div class="guide-chips">
+              <span class="guide-chip accent">Elastane Content Adjustable</span>
+            </div>
+          </div>
+        </div>
+        <div class="guide-item">
+          <div class="guide-roman">VI.</div>
+          <div>
+            <div class="guide-title">Lead Time Planning &amp; Supply Chain Buffer</div>
+            <p class="guide-body">Build a 1–2 week buffer into product launch timelines. During peak season (September–November), confirm orders at least 60 days in advance. Rush orders by air freight: approximately USD 1.8–2.5 / kg additional cost.</p>
+            <div class="guide-chips">
+              <span class="guide-chip warn">Peak Season · Order 60 Days Ahead</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label" data-chapter="§ 19">
+        <div class="section-label-text">Application Suitability</div>
+        <div class="section-label-sub">by category</div>
+      </div>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Recommended Weight</th>
+            <th>Stretch</th>
+            <th>Key Certifications</th>
+            <th>Suitability</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>T-shirts · Casual Tops</td>
+            <td class="num">180–200 gsm <span class="glyph-check">✓</span></td>
+            <td>Low</td>
+            <td>OEKO-TEX</td>
+            <td><span class="rating-stars">●●●●●</span><span class="rating-note">Ideal</span></td>
+          </tr>
+          <tr>
+            <td>Underwear · Sleepwear</td>
+            <td class="num">160–180 gsm <span class="glyph-check">✓</span></td>
+            <td>Medium</td>
+            <td>GOTS + Low formaldehyde</td>
+            <td><span class="rating-stars">●●●●●</span><span class="rating-note">Ideal</span></td>
+          </tr>
+          <tr>
+            <td>Childrenswear</td>
+            <td class="num">160–190 gsm <span class="glyph-check">✓</span></td>
+            <td>Low</td>
+            <td>GOTS + OEKO-TEX</td>
+            <td><span class="rating-stars">●●●●●</span><span class="rating-note">Ideal</span></td>
+          </tr>
+          <tr>
+            <td>Yoga · Activewear</td>
+            <td class="num td-accent">Needs 200–240 gsm</td>
+            <td>High</td>
+            <td>bluesign / GRS</td>
+            <td><span class="rating-stars">●●●<span style="color:var(--rule-strong);">●●</span></span><span class="rating-note">Weight adjustment needed</span></td>
+          </tr>
+          <tr>
+            <td>Heavy-duty Workwear</td>
+            <td class="num td-accent">Needs 250+ gsm</td>
+            <td>Low</td>
+            <td>ISO 11612</td>
+            <td><span class="rating-stars">●●<span style="color:var(--rule-strong);">●●●</span></span><span class="rating-note">Not recommended</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /pp-content -->
+
+  <!-- Ask FabricAI — end-of-passport taster -->
+  <section class="pp-ask" aria-label="Ask FabricAI">
+    <div class="pp-ask-body">
+      <div class="pp-ask-label"><span class="pp-ask-chapter">§ 18</span>A conversation, should you need one</div>
+      <div class="pp-ask-head">Ask <em>FabricAI</em> about this passport.</div>
+      <p class="pp-ask-sub">Enquire about composition, sourcing, performance trade-offs, or suitable end-uses. Powered by FabricFlow's research assistant &mdash; currently a taster.</p>
+    </div>
+    <div class="pp-ask-action">
+      <button class="pp-ask-btn" onclick="openFabricAI()" type="button">Open FabricAI</button>
+      <div class="pp-ask-hint">Preview &middot; Taster</div>
+    </div>
+  </section>
+
+  <!-- FabricAI preview drawer -->
+  <div class="pp-ai-backdrop" id="aiBackdrop" onclick="closeFabricAI()"></div>
+  <aside class="pp-ai-drawer" id="aiDrawer" role="dialog" aria-modal="true" aria-label="FabricAI assistant preview">
+    <div class="pp-ai-head">
+      <div class="pp-ai-head-text">
+        <div class="pp-ai-chapter">§ 18 &middot; FabricAI Taster</div>
+        <div class="pp-ai-title">Ask <em>FabricAI</em></div>
+        <div class="pp-ai-sub">Preview &middot; Canned responses</div>
+      </div>
+      <button class="pp-ai-close" onclick="closeFabricAI()" aria-label="Close">&times;</button>
+    </div>
+    <div class="pp-ai-body" id="aiBody">
+      <div class="pp-ai-msg">
+        <span class="pp-ai-tag">FabricAI</span>Good afternoon. I am a taster of FabricFlow's research assistant, grounded in the passport data you are viewing. Ask me about composition, structure, sourcing, or suitable end-uses.
+      </div>
+    </div>
+    <div class="pp-ai-chips" id="aiChips">
+      <button class="pp-ai-chip" onclick="aiAsk('What is the fabric composition?')">Composition</button>
+      <button class="pp-ai-chip" onclick="aiAsk('Explain the weave structure.')">Structure</button>
+      <button class="pp-ai-chip" onclick="aiAsk('Where is this fabric sourced?')">Sourcing</button>
+      <button class="pp-ai-chip" onclick="aiAsk('What end-uses suit this fabric?')">End-uses</button>
+      <button class="pp-ai-chip" onclick="aiAsk('Any care considerations?')">Care</button>
+    </div>
+    <div class="pp-ai-input-row">
+      <input class="pp-ai-input" id="aiInput" type="text" placeholder="Ask a question&hellip;" onkeydown="if(event.key==='Enter'){aiAsk(this.value); this.value='';}">
+      <button class="pp-ai-send" onclick="var i=document.getElementById('aiInput'); aiAsk(i.value); i.value='';" type="button">Send</button>
+    </div>
+    <div class="pp-ai-footer-note">Taster &middot; Not production &middot; Awaiting Haochen's FabricAI backend</div>
+  </aside>
+
+  <!-- Footer -->
+  <div class="pp-footer">
+    <div>
+      <div class="pp-footer-note">Data updated 2025 · 11 · 15. Downstream linkage reserved. Aligned with ESPR Delegated Act, anticipated 2027.</div>
+      <div class="pp-footer-note">Fabric DFP linkable to garment DFP for full supply chain traceability.</div>
+    </div>
+    <div class="qr-placeholder" aria-label="QR placeholder">
+      <div class="qr-cell"></div><div></div><div class="qr-cell"></div>
+      <div></div><div class="qr-cell"></div><div></div>
+      <div class="qr-cell"></div><div></div><div class="qr-cell"></div>
+    </div>
+  </div>
+
+  <!-- Colophon -->
+  <div class="pp-colophon">
+    <span>FabricFlow · London 2026</span>
+    <span>No. FF · 001 — Passport</span>
+  </div>
+
+</div><!-- /page-passport -->
+
+<script>
+function goToPreview() {
+  // Return to main demo page
+  window.location.href = '/';
+}
+
+function openFabricAI() {
+  document.getElementById('aiBackdrop').classList.add('open');
+  document.getElementById('aiDrawer').classList.add('open');
+  setTimeout(function(){ var i=document.getElementById('aiInput'); if(i) i.focus(); }, 320);
+}
+function closeFabricAI() {
+  document.getElementById('aiBackdrop').classList.remove('open');
+  document.getElementById('aiDrawer').classList.remove('open');
+}
+const AI_CANNED = [
+  { keys: ['composition','made','material','fiber','fibre','yarn','cotton','linen','wool'],
+    a: 'According to the passport, the fabric is a blended weave of 62% GOTS-certified organic cotton with 38% recycled linen, spun to Nm 40/2 at Hengyuan Mill (Guangdong).' },
+  { keys: ['structure','weave','knit','construction','pattern','thread','gauge','twill','plain'],
+    a: 'This is a plain-weave construction with a balanced warp and weft count of 78×64 ends per inch. Stage 1 confidence 96.2% · Stage 2 sub-class "Plain_Weave" at 91.4%.' },
+  { keys: ['sourc','supplier','origin','mill','where','made in','country','china','guangdong'],
+    a: 'Raw yarn spun in Shandong (FSC-traceable cotton farm coop, batch no. SC-2025-08), woven at Guangdong Hengyuan Textile Technology Co., Ltd. Finishing routed through Haining.' },
+  { keys: ['use','end-use','end use','application','garment','apparel','suitable','good for'],
+    a: 'Ideal end-uses: tailored trousers, unstructured blazers, and light outerwear shells. The 168 gsm weight and balanced hand make it less suited to drape-heavy blouses or stretch knits.' },
+  { keys: ['care','wash','laundry','shrink','iron','maintenance','clean'],
+    a: 'Machine wash cold on a gentle cycle; reshape whilst damp; iron warm from the reverse. Expect 2–3% relaxation shrinkage on first launder. Avoid tumble drying to preserve hand.' },
+  { keys: ['sustain','environ','carbon','recycle','circular','gots','esg','impact'],
+    a: 'Passport records 4.8 kg CO₂e per metre (cradle-to-gate), GOTS & OEKO-TEX STANDARD 100 certified. Fibre recycling pathway is open-loop; suited to mono-material garment linking.' },
+  { keys: ['passport','dfp','digital fabric passport','standard','regulation','espr'],
+    a: 'This is a Digital Fabric Passport, aligned with the anticipated EU ESPR Delegated Act (2027) for textiles. It is linkable upstream to fibre batches and downstream to garment DFPs.' },
+];
+function aiReply(q) {
+  const ql = (q || '').toLowerCase().trim();
+  if (!ql) return 'Please type a question. Try "composition", "structure", "sourcing", or use a chip above.';
+  for (const entry of AI_CANNED) {
+    if (entry.keys.some(k => ql.includes(k))) return entry.a;
+  }
+  return 'I cannot answer that precisely in this taster build. In production, FabricAI would reason over the full passport record — composition, construction, provenance, and environmental data — and cite the relevant passport section.';
+}
+function aiAsk(q) {
+  q = (q || '').trim();
+  if (!q) return;
+  const body = document.getElementById('aiBody');
+  const u = document.createElement('div');
+  u.className = 'pp-ai-msg user';
+  u.textContent = q;
+  body.appendChild(u);
+  body.scrollTop = body.scrollHeight;
+  const typing = document.createElement('div');
+  typing.className = 'pp-ai-msg';
+  typing.innerHTML = '<span class="pp-ai-tag">FabricAI</span><em style="color:var(--ink-muted)">thinking&hellip;</em>';
+  body.appendChild(typing);
+  body.scrollTop = body.scrollHeight;
+  setTimeout(function(){
+    const a = aiReply(q);
+    typing.innerHTML = '<span class="pp-ai-tag">FabricAI</span>' + a;
+    body.scrollTop = body.scrollHeight;
+  }, 620);
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeFabricAI(); });
+
+function ppTab(id, btn) {
+  document.querySelectorAll('.pp-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.pp-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pp-' + id).classList.add('active');
+  btn.classList.add('active');
+  // Scroll to top of content area when changing tabs
+  const contentTop = document.querySelector('.pp-tabs-wrap');
+  if (contentTop) {
+    window.scrollTo({ top: contentTop.offsetTop - 4, behavior: 'smooth' });
+  }
+}
+</script>
+</body>
+</html>

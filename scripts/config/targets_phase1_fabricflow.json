@@ -1,0 +1,50 @@
+{
+  "version": "phase1_2026_03_03",
+  "source": "swatchon",
+  "class_plan": [
+    {
+      "key": "Tricot",
+      "l1": "KNIT",
+      "dataset_class": "Tricot",
+      "level": "L2",
+      "phase": "Phase 2",
+      "target": 300,
+      "allow_color_variants": true,
+      "swatchon": {
+        "category_ids": [219],
+        "expected_unique_links": 79
+      }
+    },
+    {
+      "key": "Poplin",
+      "l1": "WOVEN",
+      "dataset_class": "Ribbed_Poplin",
+      "level": "L2",
+      "phase": "Phase 2",
+      "target": 300,
+      "allow_color_variants": true,
+      "swatchon": {
+        "category_ids": [168],
+        "expected_unique_links": 254
+      }
+    },
+    {
+      "key": "Gauze",
+      "l1": "WOVEN",
+      "dataset_class": "Leno_Gauze",
+      "level": "L2",
+      "phase": "Phase 3",
+      "target": 200,
+      "allow_color_variants": true,
+      "swatchon": {
+        "category_ids": [170],
+        "expected_unique_links": 203
+      }
+    }
+  ],
+  "rules": {
+    "dedup_algorithm": "dhash64",
+    "near_duplicate_hamming_threshold": 5,
+    "cross_class_dedup": false
+  }
+}

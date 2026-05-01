@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import sys
 import json
@@ -6,6 +8,7 @@ import random
 import argparse
 import subprocess
 import re
+import glob
 from typing import List, Dict, Set
 from urllib.parse import urlsplit
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -118,6 +121,15 @@ CATEGORIES: Dict[str, Dict[str, str]] = {
         "categoryIds": "191",
         "url": "https://swatchon.com/wholesale-fabric?categoryIds=191&sort=&from=/wholesale-fabric",
     },
+    # Locked from SwatchOn filter API: Poplin=168, Gauze=170 (retrieved on 2026-03-03)
+    "Poplin": {
+        "categoryIds": "168",
+        "url": "https://swatchon.com/wholesale-fabric?categoryIds=168&sort=&from=/wholesale-fabric",
+    },
+    "Gauze": {
+        "categoryIds": "170",
+        "url": "https://swatchon.com/wholesale-fabric?categoryIds=170&sort=&from=/wholesale-fabric",
+    },
 }
 
 DISPLAY_NAME = {
@@ -130,6 +142,8 @@ DISPLAY_NAME = {
     "Double_Weave": "Double Weave",
     "Eyelet": "Eyelet",
     "Ripstop": "Ripstop",
+    "Poplin": "Poplin",
+    "Gauze": "Gauze",
 }
 
 
@@ -316,8 +330,10 @@ def load_links_from_latest(links_root: str, category_name: str, limit: int = 150
     return uniq[:limit]
 
 
-def run_detail_scrape(url: str, out_json: str) -> int:
+def run_detail_scrape(url: str, out_json: str, all_products: bool = False) -> int:
     cmd = [sys.executable, os.path.join("scripts", "swatchon_scrape_detail.py"), url, "--out", out_json]
+    if all_products:
+        cmd.append("--all-products")
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0:
         # Print a compact error snippet for debugging
@@ -333,14 +349,30 @@ def run_detail_scrape(url: str, out_json: str) -> int:
 
 # Same retry wrapper as knit script
 
-def process_link(link: str, out_json: str, sleep_sec: float, max_retries: int, jitter: float):
+def has_existing_outputs(out_json: str, all_products: bool) -> bool:
+    if os.path.exists(out_json):
+        return True
+    if not all_products:
+        return False
+    base = out_json[:-5] if out_json.lower().endswith(".json") else out_json
+    return bool(glob.glob(f"{base}__v*.json"))
+
+
+def process_link(
+    link: str,
+    out_json: str,
+    sleep_sec: float,
+    max_retries: int,
+    jitter: float,
+    all_products: bool = False,
+):
     """Run detail scrape with retries and jitter. Returns a tuple (status, name, out_json)."""
     name = os.path.splitext(os.path.basename(out_json))[0]
-    if os.path.exists(out_json):
+    if has_existing_outputs(out_json, all_products):
         return ("skip", name, out_json)
     attempt = 0
     while attempt <= max_retries:
-        rc = run_detail_scrape(link, out_json)
+        rc = run_detail_scrape(link, out_json, all_products=all_products)
         if rc == 0:
             return ("ok", name, out_json)
         # backoff + jitter
@@ -348,6 +380,29 @@ def process_link(link: str, out_json: str, sleep_sec: float, max_retries: int, j
         time.sleep(delay)
         attempt += 1
     return ("fail", name, out_json)
+
+
+def parse_only_categories(only_arg: str | None) -> Set[str]:
+    if not only_arg:
+        return set()
+    return {item.strip().lower() for item in only_arg.split(",") if item.strip()}
+
+
+def parse_per_category_limit(limit_arg: str | None) -> Dict[str, int]:
+    if not limit_arg:
+        return {}
+    result: Dict[str, int] = {}
+    pairs = [part.strip() for part in limit_arg.split(",") if part.strip()]
+    for pair in pairs:
+        if "=" not in pair:
+            continue
+        name, value = pair.split("=", 1)
+        name = name.strip().lower()
+        try:
+            result[name] = int(value.strip())
+        except ValueError:
+            continue
+    return result
 
 
 def main():
@@ -359,7 +414,12 @@ def main():
     parser.add_argument("--concurrency", type=int, default=3, help="Parallel detail workers (default 3)")
     parser.add_argument("--max-retries", type=int, default=2, help="Max retries per item on failure (default 2)")
     parser.add_argument("--jitter", type=float, default=0.5, help="Random jitter seconds added to backoff")
+    parser.add_argument("--only", type=str, default="", help="Run only selected categories, comma-separated (example: Poplin,Gauze)")
+    parser.add_argument("--per-category-limit", type=str, default="", help="Per category limits, e.g. Poplin=300,Gauze=200")
+    parser.add_argument("--all-products", action="store_true", help="Capture all product-card variants for each detail URL")
     args = parser.parse_args()
+    selected_only = parse_only_categories(args.only)
+    per_category_limit = parse_per_category_limit(args.per_category_limit)
 
     os.makedirs(args.base_out, exist_ok=True)
 
@@ -375,6 +435,8 @@ def main():
         "Pile_Weave": 150,       # Excellent: 95.7% - maintain current
         "Ripstop": 150,          # Good: 87.0% - maintain current
         "Twill_Weave": 150,      # Good: 87.0% - maintain current
+        "Poplin": 300,           # FabricFlow phase target
+        "Gauze": 200,            # FabricFlow phase target
     }
 
     # Order matters; iterate by priority (P0 first)
@@ -388,16 +450,35 @@ def main():
         "Pile_Weave",      # Excellent
         "Ripstop",         # Good
         "Twill_Weave",     # Good
+        "Poplin",          # FabricFlow phase target
+        "Gauze",           # FabricFlow phase target
     ]
 
+    run_keys = []
     for key in category_keys:
+        disp = DISPLAY_NAME[key]
+        if not selected_only or key.lower() in selected_only or disp.lower() in selected_only:
+            run_keys.append(key)
+
+    if selected_only and not run_keys:
+        all_names = [f"{k}({DISPLAY_NAME[k]})" for k in category_keys]
+        print(f"[ERROR] No matched categories for --only={args.only}")
+        print(f"[INFO] Available: {', '.join(all_names)}")
+        return 2
+
+    for key in run_keys:
         cfg = CATEGORIES[key]
         disp = DISPLAY_NAME[key]
         out_dir = os.path.join(args.base_out, disp)
         os.makedirs(out_dir, exist_ok=True)
 
         # Use adaptive limit or override
-        category_limit = args.limit if args.limit is not None else CATEGORY_LIMITS.get(key, 150)
+        if args.limit is not None:
+            category_limit = args.limit
+        else:
+            category_limit = CATEGORY_LIMITS.get(key, 150)
+            category_limit = per_category_limit.get(key.lower(), category_limit)
+            category_limit = per_category_limit.get(disp.lower(), category_limit)
 
         print(f"\n===== {disp} (Target: {category_limit} images) =====")
         print(f"Loading links from {args.links_root}...")
@@ -417,10 +498,20 @@ def main():
             for i, link in enumerate(links, 1):
                 name = extract_numeric_id(link) or f"item_{i:03d}"
                 out_json = os.path.join(out_dir, f"{name}.json")
-                if os.path.exists(out_json):
+                if has_existing_outputs(out_json, args.all_products):
                     print(f"[{i}/{total}] Skip existing {name}")
                     continue
-                futures.append(executor.submit(process_link, link, out_json, args.sleep, args.max_retries, args.jitter))
+                futures.append(
+                    executor.submit(
+                        process_link,
+                        link,
+                        out_json,
+                        args.sleep,
+                        args.max_retries,
+                        args.jitter,
+                        args.all_products,
+                    )
+                )
 
             done = 0
             for fut in as_completed(futures):
@@ -439,4 +530,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-

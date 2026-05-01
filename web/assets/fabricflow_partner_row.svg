@@ -1,0 +1,35 @@
+<svg width="1200" height="360" viewBox="0 0 1200 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="360" fill="white"/>
+  <defs>
+    <linearGradient id="aidlabGradient" x1="36" y1="46" x2="372" y2="136" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D32B49"/>
+      <stop offset="1" stop-color="#2F2C95"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(18 18)">
+    <text x="0" y="98" fill="url(#aidlabGradient)" font-family="Avenir Next, Arial, sans-serif" font-size="96" font-weight="600" letter-spacing="-3">AiDLab</text>
+    <circle cx="208" cy="8" r="8.5" fill="url(#aidlabGradient)"/>
+    <text x="432" y="34" fill="#52525F" font-family="Georgia, Times New Roman, serif" font-size="30" font-weight="700">Laboratory for</text>
+    <text x="432" y="72" fill="#52525F" font-family="Georgia, Times New Roman, serif" font-size="30" font-weight="700">Artificial Intelligence in Design</text>
+    <text x="432" y="126" fill="#52525F" font-family="PingFang TC, Microsoft JhengHei, sans-serif" font-size="30" font-weight="700">人工智能設計研究所</text>
+  </g>
+
+  <g transform="translate(0 188)">
+    <g transform="translate(0 18)" fill="#B1253E">
+      <path d="M34 76c-15 0-28-13-28-28 0-9 5-18 12-23l32-22 19 17-43 46c-4 4-6 6-6 10h14z"/>
+      <path d="M67 0c15 0 28 13 28 28 0 9-5 18-12 23L51 73 33 56 76 10c4-4 6-6 6-10H67z"/>
+      <path d="M96 105c0 15-13 28-28 28-9 0-18-5-23-12L23 89 40 70l46 43c4 4 6 6 10 6v-14z"/>
+      <path d="M28 133c-15 0-28-13-28-28 0-9 5-18 12-23l32-22 19 17-43 46c-4 4-6 6-6 10h14z"/>
+    </g>
+    <text x="140" y="72" fill="#52525F" font-family="Georgia, Times New Roman, serif" font-size="50" font-weight="700">THE HONG KONG</text>
+    <text x="140" y="124" fill="#52525F" font-family="Georgia, Times New Roman, serif" font-size="50" font-weight="700">POLYTECHNIC UNIVERSITY</text>
+    <text x="140" y="174" fill="#52525F" font-family="PingFang TC, Microsoft JhengHei, sans-serif" font-size="40" font-weight="700">香港理工大學</text>
+  </g>
+
+  <g transform="translate(690 210)">
+    <path d="M77 34c12-8 23-11 34-11 15 0 26 4 37 11 10-7 22-11 37-11 11 0 22 3 34 11l-8 12c-8-6-16-8-25-8-14 0-24 4-34 12-10-8-20-12-35-12-9 0-17 2-25 8l-7-12z" fill="#52525F"/>
+    <path d="M106 30l8-15 10 4 9-13 11 12 11-4 5 15 12 3-4 12 6 10-13 4-2 11h-14l-7 12-8-12h-14l-2-11-13-4 6-10-4-12 12-3z" fill="none" stroke="#52525F" stroke-width="3"/>
+    <text x="0" y="120" fill="#111111" font-family="Georgia, Times New Roman, serif" font-size="42" font-weight="700">Royal College of Art</text>
+  </g>
+</svg>

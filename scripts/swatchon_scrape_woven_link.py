@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import os
 import sys
 import json
 import time
+import argparse
+import urllib.request
 from typing import List, Set, Dict
-
-from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
 
 # 定义所有类别的配置
@@ -44,212 +46,162 @@ CATEGORIES = {
     "Ripstop": {
         "categoryIds": "191",
         "url": "https://swatchon.com/wholesale-fabric?categoryIds=191&sort=&from=/wholesale-fabric"
+    },
+    # Locked from SwatchOn filter API: Poplin=168, Gauze=170 (retrieved on 2026-03-03)
+    "Poplin": {
+        "categoryIds": "168",
+        "url": "https://swatchon.com/wholesale-fabric?categoryIds=168&sort=&from=/wholesale-fabric"
+    },
+    "Gauze": {
+        "categoryIds": "170",
+        "url": "https://swatchon.com/wholesale-fabric?categoryIds=170&sort=&from=/wholesale-fabric"
     }
 }
 
+CONFIG_PATH = os.path.join("scripts", "config", "targets_phase1_fabricflow.json")
 
-def build_category_page_url(category_ids: str, page: int) -> str:
-    """构建分类页面URL"""
-    return f"https://swatchon.com/wholesale-fabric?categoryIds={category_ids}&sort=&page={page}&from=/wholesale-fabric"
+# SwatchOn API base for direct queries (bypasses Nuxt frontend pagination issues)
+SWATCHON_API_BASE = "https://api.swatchon.com/api/mall/v1/search/qualities"
+SWATCHON_HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}
+PER_PAGE = 48
 
 
-def accept_cookies(page) -> None:
-    """接受cookies"""
+def parse_only_categories(only_arg: str | None) -> Set[str]:
+    """Parse --only argument to a normalized category-name set."""
+    if not only_arg:
+        return set()
+    return {name.strip().lower() for name in only_arg.split(",") if name.strip()}
+
+
+def load_phase_overrides() -> Dict[str, Dict[str, object]]:
+    """Load optional category ID/target overrides from phase config."""
+    if not os.path.exists(CONFIG_PATH):
+        return {}
     try:
-        print("[debug] 尝试接受 cookies...", flush=True)
-        cookie_selectors = [
-            "button:has-text('Accept')",
-            "button:has-text('I agree')",
-            "button:has-text('同意')",
-            "text=Accept",
-        ]
-        
-        for sel in cookie_selectors:
-            try:
-                btn = page.locator(sel).first
-                if btn and btn.count() > 0 and btn.is_visible():
-                    print(f"[debug] 找到并点击 cookie 按钮", flush=True)
-                    btn.click()
-                    page.wait_for_timeout(1000)
-                    return
-            except Exception:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            obj = json.load(f)
+        out: Dict[str, Dict[str, object]] = {}
+        for item in obj.get("class_plan", []):
+            key = item.get("key")
+            if not isinstance(key, str):
                 continue
-        print("[debug] 未找到 cookie 按钮", flush=True)
-    except Exception as e:
-        print(f"[debug] Cookie 处理出错: {e}", flush=True)
+            swatchon = item.get("swatchon", {})
+            category_ids = swatchon.get("category_ids") if isinstance(swatchon, dict) else None
+            out[key] = {
+                "target": item.get("target"),
+                "category_ids": category_ids,
+            }
+        return out
+    except Exception:
+        return {}
 
 
-def collect_page_links(page, page_num: int, category_name: str) -> List[str]:
-    """从单个页面收集链接"""
-    print(f"[debug] {category_name} - 开始收集第 {page_num} 页链接...", flush=True)
-    
-    try:
-        # New website structure uses .fabric-card instead of .c-quality
-        # Look for <a> tags with href="/fabric/..."
-        cards = page.locator("a[href^='/fabric/']")
-        total = cards.count()
-        print(f"[debug] {category_name} - 第 {page_num} 页找到 {total} 个产品卡片", flush=True)
-
-        if total == 0:
-            print(f"[warning] {category_name} - 第 {page_num} 页没有找到产品卡片", flush=True)
-            return []
-
-        page_links: List[str] = []
-
-        # 提取每个卡片的链接
-        for i in range(total):
-            try:
-                c = cards.nth(i)
-                href = c.get_attribute("href", timeout=2000)
-
-                if href:
-                    # 规范化URL
-                    if href.startswith("/"):
-                        href = "https://swatchon.com" + href
-                    elif not href.startswith("http"):
-                        href = "https://swatchon.com/" + href
-
-                    page_links.append(href)
-
-            except Exception as e:
-                print(f"[debug] {category_name} - 第 {page_num} 页卡片 {i+1} 处理失败: {e}", flush=True)
-                continue
-
-        print(f"[success] {category_name} - 第 {page_num} 页成功提取 {len(page_links)} 个链接", flush=True)
-        return page_links
-        
-    except Exception as e:
-        print(f"[error] {category_name} - 第 {page_num} 页链接收集失败: {e}", flush=True)
-        return []
+def fetch_api_page(category_ids: str, page: int, retries: int = 3) -> dict:
+    """Fetch one page of results from SwatchOn search API with retries."""
+    url = (
+        f"{SWATCHON_API_BASE}?sort=&page={page}&perPage={PER_PAGE}"
+        f"&categoryIds={category_ids}&preferredCurrency=usd&shippingCountry=US"
+    )
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, headers=SWATCHON_HEADERS)
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read())
+        except Exception as e:
+            if attempt < retries - 1:
+                time.sleep(1 + attempt)
+            else:
+                raise
 
 
-def scrape_category(category_name: str, category_config: dict, target_count: int = 150, max_pages: int = 20) -> dict:
-    """爬取单个分类的所有链接"""
-    
+def scrape_category(category_name: str, category_config: dict, target_count: int = 150, max_pages: int = 50) -> dict:
+    """Scrape product links via SwatchOn API (no browser needed)."""
+
     print(f"\n{'='*80}")
-    print(f"🎯 开始爬取分类: {category_name}")
-    print(f"📊 目标链接数量: {target_count}")
-    print(f"🔗 分类URL: {category_config['url']}")
+    print(f"  Category: {category_name}")
+    print(f"  Target: {target_count} links")
+    print(f"  categoryIds: {category_config['categoryIds']}")
     print(f"{'='*80}")
-    
+
     all_links: Set[str] = set()
     page_results = []
-    
-    with sync_playwright() as p:
-        # 启动浏览器
-        browser = p.chromium.launch(
-            headless=True,
-            args=[
-                "--no-sandbox",
-                "--disable-blink-features=AutomationControlled",
-                "--disable-dev-shm-usage",
-            ]
-        )
-        
-        context = browser.new_context(
-            user_agent=(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
-            ),
-            locale="en-US",
-            viewport={"width": 1920, "height": 1080},
-        )
-        
-        page = context.new_page()
-        page.set_default_timeout(30000)
-        
-        current_page = 1
-        cookies_accepted = False
-        
-        while len(all_links) < target_count and current_page <= max_pages:
-            try:
-                url = build_category_page_url(category_config["categoryIds"], current_page)
-                print(f"\n[step] {category_name} - 正在爬取第 {current_page} 页")
-                
-                # 访问页面
-                response = page.goto(url, wait_until="domcontentloaded", timeout=30000)
-                if not response or response.status != 200:
-                    print(f"[error] {category_name} - 第 {current_page} 页访问失败，状态码: {response.status if response else 'None'}")
-                    current_page += 1
-                    continue
-                
-                # 等待页面加载完成
-                try:
-                    page.wait_for_load_state("networkidle", timeout=15000)
-                except PlaywrightTimeoutError:
-                    print(f"[debug] {category_name} - 第 {current_page} 页网络空闲等待超时")
-                
-                # 等待产品卡片加载
-                try:
-                    page.wait_for_selector(".c-quality", timeout=10000)
-                    time.sleep(2)  # 额外等待确保动态内容加载完成
-                except PlaywrightTimeoutError:
-                    print(f"[warning] {category_name} - 第 {current_page} 页产品卡片加载超时")
-                
-                # 第一次访问时接受cookies
-                if not cookies_accepted:
-                    accept_cookies(page)
-                    cookies_accepted = True
-                
-                # 收集当前页面的链接
-                page_links = collect_page_links(page, current_page, category_name)
-                
-                if not page_links:
-                    print(f"[info] {category_name} - 第 {current_page} 页没有找到链接，可能已到最后一页")
-                    break
-                
-                # 添加到总链接集合中（自动去重）
-                before_count = len(all_links)
-                all_links.update(page_links)
-                new_links_count = len(all_links) - before_count
-                
-                # 记录页面结果
-                page_result = {
-                    "page": current_page,
-                    "url": url,
-                    "links_found": len(page_links),
-                    "new_unique_links": new_links_count,
-                    "total_unique_links": len(all_links)
-                }
-                page_results.append(page_result)
-                
-                print(f"[progress] {category_name} - 第 {current_page} 页: 找到 {len(page_links)} 个链接, 新增 {new_links_count} 个唯一链接")
-                print(f"[progress] {category_name} - 总进度: {len(all_links)}/{target_count} 个唯一链接")
-                
-                # 检查是否达到目标
-                if len(all_links) >= target_count:
-                    print(f"[success] {category_name} - 🎉 已达到目标！共收集 {len(all_links)} 个唯一链接")
-                    break
-                
-                current_page += 1
-                
-                # 页面间稍作延迟
-                time.sleep(1)
-                
-            except Exception as e:
-                print(f"[error] {category_name} - 第 {current_page} 页处理出错: {e}")
-                current_page += 1
-                continue
-        
-        context.close()
-        browser.close()
-        
-        # 返回结果
-        result = {
-            "category": category_name,
-            "timestamp": time.time(),
-            "target_count": target_count,
-            "actual_count": len(all_links),
-            "pages_scraped": len(page_results),
-            "page_details": page_results,
-            "all_links": sorted(list(all_links))
-        }
-        
-        return result
+    category_ids = category_config["categoryIds"]
+    current_page = 1
+
+    while current_page <= max_pages:
+        try:
+            data = fetch_api_page(category_ids, current_page)
+            total = data.get("total", 0)
+            items = data.get("items", [])
+
+            if not items:
+                print(f"  [INFO] Page {current_page} returned 0 items, stopping")
+                break
+
+            before = len(all_links)
+            for item in items:
+                landing = item.get("landingUrl", "")
+                if landing:
+                    full_url = "https://swatchon.com" + landing
+                    all_links.add(full_url)
+
+            page_results.append({
+                "page": current_page,
+                "links_found": len(items),
+                "new_unique_links": len(all_links) - before,
+                "total_unique_links": len(all_links),
+            })
+            print(f"  [INFO] Page {current_page}: {len(items)} items, {len(all_links)}/{total} unique links")
+
+            if len(all_links) >= total or current_page * PER_PAGE >= total:
+                break
+            if len(all_links) >= target_count:
+                break
+
+            current_page += 1
+            time.sleep(0.3)
+
+        except Exception as e:
+            print(f"  [ERROR] Page {current_page} exception: {e}")
+            current_page += 1
+            time.sleep(1)
+            continue
+
+    return {
+        "category": category_name,
+        "timestamp": time.time(),
+        "target_count": target_count,
+        "actual_count": len(all_links),
+        "pages_scraped": len(page_results),
+        "page_details": page_results,
+        "all_links": sorted(list(all_links)),
+    }
 
 
 def main():
     """主函数 - 依次爬取所有分类"""
+    parser = argparse.ArgumentParser(description="Scrape SwatchOn woven category links")
+    parser.add_argument(
+        "--only",
+        type=str,
+        default="",
+        help="Run only selected categories, comma-separated (example: Poplin,Gauze)",
+    )
+    args = parser.parse_args()
+    selected_only = parse_only_categories(args.only)
+    overrides = load_phase_overrides()
+
+    # Apply phase config overrides (targets + categoryIds) if present.
+    for key in ("Poplin", "Gauze"):
+        ov = overrides.get(key) or {}
+        cat_ids = ov.get("category_ids")
+        if isinstance(cat_ids, list) and cat_ids:
+            try:
+                cid = ",".join(str(int(x)) for x in cat_ids)
+                CATEGORIES[key]["categoryIds"] = cid
+                CATEGORIES[key]["url"] = f"https://swatchon.com/wholesale-fabric?categoryIds={cid}&sort=&from=/wholesale-fabric"
+            except Exception:
+                pass
     
     print("🚀 SwatchOn 全自动分类爬虫启动")
     print("=" * 80)
@@ -281,13 +233,32 @@ def main():
         "Pile_Weave": 200,       # Excellent: 95.7% - keep current (buffer)
         "Ripstop": 200,          # Good: 87.0% - keep current (buffer)
         "Twill_Weave": 200,      # Good: 87.0% - keep current (buffer)
+        "Poplin": 300,           # FabricFlow phase target: 300
+        "Gauze": 200,            # FabricFlow phase target: 200
     }
+    for key in ("Poplin", "Gauze"):
+        ov = overrides.get(key) or {}
+        target = ov.get("target")
+        if isinstance(target, int) and target > 0:
+            CATEGORY_TARGET_COUNTS[key] = target
+
+    run_items = [
+        (name, cfg)
+        for name, cfg in CATEGORIES.items()
+        if not selected_only or name.lower() in selected_only
+    ]
+    if selected_only and not run_items:
+        print(f"[ERROR] No matched categories for --only={args.only}")
+        print(f"[INFO] Available: {', '.join(CATEGORIES.keys())}")
+        sys.exit(2)
+
+    overall_stats["total_categories"] = len(run_items)
 
     # 依次爬取每个分类
-    for i, (category_name, category_config) in enumerate(CATEGORIES.items(), 1):
+    for i, (category_name, category_config) in enumerate(run_items, 1):
         try:
             target = CATEGORY_TARGET_COUNTS.get(category_name, 200)
-            print(f"\n🏗️  处理分类 {i}/{len(CATEGORIES)}: {category_name} (target: {target} links)")
+            print(f"\n🏗️  处理分类 {i}/{len(run_items)}: {category_name} (target: {target} links)")
 
             # 爬取分类
             category_result = scrape_category(category_name, category_config, target_count=target)
@@ -319,7 +290,7 @@ def main():
             print(f"   📄 爬取页面: {category_result['pages_scraped']}")
             
             # 分类间休息一下
-            if i < len(CATEGORIES):
+            if i < len(run_items):
                 print(f"\n⏱️  休息 3 秒后继续下一个分类...")
                 time.sleep(3)
                 
