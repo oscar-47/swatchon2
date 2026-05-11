@@ -2021,7 +2021,7 @@
   /* -- REFERENCE SPECIMENS -- */
   .demo-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0;
     border-top: 1px solid var(--rule);
   }
@@ -3060,32 +3060,50 @@
 // ============================================================
 // DATA
 // ============================================================
-// Reference specimens — real images + passport PDFs preloaded from ~/Downloads/sample.
+// Reference specimens — real phone-camera images + passport PDFs preloaded from ~/Downloads/sample.
 const FABRIC_DATA = {
-  rib_knit: {
-    name: 'Rib Knit',
+  jersey: {
+    name: 'Jersey',
     l1: 'KNIT',
-    fullName: '1x1 Rib Knit — Organic Cotton/Elastane',
-    construction: 'Weft Knit · Rib',
-    uses: 'Cuffs, Collars, Fitted tops',
-    chars: 'Vertical ridges, stretch recovery',
+    fullName: 'Single Jersey — KNIT',
+    construction: 'Weft Knit · Jersey',
+    uses: 'T-shirts, base layers, dresses',
+    chars: 'Smooth face, soft drape, single-bed weft knit',
+    // [surface, magnified, reverse] — Jersey has no separate magnified shot.
     images: [
-      '/sample/knit_rib_knit_original.jpg',
-      '/sample/knit_rib_knit_zoomin.jpg',
+      '/sample/sample_jersey_front.jpg',
+      null,
+      '/sample/sample_jersey_back.jpg',
     ],
     pdfPrefix: 'RibKnit_',
     pdfCount: 18,
   },
-  twill_weave: {
-    name: 'Twill Weave',
+  plain_weave: {
+    name: 'Plain Weave',
     l1: 'WOVEN',
-    fullName: '3/1 Z-Twill — Organic Cotton/Recycled Polyester',
+    fullName: 'Plain Weave — WOVEN',
+    construction: 'Woven · Plain (1/1)',
+    uses: 'Shirting, dress fabric, lining',
+    chars: 'Tight 1/1 interlace, balanced face, low stretch',
+    images: [
+      '/sample/sample_plain_weave_front.jpg',
+      '/sample/sample_plain_weave_zoomin.jpg',
+      '/sample/sample_plain_weave_back.jpg',
+    ],
+    pdfPrefix: 'TwillWoven_',
+    pdfCount: 18,
+  },
+  twill: {
+    name: 'Twill',
+    l1: 'WOVEN',
+    fullName: '3/1 Z-Twill — WOVEN',
     construction: 'Woven · Twill',
-    uses: 'Denim, Chinos, Workwear',
+    uses: 'Denim, chinos, workwear',
     chars: 'Diagonal rib, durable, drapes well',
     images: [
-      '/sample/woven_twill_original.jpg',
-      '/sample/woven_twill_zoomin.jpg',
+      '/sample/sample_twill_front.jpg',
+      '/sample/sample_twill_zoomin.jpg',
+      '/sample/sample_twill_back.jpg',
     ],
     pdfPrefix: 'TwillWoven_',
     pdfCount: 18,
@@ -4239,10 +4257,15 @@ async function runDemoSample(key) {
 
   document.getElementById('recognition').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // ── Step 1: preload the 2 fabric photos into upload slots ──
+  // ── Step 1: preload all available fabric photos into the matching slots ──
+  // Slot 0 = surface (required), 1 = magnified (recommended), 2 = reverse (optional).
+  // FABRIC_DATA.images is in the same order; entries may be null when a shot
+  // isn't available (e.g. Jersey has no magnified photo) — slot stays empty.
   try {
-    for (let i = 0; i < fabric.images.length && i < 2; i++) {
+    const max = Math.min(fabric.images.length, 3);
+    for (let i = 0; i < max; i++) {
       const url = fabric.images[i];
+      if (!url) continue;
       const name = url.split('/').pop();
       const f = await urlToFile(url, name, 'image/jpeg');
       fabricSlots[i] = f;
