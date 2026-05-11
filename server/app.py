@@ -577,6 +577,13 @@ if os.path.isdir(MOCK_DIR):
     async def read_root():
         return FileResponse(os.path.join(MOCK_DIR, "mock_demo.html"))
 
+    @app.get("/recognition")
+    async def read_recognition():
+        # Same shell as the homepage, but the page detects this path and
+        # immediately strips the splash + landing overlays so the upload
+        # workflow is the first thing the visitor sees.
+        return FileResponse(os.path.join(MOCK_DIR, "mock_demo.html"))
+
     @app.get("/tablet")
     async def read_mock_tablet():
         return FileResponse(os.path.join(MOCK_DIR, "mock_tablet.html"))

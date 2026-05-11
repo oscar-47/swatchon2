@@ -14,19 +14,25 @@
   (function () {
     try {
       var qs = new URLSearchParams(location.search);
-      if (qs.get('skip') === '1') {
+      var path = location.pathname.replace(/\/+$/, '');
+      // Two ways to bypass the intro: explicit ?skip=1 (used by internal
+      // nav like /assistant → Recognition) and the dedicated /recognition
+      // pretty-URL that visitors can share without it looking like "home".
+      if (qs.get('skip') === '1' || path === '/recognition') {
         document.documentElement.classList.add('ff-skip-intro');
       }
     } catch (e) {}
   })();
 </script>
 <style>
-  html.ff-skip-intro #splash,
+  html.ff-skip-intro #splashPage,
   html.ff-skip-intro #webLandingOverlay { display: none !important; }
   html.ff-skip-intro body.splash-mode .header,
   html.ff-skip-intro body.web-landing-mode .header,
   html.ff-skip-intro body.splash-mode .main,
   html.ff-skip-intro body.web-landing-mode .main { display: block !important; }
+  /* Land at the upload workflow, not the chapter header */
+  html.ff-skip-intro section#recognition { scroll-margin-top: 0; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3370,7 +3376,10 @@ document.addEventListener('DOMContentLoaded', () => {
 (function ffSkipIntro() {
   try {
     var qs = new URLSearchParams(location.search);
-    if (qs.get('skip') !== '1') return;
+    var path = location.pathname.replace(/\/+$/, '');
+    var skipFlag = qs.get('skip') === '1';
+    var recogRoute = path === '/recognition';
+    if (!skipFlag && !recogRoute) return;
     document.addEventListener('DOMContentLoaded', function () {
       document.body.classList.remove('splash-mode');
       document.body.classList.remove('web-landing-mode');
@@ -3378,8 +3387,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (splash) splash.remove();
       var landing = document.getElementById('webLandingOverlay');
       if (landing) landing.remove();
-      // Smooth-scroll into the recognition section if it's the requested anchor.
-      if (location.hash === '#recognition') {
+      // For both /recognition and ?skip=1#recognition, land on the upload UI.
+      if (recogRoute || location.hash === '#recognition') {
         var el = document.getElementById('recognition');
         if (el) setTimeout(function(){ el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
       }
