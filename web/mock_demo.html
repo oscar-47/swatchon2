@@ -2742,6 +2742,13 @@
 </style>
 </head>
 <body class="splash-mode web-landing-mode">
+<script>
+  // Strip splash + landing body classes immediately when in skip-intro mode
+  // (i.e. /recognition or ?skip=1) so the splash overlay never paints.
+  if (document.documentElement.classList.contains('ff-skip-intro')) {
+    document.body.classList.remove('splash-mode', 'web-landing-mode');
+  }
+</script>
 
 <!-- ============================================================
      SPLASH PAGE — Full-screen first view
@@ -2894,7 +2901,7 @@
      ============================================================ -->
 <header class="header">
   <div class="header-inner">
-    <a class="logo" href="#">
+    <a class="logo" href="/recognition">
       <div class="logo-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/>
@@ -3388,9 +3395,11 @@ document.addEventListener('DOMContentLoaded', () => {
       var landing = document.getElementById('webLandingOverlay');
       if (landing) landing.remove();
       // For both /recognition and ?skip=1#recognition, land on the upload UI.
+      // Instant scroll (behavior:'auto') instead of smooth — eliminates the
+      // brief "page scrolling from top" flash visitors saw on slow refresh.
       if (recogRoute || location.hash === '#recognition') {
         var el = document.getElementById('recognition');
-        if (el) setTimeout(function(){ el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+        if (el) el.scrollIntoView({ behavior: 'auto', block: 'start' });
       }
     });
   } catch (e) {}
