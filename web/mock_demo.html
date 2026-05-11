@@ -2051,9 +2051,15 @@
   /* -- REFERENCE SPECIMENS -- */
   .demo-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 0;
     border-top: 1px solid var(--rule);
+  }
+  @media (max-width: 1100px) {
+    .demo-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .demo-grid { grid-template-columns: repeat(2, 1fr); }
   }
 
   .demo-sample {
@@ -2071,7 +2077,16 @@
     transition: background 200ms ease;
     text-align: left;
   }
-  .demo-sample:nth-child(2n) { border-right: none; }
+  .demo-sample:nth-child(4n) { border-right: none; }
+  @media (max-width: 1100px) {
+    .demo-sample { border-right: 1px solid var(--rule); }
+    .demo-sample:nth-child(4n) { border-right: 1px solid var(--rule); }
+    .demo-sample:nth-child(3n) { border-right: none; }
+  }
+  @media (max-width: 720px) {
+    .demo-sample:nth-child(3n) { border-right: 1px solid var(--rule); }
+    .demo-sample:nth-child(2n) { border-right: none; }
+  }
   .demo-sample:hover { border-color: var(--rule); background: var(--accent-tint); box-shadow: none; transform: none; }
 
   /* Real-image specimen cards (2 cards, side-by-side, bigger preview) */
@@ -2774,7 +2789,6 @@
 
   <div class="splash-cta-wrap">
     <button class="splash-cta-btn" onclick="dismissSplash()">Enter</button>
-    <div class="splash-cta-hint">Auto &middot; 4s</div>
   </div>
 </div>
 
@@ -3172,6 +3186,83 @@ const FABRIC_DATA = {
       '/sample/sample_twill_front.jpg',
       '/sample/sample_twill_zoomin.jpg',
       '/sample/sample_twill_back.jpg',
+    ],
+    pdfPrefix: 'TwillWoven_',
+    pdfCount: 18,
+  },
+  // ── Additional Unsplash reference specimens ──────────────────
+  // Reuse the existing RibKnit_*/TwillWoven_*.pdf passport bundles by L1.
+  french_terry: {
+    name: 'French Terry',
+    l1: 'KNIT',
+    fullName: 'French Terry — KNIT',
+    construction: 'Weft Knit · Looped back',
+    uses: 'Sweatshirts, hoodies, joggers',
+    chars: 'Flat face, looped reverse, moderate stretch',
+    images: [
+      '/sample/unsplash/knit-French_Terry-74.jpg',
+      '/sample/unsplash/knit-French_Terry-85.jpg',
+      null,
+    ],
+    pdfPrefix: 'RibKnit_',
+    pdfCount: 18,
+  },
+  rib_knit: {
+    name: 'Rib Knit',
+    l1: 'KNIT',
+    fullName: 'Rib Knit — KNIT',
+    construction: 'Weft Knit · Rib (1×1 / 2×2)',
+    uses: 'Cuffs, collars, body-hugging tops',
+    chars: 'Vertical ribs, high stretch, recovers shape',
+    images: [
+      '/sample/unsplash/knit-Rib_Knit-71.jpg',
+      '/sample/unsplash/knit-Rib_Knit-85.jpg',
+      null,
+    ],
+    pdfPrefix: 'RibKnit_',
+    pdfCount: 18,
+  },
+  corduroy: {
+    name: 'Corduroy',
+    l1: 'WOVEN',
+    fullName: 'Corduroy — WOVEN',
+    construction: 'Woven · Cut pile, ribbed',
+    uses: 'Trousers, jackets, upholstery',
+    chars: 'Lengthwise wales, soft pile, heavy hand',
+    images: [
+      '/sample/unsplash/woven-Corduroy-80.jpg',
+      null,
+      null,
+    ],
+    pdfPrefix: 'TwillWoven_',
+    pdfCount: 18,
+  },
+  satin: {
+    name: 'Satin',
+    l1: 'WOVEN',
+    fullName: 'Satin — WOVEN',
+    construction: 'Woven · Satin (long warp floats)',
+    uses: 'Linings, eveningwear, bedding',
+    chars: 'Lustrous face, smooth drape, slick hand',
+    images: [
+      '/sample/unsplash/woven-Satin-79.jpg',
+      '/sample/unsplash/woven-Satin-87.jpg',
+      null,
+    ],
+    pdfPrefix: 'TwillWoven_',
+    pdfCount: 18,
+  },
+  woven_jacquard: {
+    name: 'Woven Jacquard',
+    l1: 'WOVEN',
+    fullName: 'Woven Jacquard — WOVEN',
+    construction: 'Woven · Jacquard pattern',
+    uses: 'Brocade, upholstery, fashion bottoms',
+    chars: 'Complex woven motif, structured hand',
+    images: [
+      '/sample/unsplash/woven-Woven+Jacquard-71.jpg',
+      null,
+      null,
     ],
     pdfPrefix: 'TwillWoven_',
     pdfCount: 18,
