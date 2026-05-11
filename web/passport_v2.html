@@ -1128,6 +1128,15 @@ function goToPassport() {
   window.scrollTo(0, 0);
 }
 function goToPreview() {
+  // When the passport was opened via ?view=passport (direct entry from the
+  // assistant nav or the compile-preview's "View full passport" button),
+  // the internal preview page is permanently hidden by the pre-paint
+  // CSS gate — toggling it back would show a blank screen. In that mode,
+  // send the user to the main demo's recognition workflow instead.
+  if (document.documentElement.classList.contains('ff-skip-preview')) {
+    location.href = '/?skip=1#recognition';
+    return;
+  }
   document.getElementById('page-passport').classList.remove('active');
   document.getElementById('page-preview').classList.add('active');
   window.scrollTo(0, 0);
