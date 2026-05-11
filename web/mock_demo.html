@@ -3192,6 +3192,10 @@ const FABRIC_DATA = {
   },
   // ── Additional Unsplash reference specimens ──────────────────
   // Reuse the existing RibKnit_*/TwillWoven_*.pdf passport bundles by L1.
+  // Single-image specimens. Each Unsplash photo is its own independent
+  // fabric (not multiple views of the same swatch), so only slot 0 gets
+  // a value; magnified/reverse stay null and the slot-fill loop skips
+  // them. Demo flow: click → 1 photo preloaded → analyse → passport.
   french_terry: {
     name: 'French Terry',
     l1: 'KNIT',
@@ -3199,11 +3203,7 @@ const FABRIC_DATA = {
     construction: 'Weft Knit · Looped back',
     uses: 'Sweatshirts, hoodies, joggers',
     chars: 'Flat face, looped reverse, moderate stretch',
-    images: [
-      '/sample/unsplash/knit-French_Terry-74.jpg',
-      '/sample/unsplash/knit-French_Terry-85.jpg',
-      null,
-    ],
+    images: ['/sample/unsplash/knit-French_Terry-74.jpg', null, null],
     pdfPrefix: 'RibKnit_',
     pdfCount: 18,
   },
@@ -3214,11 +3214,7 @@ const FABRIC_DATA = {
     construction: 'Weft Knit · Rib (1×1 / 2×2)',
     uses: 'Cuffs, collars, body-hugging tops',
     chars: 'Vertical ribs, high stretch, recovers shape',
-    images: [
-      '/sample/unsplash/knit-Rib_Knit-71.jpg',
-      '/sample/unsplash/knit-Rib_Knit-85.jpg',
-      null,
-    ],
+    images: ['/sample/unsplash/knit-Rib_Knit-71.jpg', null, null],
     pdfPrefix: 'RibKnit_',
     pdfCount: 18,
   },
@@ -3229,11 +3225,7 @@ const FABRIC_DATA = {
     construction: 'Woven · Cut pile, ribbed',
     uses: 'Trousers, jackets, upholstery',
     chars: 'Lengthwise wales, soft pile, heavy hand',
-    images: [
-      '/sample/unsplash/woven-Corduroy-80.jpg',
-      null,
-      null,
-    ],
+    images: ['/sample/unsplash/woven-Corduroy-80.jpg', null, null],
     pdfPrefix: 'TwillWoven_',
     pdfCount: 18,
   },
@@ -3244,11 +3236,7 @@ const FABRIC_DATA = {
     construction: 'Woven · Satin (long warp floats)',
     uses: 'Linings, eveningwear, bedding',
     chars: 'Lustrous face, smooth drape, slick hand',
-    images: [
-      '/sample/unsplash/woven-Satin-79.jpg',
-      '/sample/unsplash/woven-Satin-87.jpg',
-      null,
-    ],
+    images: ['/sample/unsplash/woven-Satin-79.jpg', null, null],
     pdfPrefix: 'TwillWoven_',
     pdfCount: 18,
   },
@@ -3259,11 +3247,7 @@ const FABRIC_DATA = {
     construction: 'Woven · Jacquard pattern',
     uses: 'Brocade, upholstery, fashion bottoms',
     chars: 'Complex woven motif, structured hand',
-    images: [
-      '/sample/unsplash/woven-Woven+Jacquard-71.jpg',
-      null,
-      null,
-    ],
+    images: ['/sample/unsplash/woven-Woven+Jacquard-71.jpg', null, null],
     pdfPrefix: 'TwillWoven_',
     pdfCount: 18,
   },
