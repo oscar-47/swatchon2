@@ -105,7 +105,8 @@ body { background:var(--surface-page); color:var(--ink-primary); min-height:100v
 .preview-card:hover { box-shadow:0 10px 30px -12px rgba(20,28,40,.18); transform:translateY(-2px); }
 .pc-body { padding:28px 30px 24px; }
 .pc-top { display:flex; align-items:flex-start; gap:16px; }
-.pc-avatar { width:54px; height:54px; border-radius:4px; background:var(--surface-sunk); border:1px solid var(--rule); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+.pc-avatar { width:54px; height:54px; border-radius:4px; background:var(--surface-sunk); border:1px solid var(--rule); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; overflow:hidden; }
+.pc-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
 .pc-title { flex:1; min-width:0; }
 .pc-eyebrow { font-family:'Schibsted Grotesk',sans-serif; font-size:10px; font-weight:500; letter-spacing:1.8px; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
 .pc-name { font-family:'Libre Caslon Text',Georgia,serif; font-size:22px; font-weight:400; color:var(--ink-primary); line-height:1.25; letter-spacing:-0.3px; }
@@ -132,7 +133,8 @@ body { background:var(--surface-page); color:var(--ink-primary); min-height:100v
 .pp-hero::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(135deg,transparent,transparent 48px,rgba(255,255,255,.05) 48px,rgba(255,255,255,.05) 49px); pointer-events:none; }
 .pp-hero::after { content:''; position:absolute; left:0; right:0; bottom:0; height:1px; background:rgba(255,255,255,.10); }
 .pp-hero-top { position:relative; display:flex; align-items:center; gap:24px; max-width:1100px; margin:0 auto; }
-.pp-hero-avatar { width:72px; height:72px; border-radius:4px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink:0; }
+.pp-hero-avatar { width:72px; height:72px; border-radius:4px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink:0; overflow:hidden; }
+.pp-hero-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
 .pp-hero-info { flex:1; min-width:0; }
 .pp-hero-label { font-family:'Schibsted Grotesk',sans-serif; font-size:10px; font-weight:500; text-transform:uppercase; letter-spacing:2px; color:var(--hero-ink-faint); margin-bottom:10px; }
 .pp-hero-name { font-family:'Libre Caslon Text',Georgia,serif; font-size:clamp(26px,3.4vw,36px); font-weight:400; color:var(--hero-ink); line-height:1.15; margin-bottom:10px; letter-spacing:-0.5px; }
@@ -1192,6 +1194,15 @@ function ppTab(id, btn) {
     var key = el.getAttribute('data-field');
     if (key in fields) setNode(el, fields[key]);
   });
+
+  // Avatar — replace placeholder yarn-ball glyph with the recognised fabric's
+  // first uploaded photo so the passport header matches what the user shot.
+  if (fields.fabric_image_src) {
+    var imgSrc = String(fields.fabric_image_src);
+    document.querySelectorAll('.pc-avatar, .pp-hero-avatar').forEach(function(av){
+      av.innerHTML = '<img src="' + imgSrc.replace(/"/g, '&quot;') + '" alt="Fabric specimen">';
+    });
+  }
 
   var fl = fields.fibre_legend;
   if (Array.isArray(fl) && fl.length){
