@@ -95,6 +95,12 @@ def stage_space() -> Path:
     shutil.copytree(SAMPLE_SRC, STAGING_SPACE / "sample",
                     ignore=shutil.ignore_patterns(".DS_Store"))
 
+    # FabricAI grounding knowledge doc lives at repo root; context_provider
+    # reads it at runtime so the assistant has real content to cite.
+    onboarding = REPO_ROOT / "onboarding_explain.md"
+    if onboarding.exists():
+        shutil.copy2(onboarding, STAGING_SPACE / "onboarding_explain.md")
+
     return STAGING_SPACE
 
 

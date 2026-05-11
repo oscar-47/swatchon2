@@ -23,6 +23,8 @@ RUN pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requir
 COPY server /app/server
 COPY web    /app/web
 COPY sample /app/sample
+# FabricAI grounding knowledge — context_provider reads this at runtime.
+COPY onboarding_explain.md /app/onboarding_explain.md
 
 # Pull model checkpoints from companion HF model repo. Override at build time
 # with `--build-arg MODELS_REPO=<user>/<repo>` if you fork the demo.
