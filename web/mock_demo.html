@@ -2901,7 +2901,7 @@
      ============================================================ -->
 <header class="header">
   <div class="header-inner">
-    <a class="logo" href="/recognition">
+    <a class="logo" href="/">
       <div class="logo-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/>
@@ -3394,13 +3394,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (splash) splash.remove();
       var landing = document.getElementById('webLandingOverlay');
       if (landing) landing.remove();
-      // For both /recognition and ?skip=1#recognition, land on the upload UI.
-      // Instant scroll (behavior:'auto') instead of smooth — eliminates the
-      // brief "page scrolling from top" flash visitors saw on slow refresh.
-      if (recogRoute || location.hash === '#recognition') {
-        var el = document.getElementById('recognition');
-        if (el) el.scrollIntoView({ behavior: 'auto', block: 'start' });
-      }
+      // No auto-scroll. /recognition already renders the recognition section
+      // right under the header, so any scroll behaviour here just produces a
+      // visible jump. The native browser hash-handler still works for explicit
+      // #recognition fragments.
     });
   } catch (e) {}
 })();
