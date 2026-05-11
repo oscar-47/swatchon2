@@ -7,6 +7,11 @@ uvicorn[standard]>=0.27
 python-multipart>=0.0.9
 pillow>=10.2
 numpy>=1.26,<2
+opencv-python-headless>=4.9
+pypdf>=4.0
+
+# Used at build time to download model checkpoints from the companion HF model repo
+huggingface_hub>=0.25
 
 # FabricAI assistant (Haochen sub-app)
 openai>=1.55

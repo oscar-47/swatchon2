@@ -18,11 +18,19 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
 
-# Copy application source + models + samples (all bundled inside the image)
+# Copy application source + samples (models pulled from separate HF model repo
+# at build time so the Space repo stays under the 1 GB LFS quota).
 COPY server /app/server
 COPY web    /app/web
-COPY runs   /app/runs
 COPY sample /app/sample
+
+# Pull model checkpoints from companion HF model repo. Override at build time
+# with `--build-arg MODELS_REPO=<user>/<repo>` if you fork the demo.
+ARG MODELS_REPO=turbosun/fabricflow-models
+RUN python -c "from huggingface_hub import snapshot_download; \
+    snapshot_download(repo_id='${MODELS_REPO}', repo_type='model', \
+                      local_dir='/app/runs', \
+                      allow_patterns=['*.pth'])"
 
 # HF Spaces convention: app must listen on $PORT (default 7860)
 ENV PORT=7860

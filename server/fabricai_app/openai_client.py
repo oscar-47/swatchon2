@@ -1,21 +1,26 @@
 """Thin wrapper around the OpenAI Python SDK (Responses API).
 
-Credential resolution lives here too. Order of precedence:
-  1. The OPENAI_API_KEY / OPENAI_MODEL environment variable, if set.
-  2. The constants in fabricai/backend/app/config.py, if that file exists.
-  3. Raise a clear RuntimeError pointing the user to the README.
+Credential resolution — supports both vanilla OpenAI and Azure OpenAI.
 
-config.py is intentionally git-ignored — request it from the project
-administrator. The defensive import below means the rest of the module
-still loads if config.py is missing, so a clone-and-run workflow that
-exports OPENAI_API_KEY in the shell still works.
+Provider selection:
+  - If AZURE_OPENAI_ENDPOINT is set, the Azure Responses API is used.
+    Required env vars in that mode:
+      AZURE_OPENAI_ENDPOINT       (e.g. https://<resource>.openai.azure.com)
+      AZURE_OPENAI_API_KEY        Azure resource key
+      AZURE_OPENAI_DEPLOYMENT     deployment name (used as the model arg)
+    Optional:
+      AZURE_OPENAI_API_VERSION    default: 2025-04-01-preview
+  - Otherwise, vanilla OpenAI is used, with OPENAI_API_KEY / OPENAI_MODEL.
+
+All values come from env vars or the git-ignored local config.py — never
+hard-coded — so no provider URL or key ships in the source tree.
 """
 
 from __future__ import annotations
 
 import os
 
-from openai import OpenAI
+from openai import AzureOpenAI, OpenAI
 
 # --- Defensive load of the local config file --------------------------------
 
@@ -28,19 +33,35 @@ except ImportError:
     _FILE_MODEL = ""
 
 _PLACEHOLDER_KEY = "sk-your-key-here"
+_DEFAULT_AZURE_API_VERSION = "2025-04-01-preview"
+
+
+# --- Provider selection -----------------------------------------------------
+
+def _azure_endpoint() -> str:
+    return (os.environ.get("AZURE_OPENAI_ENDPOINT") or "").rstrip("/")
+
+
+def _is_azure() -> bool:
+    return bool(_azure_endpoint())
 
 
 # --- Credential resolution --------------------------------------------------
 
 def get_openai_api_key() -> str:
-    """Return the OpenAI API key.
+    """Return the active API key for the configured provider.
 
-    Resolution order (first non-empty, non-placeholder wins):
-      1. The OPENAI_API_KEY environment variable.
-      2. The OPENAI_API_KEY constant in fabricai/backend/app/config.py.
-
-    Raises RuntimeError if neither is set or if the value is the placeholder.
+    In Azure mode this returns AZURE_OPENAI_API_KEY; otherwise the standard
+    OpenAI key (env var first, then config.py).
     """
+    if _is_azure():
+        key = os.environ.get("AZURE_OPENAI_API_KEY") or ""
+        if not key:
+            raise RuntimeError(
+                "AZURE_OPENAI_ENDPOINT is set but AZURE_OPENAI_API_KEY is empty."
+            )
+        return key
+
     key = os.environ.get("OPENAI_API_KEY") or _FILE_KEY
     if not key or key == _PLACEHOLDER_KEY:
         raise RuntimeError(
@@ -53,20 +74,39 @@ def get_openai_api_key() -> str:
 
 
 def get_openai_model() -> str:
-    """Return the OpenAI model name (env var overrides the file constant)."""
+    """Return the model / deployment name to use in API calls.
+
+    Azure mode: AZURE_OPENAI_DEPLOYMENT (the SDK passes this as `model`).
+    Default mode: OPENAI_MODEL env var, then config.py, then a sensible default.
+    """
+    if _is_azure():
+        deployment = os.environ.get("AZURE_OPENAI_DEPLOYMENT") or _FILE_MODEL
+        if not deployment:
+            raise RuntimeError(
+                "AZURE_OPENAI_DEPLOYMENT must be set when AZURE_OPENAI_ENDPOINT is."
+            )
+        return deployment
     return os.environ.get("OPENAI_MODEL") or _FILE_MODEL or "gpt-5.4-mini"
 
 
-# --- OpenAI client ----------------------------------------------------------
+# --- OpenAI / AzureOpenAI client -------------------------------------------
 
-# Initialise once at module level.
-_client: OpenAI | None = None
+# Initialise once at module level; type widened to cover either SDK class.
+_client: OpenAI | AzureOpenAI | None = None
 
 
-def _get_client() -> OpenAI:
+def _get_client() -> OpenAI | AzureOpenAI:
     global _client
     if _client is None:
-        _client = OpenAI(api_key=get_openai_api_key())
+        if _is_azure():
+            _client = AzureOpenAI(
+                azure_endpoint=_azure_endpoint(),
+                api_key=get_openai_api_key(),
+                api_version=os.environ.get("AZURE_OPENAI_API_VERSION")
+                            or _DEFAULT_AZURE_API_VERSION,
+            )
+        else:
+            _client = OpenAI(api_key=get_openai_api_key())
     return _client
 
 
