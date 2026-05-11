@@ -589,6 +589,10 @@ if os.path.isdir(MOCK_DIR):
     async def read_passport_v2():
         return FileResponse(os.path.join(MOCK_DIR, "passport_v2.html"))
 
+    @app.get("/assistant")
+    async def read_assistant():
+        return FileResponse(os.path.join(MOCK_DIR, "assistant.html"))
+
     # Serve web/ sub-directories (assets, js, css) so relative paths in HTML work
     for sub in ("assets", "js", "css"):
         sub_path = os.path.join(MOCK_DIR, sub)

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FabricAI — Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --surface-page:   oklch(0.980 0.004 85);
+    --surface-card:   oklch(0.995 0.002 85);
+    --surface-sunk:   oklch(0.955 0.006 85);
+
+    --ink-primary:    oklch(0.18 0.020 250);
+    --ink-secondary:  oklch(0.42 0.012 250);
+    --ink-muted:      oklch(0.58 0.008 250);
+    --ink-faint:      oklch(0.72 0.006 250);
+
+    --rule:           oklch(0.90 0.006 250);
+    --rule-strong:    oklch(0.80 0.008 250);
+
+    --accent:         oklch(0.48 0.14 38);
+    --accent-deep:    oklch(0.36 0.12 32);
+    --accent-soft:    oklch(0.92 0.04 38);
+    --accent-tint:    oklch(0.965 0.018 38);
+
+    --ok:             oklch(0.52 0.09 155);
+    --ok-soft:        oklch(0.93 0.03 155);
+
+    --hero-bg:        oklch(0.36 0.045 55);
+    --hero-bg-deep:   oklch(0.28 0.035 55);
+    --hero-ink:       oklch(0.96 0.012 65);
+    --hero-ink-soft:  oklch(0.86 0.018 65);
+    --hero-ink-faint: oklch(0.74 0.020 60);
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: 'Schibsted Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--surface-page);
+    color: var(--ink-primary);
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    line-height: 1.55;
+    display: flex; flex-direction: column;
+    height: 100vh; height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* ── Top nav ──────────────────────────────────────────────────────── */
+  .ax-nav {
+    background: var(--surface-card);
+    border-bottom: 1px solid var(--rule);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .ax-nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 14px 22px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .ax-brand {
+    font-family: 'Libre Caslon Text', Georgia, serif;
+    font-size: 18px; font-weight: 400; letter-spacing: -0.2px;
+    color: var(--ink-primary);
+    text-decoration: none;
+    display: inline-flex; align-items: baseline; gap: 6px;
+  }
+  .ax-brand em { color: var(--accent); font-style: italic; }
+  .ax-brand-sep {
+    font-size: 11px; color: var(--ink-muted);
+    font-family: 'Schibsted Grotesk', sans-serif;
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-left: 4px; padding-left: 14px; border-left: 1px solid var(--rule);
+  }
+  .ax-nav-links { margin-left: auto; display: flex; gap: 6px; }
+  .ax-nav-link {
+    font-family: 'Schibsted Grotesk', sans-serif;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 1.6px; text-transform: uppercase;
+    color: var(--ink-muted);
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 2px;
+    transition: color .15s ease, background .15s ease;
+  }
+  .ax-nav-link:hover { color: var(--ink-primary); }
+  .ax-nav-link.active { color: var(--accent); }
+  .ax-back {
+    font-family: 'Schibsted Grotesk', sans-serif;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--ink-secondary);
+    text-decoration: none;
+    padding: 8px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    transition: all .15s ease;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .ax-back:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-tint); }
+
+  /* ── Hero (slim band) ───────────────────────────────────────────── */
+  .ax-hero {
+    background: var(--hero-bg); color: var(--hero-ink);
+    padding: 14px 22px 16px;
+    position: relative; overflow: hidden;
+    flex-shrink: 0;
+  }
+  .ax-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(135deg, transparent, transparent 48px, rgba(255,255,255,.05) 48px, rgba(255,255,255,.05) 49px);
+    pointer-events: none;
+  }
+  .ax-hero-inner {
+    position: relative; max-width: 1240px; margin: 0 auto;
+    display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  }
+  .ax-eyebrow {
+    font-family: 'Schibsted Grotesk', sans-serif;
+    font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase;
+    color: var(--hero-ink-faint); font-weight: 500;
+    flex-shrink: 0;
+  }
+  .ax-title {
+    font-family: 'Libre Caslon Text', Georgia, serif;
+    font-size: clamp(18px, 2vw, 22px);
+    font-weight: 400; letter-spacing: -0.3px;
+    line-height: 1.25; color: var(--hero-ink);
+  }
+  .ax-tagline {
+    font-family: 'Libre Caslon Text', Georgia, serif;
+    font-style: italic; font-size: 12.5px; color: var(--hero-ink-soft);
+    line-height: 1.45;
+    margin-left: auto;
+    max-width: 480px;
+  }
+
+  /* ── Body grid — fills the remaining viewport ───────────────────── */
+  .ax-main {
+    flex: 1;
+    min-height: 0;
+    max-width: 1240px;
+    width: 100%;
+    margin: 14px auto 14px;
+    padding: 0 22px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 880px) {
+    .ax-main { grid-template-columns: 1fr; gap: 12px; }
+    .ax-sidebar { order: 2; }
+    .ax-tagline { display: none; }
+  }
+
+  /* ── Sidebar ─────────────────────────────────────────────────────── */
+  .ax-sidebar {
+    background: var(--surface-card);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px 16px;
+    overflow-y: auto;
+    min-height: 0;
+  }
+  .ax-sidebar-section + .ax-sidebar-section { margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--rule); }
+  .ax-sidebar-label {
+    font-family: 'Schibsted Grotesk', sans-serif;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 1.6px; text-transform: uppercase;
+    color: var(--ink-muted); margin-bottom: 10px;
+  }
+  .ax-select {
+    width: 100%;
+    padding: 9px 12px;
+    font-family: inherit; font-size: 13px;
+    color: var(--ink-primary);
+    background: var(--surface-page);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a7568' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 28px;
+  }
+  .ax-select:focus { outline: none; border-color: var(--accent); }
+  .ax-select + .ax-select { margin-top: 8px; }
+  .ax-context-card {
+    background: var(--surface-sunk);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--ink-secondary);
+  }
+  .ax-context-card strong { color: var(--ink-primary); font-weight: 600; }
+  .ax-context-empty { font-style: italic; color: var(--ink-faint); font-family: 'Libre Caslon Text', Georgia, serif; }
+  .ax-context-row { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+  .ax-context-key { color: var(--ink-muted); flex-shrink: 0; }
+  .ax-context-val { color: var(--ink-primary); text-align: right; word-break: break-word; }
+
+  .ax-sidebar-actions { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .ax-reset {
+    padding: 7px 10px;
+    font-family: 'Schibsted Grotesk', sans-serif;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    background: transparent;
+    color: var(--ink-muted);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .ax-reset:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-tint); }
+  .ax-help {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 14px; height: 14px; margin-left: 6px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0;
+    background: var(--surface-sunk); color: var(--ink-muted);
+    border: 1px solid var(--rule); border-radius: 50%;
+    cursor: help; user-select: none;
+    vertical-align: middle;
+    font-family: 'Schibsted Grotesk', sans-serif;
+  }
+  .ax-help:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* ── Chat panel ──────────────────────────────────────────────────── */
+  .ax-chat {
+    background: var(--surface-card);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    display: flex; flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .ax-starter {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rule);
+    background: var(--accent-tint);
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .ax-starter-label {
+    width: 100%;
+    font-family: 'Schibsted Grotesk', sans-serif;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 1.6px; text-transform: uppercase;
+    color: var(--accent-deep); margin-bottom: 4px;
+  }
+  .ax-chip {
+    font-family: 'Schibsted Grotesk', sans-serif;
+    font-size: 12px;
+    padding: 6px 12px;
+    background: var(--surface-card);
+    border: 1px solid oklch(0.86 0.06 38);
+    border-radius: 999px;
+    color: var(--accent-deep);
+    cursor: pointer;
+    transition: background .15s ease, transform .15s ease;
+  }
+  .ax-chip:hover { background: var(--accent-soft); transform: translateY(-1px); }
+
+  .ax-thread {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 22px;
+    display: flex; flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+  }
+  .ax-msg {
+    max-width: 78%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    word-wrap: break-word;
+  }
+  .ax-msg.ax-user {
+    align-self: flex-end;
+    background: var(--hero-bg);
+    color: var(--hero-ink);
+    border-bottom-right-radius: 3px;
+    white-space: pre-wrap;
+  }
+  .ax-msg.ax-bot {
+    align-self: flex-start;
+    background: var(--surface-page);
+    border: 1px solid var(--rule);
+    color: var(--ink-primary);
+    border-bottom-left-radius: 3px;
+  }
+  .ax-msg.ax-bot strong { color: var(--accent-deep); font-weight: 600; }
+  .ax-msg.ax-bot em { font-style: italic; }
+  .ax-msg.ax-bot code {
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+    font-size: 12px;
+    background: var(--accent-soft);
+    color: var(--accent-deep);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .ax-msg.ax-bot p { margin: 0 0 8px 0; }
+  .ax-msg.ax-bot p:last-child { margin-bottom: 0; }
+  .ax-msg.ax-bot ul { margin: 4px 0 8px 0; padding-left: 20px; }
+  .ax-msg.ax-bot ul li { margin: 1px 0; line-height: 1.5; }
+  .ax-msg.ax-bot ul + p { margin-top: 6px; }
+  .ax-msg.ax-system {
+    align-self: center;
+    background: transparent;
+    color: var(--ink-muted);
+    font-family: 'Libre Caslon Text', Georgia, serif;
+    font-style: italic;
+    font-size: 13px;
+    max-width: 600px;
+    text-align: center;
+  }
+  .ax-msg.ax-typing { font-style: italic; color: var(--ink-muted); }
+  .ax-msg.ax-err { color: oklch(0.45 0.14 25); }
+
+  /* ── Composer ────────────────────────────────────────────────────── */
+  .ax-compose {
+    border-top: 1px solid var(--rule);
+    padding: 14px 18px 16px;
+    background: var(--surface-card);
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+  }
+  .ax-compose-row {
+    display: flex; align-items: flex-end; gap: 10px;
+  }
+  .ax-textarea {
+    flex: 1;
+    resize: none;
+    min-height: 42px;
+    max-height: 200px;
+    padding: 11px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    background: var(--surface-page);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    color: var(--ink-primary);
+  }
+  .ax-textarea:focus { outline: none; border-color: var(--accent); }
+  .ax-send {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    width: 44px; height: 42px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background .15s ease;
+    flex-shrink: 0;
+  }
+  .ax-send:hover { background: var(--accent-deep); }
+  .ax-send[disabled] { opacity: .5; cursor: not-allowed; }
+  .ax-compose-hint {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--ink-muted);
+    display: flex; justify-content: space-between;
+  }
+  .ax-compose-hint .ax-model {
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+    color: var(--ink-faint);
+  }
+
+  /* footer removed — hero tagline already communicates this */
+</style>
+</head>
+<body>
+
+<header class="ax-nav">
+  <div class="ax-nav-inner">
+    <a class="ax-brand" href="/">Fabric<em>Flow</em><span class="ax-brand-sep">No. FF·001</span></a>
+    <nav class="ax-nav-links">
+      <a class="ax-nav-link" href="/">Recognition</a>
+      <a class="ax-nav-link" href="/passport_v2?view=passport">Passport</a>
+      <a class="ax-nav-link active" href="/assistant">Assistant</a>
+    </nav>
+    <a class="ax-back" href="/" aria-label="Back to home">← Back</a>
+  </div>
+</header>
+
+<section class="ax-hero">
+  <div class="ax-hero-inner">
+    <div class="ax-eyebrow">FabricAI · Grounded Assistant</div>
+    <h1 class="ax-title">Ask the textile knowledge that sits behind every passport</h1>
+    <p class="ax-tagline">Composition, sourcing, certifications, scoring, and the technology that puts it together. Answers are grounded in the FabricFlow onboarding document, your recent recognition results, and the passport you have open — never invented from outside.</p>
+  </div>
+</section>
+
+<main class="ax-main">
+  <aside class="ax-sidebar">
+    <div class="ax-sidebar-section">
+      <div class="ax-sidebar-label">Role</div>
+      <select class="ax-select" id="ax-role"></select>
+    </div>
+    <div class="ax-sidebar-section">
+      <div class="ax-sidebar-label">Topic</div>
+      <select class="ax-select" id="ax-topic"></select>
+    </div>
+    <div class="ax-sidebar-section">
+      <div class="ax-sidebar-label">Language</div>
+      <select class="ax-select" id="ax-lang"></select>
+    </div>
+    <div class="ax-sidebar-section">
+      <div class="ax-sidebar-label">
+        Current Context
+        <span class="ax-help" title="What FabricAI sees about your fabric. Auto-pulled from the last Analyse + Compile Passport you ran. Sent with every question so answers stay grounded.">?</span>
+      </div>
+      <div class="ax-context-card" id="ax-context"></div>
+      <div class="ax-sidebar-actions">
+        <button class="ax-reset" id="ax-clear-ctx" title="Forget the stored fabric + passport so the next question runs cold.">Clear context</button>
+        <button class="ax-reset" id="ax-reset" title="Start a new conversation.">Reset chat</button>
+      </div>
+    </div>
+  </aside>
+
+  <section class="ax-chat">
+    <div class="ax-starter" id="ax-starter">
+      <span class="ax-starter-label">Try a starter question</span>
+    </div>
+    <div class="ax-thread" id="ax-thread"></div>
+    <div class="ax-compose">
+      <div class="ax-compose-row">
+        <textarea class="ax-textarea" id="ax-input" rows="1" placeholder="Ask about composition, sourcing, certifications, impact…"></textarea>
+        <button class="ax-send" id="ax-send" title="Send (⏎)">↑</button>
+      </div>
+      <div class="ax-compose-hint">
+        <span>Enter to send · Shift+Enter for new line</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+
+<script>
+(function () {
+  'use strict';
+
+  // ── tiny utils ──────────────────────────────────────────────────────
+  const $ = (id) => document.getElementById(id);
+  const make = (tag, attrs, ...kids) => {
+    const el = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      if (k === 'class') el.className = attrs[k];
+      else if (k === 'html') el.innerHTML = attrs[k];
+      else if (k.startsWith('on') && typeof attrs[k] === 'function') el.addEventListener(k.slice(2), attrs[k]);
+      else el.setAttribute(k, attrs[k]);
+    }
+    kids.flat().forEach(k => el.appendChild(typeof k === 'string' ? document.createTextNode(k) : k));
+    return el;
+  };
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // ── DOM refs ────────────────────────────────────────────────────────
+  const $role    = $('ax-role');
+  const $topic   = $('ax-topic');
+  const $lang    = $('ax-lang');
+  const $starter = $('ax-starter');
+  const $thread  = $('ax-thread');
+  const $input   = $('ax-input');
+  const $send    = $('ax-send');
+  const $reset   = $('ax-reset');
+  const $context = $('ax-context');
+
+  // ── state ───────────────────────────────────────────────────────────
+  let cfg = null;
+  let sessionId = null;
+  let busy = false;
+
+  // ── markdown renderer ───────────────────────────────────────────────
+  // Renders bot text into block-aware HTML so bullets group into one <ul>
+  // (even when the model puts blank lines between items) and paragraphs
+  // collapse extra blank lines instead of stacking <br><br>.
+  function renderMarkdown(raw) {
+    if (raw == null) return '';
+    let s = esc(String(raw));
+    s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    s = s.replace(/\*\*([^\*\n][^\*]*?)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(^|[^\w*])\*([^\*\n]+?)\*(?=[^\w*]|$)/g, '$1<em>$2</em>');
+
+    const lines = s.split(/\r?\n/);
+    const out = [];
+    let inList = false;
+    let paraBuf = [];
+    const flushPara = () => {
+      if (paraBuf.length) {
+        out.push('<p>' + paraBuf.join('<br>') + '</p>');
+        paraBuf = [];
+      }
+    };
+    for (let i = 0; i < lines.length; i++) {
+      const ln = lines[i];
+      const trimmed = ln.replace(/\s+$/, '');
+      const bullet = trimmed.match(/^\s*[-•·]\s+(.*)$/);
+      const num = trimmed.match(/^\s*(\d+)\.\s+(.*)$/);
+      if (bullet || num) {
+        flushPara();
+        if (!inList) { out.push('<ul>'); inList = true; }
+        out.push('<li>' + (bullet ? bullet[1] : num[2]) + '</li>');
+      } else if (trimmed === '') {
+        // Blank line: end the current paragraph but DON'T close the list
+        // (model often separates bullets with blank lines).
+        flushPara();
+      } else {
+        if (inList) { out.push('</ul>'); inList = false; }
+        paraBuf.push(trimmed);
+      }
+    }
+    flushPara();
+    if (inList) out.push('</ul>');
+    return out.join('');
+  }
+
+  // ── message helpers ─────────────────────────────────────────────────
+  function appendMsg(text, klass, renderMd) {
+    const el = make('div', { class: 'ax-msg ' + klass });
+    if (renderMd) el.innerHTML = renderMarkdown(text);
+    else el.textContent = text;
+    $thread.appendChild(el);
+    $thread.scrollTop = $thread.scrollHeight;
+    return el;
+  }
+  const botMsg  = (t) => appendMsg(t, 'ax-bot', true);
+  const userMsg = (t) => appendMsg(t, 'ax-user', false);
+  const sysMsg  = (t, err) => {
+    const el = appendMsg(t, 'ax-system', false);
+    if (err) el.classList.add('ax-err');
+    return el;
+  };
+
+  // ── page-context provider ──────────────────────────────────────────
+  // On the standalone assistant page we don't have an active passport.
+  // We rehydrate context from localStorage if a previous compile left it.
+  function readStashedPassport() {
+    try {
+      const raw = localStorage.getItem('ff_passport_v2');
+      if (!raw) return null;
+      const p = JSON.parse(raw);
+      return p && p.fields ? p.fields : p;
+    } catch (e) { return null; }
+  }
+  function readStashedRecognition() {
+    try {
+      const raw = sessionStorage.getItem('ff_last_recognition') || localStorage.getItem('ff_last_recognition');
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) { return null; }
+  }
+  function describeContext() {
+    const bits = [];
+    const rec = readStashedRecognition();
+    const psp = readStashedPassport();
+    if (!rec && !psp) {
+      $context.innerHTML = '<span class="ax-context-empty">No recognition or passport on file yet. Run Analyse on the home page first, then come back — answers will be sharper.</span>';
+      return '';
+    }
+    let html = '';
+    if (rec) {
+      html += '<div class="ax-context-row"><span class="ax-context-key">Fabric</span><span class="ax-context-val">' + esc(rec.fullName || rec.name || rec.l2 || '—') + '</span></div>';
+      if (rec.l1) html += '<div class="ax-context-row"><span class="ax-context-key">L1</span><span class="ax-context-val">' + esc(rec.l1) + '</span></div>';
+      const conf = (rec.confidence != null ? rec.confidence : (rec.conf != null ? rec.conf : null));
+      if (conf != null) {
+        const pct = conf > 1.0001 ? Math.round(conf) : Math.round(conf * 100);
+        const band = (pct/100) >= 0.85 ? 'Reliable' : (pct/100) >= 0.65 ? 'Moderate' : 'Uncertain';
+        html += '<div class="ax-context-row"><span class="ax-context-key">Confidence</span><span class="ax-context-val">' + pct + '% · ' + band + '</span></div>';
+      }
+    }
+    if (psp) {
+      if (psp.passport_id) html += '<div class="ax-context-row"><span class="ax-context-key">Passport ID</span><span class="ax-context-val">' + esc(psp.passport_id) + '</span></div>';
+      if (psp.origin) html += '<div class="ax-context-row"><span class="ax-context-key">Origin</span><span class="ax-context-val">' + esc(psp.origin) + '</span></div>';
+      if (psp.supplier_short_name) html += '<div class="ax-context-row"><span class="ax-context-key">Supplier</span><span class="ax-context-val">' + esc(psp.supplier_short_name) + '</span></div>';
+      if (psp.supplier_grade) html += '<div class="ax-context-row"><span class="ax-context-key">Grade</span><span class="ax-context-val"><strong>' + esc(psp.supplier_grade) + '</strong></span></div>';
+      if (psp.fabric_score != null) html += '<div class="ax-context-row"><span class="ax-context-key">Score</span><span class="ax-context-val">' + esc(psp.fabric_score) + '</span></div>';
+    }
+    $context.innerHTML = html;
+
+    // Build the prompt block.
+    const lines = [];
+    if (rec) {
+      const facts = [];
+      const full = rec.fullName || rec.name || rec.l2 || rec.s2 || '';
+      if (full) facts.push('fabric=' + full);
+      if (rec.l1) facts.push('l1=' + rec.l1);
+      const l2 = rec.l2 || rec.s2 || rec.name;
+      if (l2 && l2 !== full) facts.push('l2=' + l2);
+      const c = (rec.confidence != null ? rec.confidence : (rec.conf != null ? rec.conf : (rec.s2c != null ? rec.s2c : null)));
+      if (c != null) {
+        const pct = c > 1.0001 ? Math.round(c) : Math.round(c * 100);
+        const frac = pct / 100;
+        const band = frac >= 0.85 ? 'Reliable' : (frac >= 0.65 ? 'Moderate' : 'Uncertain');
+        facts.push('confidence=' + pct + '% (' + frac.toFixed(2) + ' → ' + band + ')');
+      }
+      if (rec.construction) facts.push('construction=' + rec.construction);
+      if (rec.fabric_id) facts.push('fabric_id=' + rec.fabric_id);
+      lines.push('Latest classification — ' + facts.join(' · '));
+    }
+    if (psp) {
+      const k = ['fabric_name','passport_id','origin','supplier_short_name','supplier_grade','fabric_score','otd_rate'];
+      const flat = k.map(x => psp[x] != null ? `${x}=${psp[x]}` : null).filter(Boolean).join(' · ');
+      if (flat) lines.push('Compiled passport — ' + flat);
+      if (Array.isArray(psp.fibre_legend)) lines.push('Fibres: ' + psp.fibre_legend.map(f => `${f.name} ${f.pct}%`).join(', '));
+    }
+    return lines.length ? 'CURRENT PAGE CONTEXT (verbatim — treat as ground truth for this turn; do NOT say you cannot see it):\n- ' + lines.join('\n- ') : '';
+  }
+
+  // ── starter chips ───────────────────────────────────────────────────
+  function renderStarter() {
+    [...$starter.querySelectorAll('.ax-chip')].forEach(c => c.remove());
+    if (!cfg || !cfg.starter_questions) return;
+    const list = cfg.starter_questions[$topic.value] || [];
+    list.slice(0, 5).forEach(q => {
+      const c = make('button', { class: 'ax-chip', html: esc(q) });
+      c.addEventListener('click', () => { $input.value = q; $input.focus(); autoResize(); });
+      $starter.appendChild(c);
+    });
+  }
+
+  // ── bootstrap ───────────────────────────────────────────────────────
+  function fillSelect(sel, items, defId) {
+    sel.innerHTML = '';
+    (items || []).forEach(it => {
+      const o = make('option', { value: it.id }, it.label);
+      sel.appendChild(o);
+    });
+    if (defId) sel.value = defId;
+  }
+  async function bootstrap() {
+    try {
+      const r = await fetch('/fabricai/api/config');
+      cfg = await r.json();
+    } catch (e) {
+      sysMsg('Could not reach FabricAI backend — set OPENAI_API_KEY and restart server.', true);
+      return;
+    }
+    fillSelect($role, cfg.roles, (cfg.roles[0] || {}).id);
+    fillSelect($topic, cfg.topics, cfg.default_topic);
+    fillSelect($lang, cfg.languages, cfg.default_language);
+    renderStarter();
+    $topic.addEventListener('change', renderStarter);
+
+    await newSession();
+    describeContext();
+  }
+  async function newSession() {
+    try {
+      const s = await fetch('/fabricai/api/session', { method: 'POST' });
+      const j = await s.json();
+      sessionId = j.session_id;
+      $thread.innerHTML = '';
+      sysMsg('Welcome to FabricAI. Pick a role, a topic, and a language on the left, then ask anything about your fabric, supplier, or the platform itself. Every answer cites its sources.');
+    } catch (e) {
+      sysMsg('Could not start a session: ' + e.message, true);
+    }
+  }
+  $('ax-clear-ctx').addEventListener('click', () => {
+    try {
+      localStorage.removeItem('ff_passport_v2');
+      localStorage.removeItem('ff_last_recognition');
+      sessionStorage.removeItem('ff_passport');
+      sessionStorage.removeItem('ff_last_recognition');
+    } catch (e) {}
+    describeContext();
+    sysMsg('Context cleared. Next question will run without fabric or passport context.');
+  });
+
+  $reset.addEventListener('click', async () => {
+    if (!sessionId) return newSession();
+    try {
+      const r = await fetch('/fabricai/api/session/' + encodeURIComponent(sessionId) + '/reset', { method: 'POST' });
+      const j = await r.json();
+      sessionId = j.session_id;
+      $thread.innerHTML = '';
+      sysMsg('Session reset. The previous conversation is cleared.');
+    } catch (e) {
+      sysMsg('Reset failed: ' + e.message, true);
+    }
+  });
+
+  // ── send ───────────────────────────────────────────────────────────
+  async function send() {
+    if (busy || !sessionId) return;
+    const q = ($input.value || '').trim();
+    if (!q) return;
+    $input.value = '';
+    autoResize();
+    userMsg(q);
+
+    const ctx = describeContext();
+    const finalQ = ctx ? (ctx + '\n\nUSER QUESTION:\n' + q) : q;
+
+    busy = true; $send.disabled = true;
+    const typing = appendMsg('Thinking…', 'ax-bot ax-typing', false);
+    try {
+      const r = await fetch('/fabricai/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: sessionId,
+          question: finalQ,
+          role: $role.value || null,
+          topic: $topic.value || null,
+          language: $lang.value || null,
+        }),
+      });
+      const j = await r.json();
+      typing.remove();
+      if (!r.ok) {
+        sysMsg('Error: ' + (j.detail || r.status), true);
+      } else {
+        botMsg(j.answer || '(empty response)');
+      }
+    } catch (e) {
+      typing.remove();
+      sysMsg('Network error: ' + e.message, true);
+    } finally {
+      busy = false; $send.disabled = false; $input.focus();
+    }
+  }
+  $send.addEventListener('click', send);
+  $input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+  function autoResize() {
+    $input.style.height = 'auto';
+    $input.style.height = Math.min($input.scrollHeight, 200) + 'px';
+  }
+  $input.addEventListener('input', autoResize);
+
+  // Re-describe context if the user comes back here from another tab.
+  window.addEventListener('focus', describeContext);
+  window.addEventListener('storage', e => { if (e.key === 'ff_passport_v2' || e.key === 'ff_last_recognition') describeContext(); });
+
+  bootstrap();
+})();
+</script>
+</body>
+</html>

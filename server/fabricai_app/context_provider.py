@@ -100,12 +100,13 @@ STARTER_QUESTIONS: dict[str, list[str]] = {
 }
 
 LANGUAGES: dict[str, str] = {
-    "en":    "English",
-    "zh":    "中文",
-    "tr":    "Türkçe",
-    "it":    "Italiano",
-    "es":    "Español",
-    "other": "Other",
+    "en":      "English",
+    "zh":      "中文",
+    "yue":     "廣東話",
+    "tr":      "Türkçe",
+    "it":      "Italiano",
+    "es":      "Español",
+    "other":   "Other",
 }
 
 
@@ -331,6 +332,17 @@ def build_system_instructions(
             "your reply must be in the requested language. Source-tag "
             "names in the citations block stay in English."
         )
+        if language == "yue":
+            parts.append(
+                "\nCANTONESE STYLE — write in colloquial Hong Kong Cantonese "
+                "(口語廣東話), using traditional characters and Cantonese-specific "
+                "grammar/vocabulary: 係 / 唔係 / 咗 / 嘅 / 喺 / 啲 / 呢個 / 嗰個 / 點解 / "
+                "可以 / 而家 / 仲 / 都. Do NOT write in Standard Written Chinese "
+                "(書面語) or Mandarin. The tone should sound natural, like a "
+                "knowledgeable textile colleague speaking in a Hong Kong studio. "
+                "Technical English terms (Rib Knit, Twill, KNIT, WOVEN, OEKO-TEX, "
+                "GOTS, etc.) stay in English."
+            )
 
     # Build the CONTEXT
     if results:

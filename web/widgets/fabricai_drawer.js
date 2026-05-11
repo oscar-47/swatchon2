@@ -127,8 +127,15 @@
   .fai-thread { flex: 1; overflow-y: auto; padding: 16px 20px 18px; display: flex; flex-direction: column; gap: 12px; background: oklch(0.980 0.004 85); }
   .fai-msg { max-width: 88%; padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.55; white-space: pre-wrap; word-wrap: break-word; }
   .fai-msg.fai-user { align-self: flex-end; background: oklch(0.36 0.045 55); color: oklch(0.96 0.012 65); border-bottom-right-radius: 3px; }
-  .fai-msg.fai-bot  { align-self: flex-start; background: oklch(0.995 0.002 85); border: 1px solid oklch(0.90 0.006 250); border-bottom-left-radius: 3px; }
-  .fai-msg.fai-bot strong { color: oklch(0.36 0.12 32); }
+  .fai-msg.fai-bot  { align-self: flex-start; background: oklch(0.995 0.002 85); border: 1px solid oklch(0.90 0.006 250); border-bottom-left-radius: 3px; white-space: normal; }
+  .fai-msg.fai-bot strong { color: oklch(0.36 0.12 32); font-weight: 600; }
+  .fai-msg.fai-bot em { font-style: italic; color: oklch(0.18 0.020 250); }
+  .fai-msg.fai-bot code { font-family: 'SF Mono','Fira Mono',monospace; font-size: 12px; background: oklch(0.92 0.04 38); padding: 1px 5px; border-radius: 3px; color: oklch(0.36 0.12 32); }
+  .fai-msg.fai-bot p { margin: 0 0 6px 0; }
+  .fai-msg.fai-bot p:last-child { margin-bottom: 0; }
+  .fai-msg.fai-bot .fai-md-list { margin: 4px 0 6px 0; padding-left: 18px; }
+  .fai-msg.fai-bot .fai-md-list li { margin: 1px 0; line-height: 1.5; }
+  .fai-msg.fai-bot .fai-md-list + p { margin-top: 4px; }
   .fai-msg.fai-system { align-self: center; background: transparent; color: oklch(0.58 0.008 250); font-style: italic; font-size: 12px; text-align: center; font-family: 'Libre Caslon Text', Georgia, serif; }
   .fai-msg.fai-typing { color: oklch(0.58 0.008 250); font-style: italic; }
 
@@ -247,7 +254,18 @@
     drawer.classList.remove('show');
     fab.classList.remove('fai-open');
   }
-  fab.addEventListener('click', open);
+  // On the passport_v2 page, FAB navigates to the standalone /assistant page
+  // (full-screen experience). Everywhere else, FAB opens the drawer in-place.
+  var path = location.pathname.replace(/\/+$/, '');
+  var fabRedirectsToAssistant = (path === '/passport_v2');
+  fab.addEventListener('click', function (e) {
+    if (fabRedirectsToAssistant) {
+      e.preventDefault();
+      location.href = '/assistant';
+      return;
+    }
+    open();
+  });
   $closeBtn.addEventListener('click', close);
   scrim.addEventListener('click', close);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('show')) close(); });
@@ -297,43 +315,117 @@
   }
 
   // ── messages ────────────────────────────────────────────────────────────
-  function botMsg(text)   { return appendMsg(text, 'fai-bot'); }
-  function userMsg(text)  { return appendMsg(text, 'fai-user'); }
+  function botMsg(text)   { return appendMsg(text, 'fai-bot', true); }
+  function userMsg(text)  { return appendMsg(text, 'fai-user', false); }
   function systemMsg(text, isErr) {
-    const el = appendMsg(text, 'fai-system');
+    const el = appendMsg(text, 'fai-system', false);
     if (isErr) el.classList.add('fai-err');
     return el;
   }
-  function appendMsg(text, klass) {
+  function appendMsg(text, klass, renderMd) {
     const el = make('div', { class: 'fai-msg ' + klass });
-    el.textContent = text;
+    if (renderMd) {
+      el.innerHTML = renderMarkdown(text);
+    } else {
+      el.textContent = text;
+    }
     thread.appendChild(el);
     thread.scrollTop = thread.scrollHeight;
     return el;
   }
 
+  // Block-aware markdown renderer. Groups consecutive bullet lines into one
+  // <ul> even when the model separates them with blank lines, and uses <p>
+  // for paragraphs so the gap is controlled by CSS margin instead of stacked
+  // <br> tags. HTML escaped first.
+  function renderMarkdown(raw) {
+    if (raw == null) return '';
+    var s = esc(String(raw));
+    s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    s = s.replace(/\*\*([^\*\n][^\*]*?)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(^|[^\w*])\*([^\*\n]+?)\*(?=[^\w*]|$)/g, '$1<em>$2</em>');
+    var lines = s.split(/\r?\n/);
+    var out = [];
+    var inList = false;
+    var paraBuf = [];
+    function flushPara() {
+      if (paraBuf.length) {
+        out.push('<p>' + paraBuf.join('<br>') + '</p>');
+        paraBuf = [];
+      }
+    }
+    for (var i = 0; i < lines.length; i++) {
+      var ln = lines[i].replace(/\s+$/, '');
+      var bullet = ln.match(/^\s*[-•·]\s+(.*)$/);
+      var num = ln.match(/^\s*(\d+)\.\s+(.*)$/);
+      if (bullet || num) {
+        flushPara();
+        if (!inList) { out.push('<ul class="fai-md-list">'); inList = true; }
+        out.push('<li>' + (bullet ? bullet[1] : num[2]) + '</li>');
+      } else if (ln === '') {
+        flushPara();
+      } else {
+        if (inList) { out.push('</ul>'); inList = false; }
+        paraBuf.push(ln);
+      }
+    }
+    flushPara();
+    if (inList) out.push('</ul>');
+    return out.join('');
+  }
+
   // ── page-context provider ──────────────────────────────────────────────
   function gatherPageContext() {
     const bits = [];
+    // ── Latest recognition result ──
     try {
       const r = window.lastFabricResult || window._lastFabricResult || null;
-      if (r) bits.push('Latest classification: ' + (r.fullName || r.name || r.l1 || JSON.stringify(r)).slice(0, 240));
+      if (r) {
+        const facts = [];
+        const full = r.fullName || r.name || r.l2 || r.s2 || '';
+        if (full) facts.push('fabric=' + full);
+        if (r.l1) facts.push('l1=' + r.l1);
+        const l2 = r.l2 || r.s2 || r.name;
+        if (l2 && l2 !== full) facts.push('l2=' + l2);
+        // Confidence — may be 0-1 float or 0-100 int.
+        var c = (r.confidence != null ? r.confidence : (r.conf != null ? r.conf : (r.s2c != null ? r.s2c : null)));
+        if (c != null) {
+          var pct = (c > 1.0001) ? Math.round(c) : Math.round(c * 100);
+          var frac = pct / 100;
+          var band = frac >= 0.85 ? 'Reliable' : (frac >= 0.65 ? 'Moderate' : 'Uncertain');
+          facts.push('confidence=' + pct + '% (' + frac.toFixed(2) + ' → ' + band + ')');
+        }
+        if (r.s1 && r.s1c != null) facts.push('stage1=' + r.s1 + ' @' + r.s1c + '%');
+        if (r.s2 && r.s2c != null && r.s2 !== r.s1) facts.push('stage2=' + r.s2 + ' @' + r.s2c + '%');
+        if (r.construction) facts.push('construction=' + r.construction);
+        if (r.fabric_id) facts.push('fabric_id=' + r.fabric_id);
+        if (facts.length) bits.push('Latest classification — ' + facts.join(' · '));
+      }
     } catch (e) {}
+    // ── Per-photo quality scores ──
+    try {
+      var qs = window.qualityScores;
+      if (Array.isArray(qs) && qs.some(function(x){ return x != null; })) {
+        bits.push('Photo quality scores (slot1..slot3): ' + qs.map(function(x){ return x == null ? '—' : x; }).join(' · '));
+      }
+    } catch (e) {}
+    // ── Compiled passport snapshot ──
     try {
       const p = window._ffPassportV2 || null;
       if (p) {
         const k = ['fabric_name','passport_id','origin','supplier_short_name','supplier_grade','fabric_score','otd_rate'];
         const flat = k.map(x => p[x] != null ? `${x}=${p[x]}` : null).filter(Boolean).join(' · ');
-        if (flat) bits.push('Compiled passport: ' + flat);
+        if (flat) bits.push('Compiled passport — ' + flat);
         if (Array.isArray(p.fibre_legend)) bits.push('Fibres: ' + p.fibre_legend.map(f => `${f.name} ${f.pct}%`).join(', '));
       }
     } catch (e) {}
+    // ── Page title hint ──
     try {
       const h = (document.querySelector('h1, .hero-title, .pp-hero-name') || {}).textContent;
       if (h) bits.push('Page title: ' + h.trim().slice(0, 120));
     } catch (e) {}
     if (!bits.length) return '';
-    return 'CURRENT PAGE CONTEXT (verbatim, treat as ground truth for this turn):\n- ' + bits.join('\n- ');
+    return 'CURRENT PAGE CONTEXT (verbatim — treat as ground truth for this turn; do NOT say you cannot see it):\n- ' + bits.join('\n- ');
   }
 
   // ── send ────────────────────────────────────────────────────────────────

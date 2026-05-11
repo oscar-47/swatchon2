@@ -2846,6 +2846,7 @@
         <a class="nav-link active" onclick="scrollToSection('recognition', event)">Recognition</a>
         <a class="nav-link" onclick="scrollToSection('dpp', event)">Passport</a>
         <a class="nav-link" onclick="scrollToSection('demo', event)">Specimens</a>
+        <a class="nav-link" href="/assistant">Assistant</a>
       </nav>
       <div class="badge"><div class="badge-dot"></div>Model Ready</div>
     </div>
@@ -4282,6 +4283,8 @@ function showFabricResult(data) {
   lastFabricResult = data;
   // Reveal the FabricAI drawer — recognition is the gate for assistant access.
   try { if (typeof window.faiShow === 'function') window.faiShow(); } catch (e) {}
+  // Stash for the standalone /assistant page (cross-tab via localStorage).
+  try { localStorage.setItem('ff_last_recognition', JSON.stringify(data)); } catch (e) {}
   document.getElementById('fabricLoading').classList.remove('visible');
 
   // Reveal locked sections progressively
