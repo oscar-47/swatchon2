@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Fabric Passport — [PASSPORT ID]</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --sage:#4A7A55; --sage-light:#7AAF88; --sage-pale:#EDF5EF; --sage-dark:#28422E;
+  --earth:#8C7355; --earth-light:#C4AA8A; --earth-pale:#F6F1EA;
+  --linen:#FAF7F2; --stone:#EAE4DA; --border:#D9D2C5;
+  --charcoal:#252520; --muted:#6B6860; --white:#FFFFFF; --soft-red:#B85C5C;
+  --r:16px; --r-md:12px; --r-sm:10px; --gap:12px;
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+body { background:var(--linen); color:var(--charcoal); min-height:100vh; font-size:15px; line-height:1.65; }
+.page { display:none; min-height:100vh; }
+.page.active { display:block; }
+
+.empty {
+  display:inline-block; min-width:80px; height:14px;
+  background:var(--stone); border-radius:4px; opacity:0.55;
+  vertical-align:middle;
+}
+.empty.w-sm  { min-width:48px; }
+.empty.w-md  { min-width:120px; }
+.empty.w-lg  { min-width:200px; }
+.empty.h-val { height:18px; border-radius:5px; }
+
+.site-header { background:var(--sage-dark); color:#fff; position:relative; overflow:hidden; }
+.site-header::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(135deg,transparent,transparent 48px,rgba(255,255,255,.035) 48px,rgba(255,255,255,.035) 49px); pointer-events:none; }
+.header-inner { position:relative; max-width:1100px; margin:0 auto; padding:28px 32px 26px; display:flex; align-items:center; gap:18px; }
+.header-logo { width:44px; height:44px; background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.2); border-radius:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.header-logo svg { width:22px; height:22px; }
+.header-titles h1 { font-family:'DM Serif Display',serif; font-size:clamp(20px,3vw,26px); font-weight:400; letter-spacing:-0.2px; }
+.header-titles p { font-size:13px; color:rgba(255,255,255,.6); font-weight:300; margin-top:3px; }
+.header-badge { margin-left:auto; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); border-radius:100px; padding:5px 14px; font-size:10px; letter-spacing:1.3px; text-transform:uppercase; color:rgba(255,255,255,.7); white-space:nowrap; flex-shrink:0; }
+
+.gauge { position:relative; display:inline-block; }
+.gauge-readout { position:absolute; left:0; right:0; bottom:8%; text-align:center; pointer-events:none; }
+.gauge-score { font-family:'DM Serif Display',serif; font-size:28px; font-weight:400; color:var(--charcoal); line-height:1; letter-spacing:-0.5px; }
+.gauge-grade { font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:var(--sage); margin-top:4px; }
+.gauge-cap { font-size:9px; color:var(--muted); letter-spacing:0.6px; text-transform:uppercase; margin-top:5px; }
+.gauge.sm svg { width:130px; height:auto; } .gauge.sm .gauge-score { font-size:22px; } .gauge.sm .gauge-grade { font-size:9px; margin-top:2px; }
+.gauge.md svg { width:170px; height:auto; } .gauge.md .gauge-score { font-size:28px; }
+.gauge.lg svg { width:200px; height:auto; } .gauge.lg .gauge-score { font-size:34px; }
+.gauge.on-dark .gauge-score { color:#fff; }
+.gauge.on-dark .gauge-grade { color:rgba(255,255,255,0.85); }
+.gauge.on-dark .gauge-cap { color:rgba(255,255,255,0.55); }
+
+#page-preview { display:none; padding:56px 24px 80px; }
+#page-preview.active { display:flex; align-items:flex-start; justify-content:center; }
+.preview-wrap { width:100%; max-width:480px; }
+.preview-intro { text-align:center; margin-bottom:28px; }
+.preview-intro h2 { font-family:'DM Serif Display',serif; font-size:clamp(22px,3.5vw,30px); font-weight:400; color:var(--sage-dark); margin-bottom:8px; }
+.preview-intro p { font-size:14px; color:var(--muted); max-width:420px; margin:0 auto; }
+.preview-card { background:var(--white); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; transition:box-shadow .25s,transform .25s; }
+.preview-card:hover { box-shadow:0 12px 36px rgba(40,66,46,.10); transform:translateY(-2px); }
+.pc-body { padding:26px 28px 22px; }
+.pc-top { display:flex; align-items:flex-start; gap:16px; }
+.pc-avatar { width:54px; height:54px; border-radius:14px; background:var(--linen); border:1px solid var(--stone); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+.pc-title { flex:1; min-width:0; }
+.pc-eyebrow { font-size:10px; font-weight:600; letter-spacing:1.4px; text-transform:uppercase; color:var(--sage); margin-bottom:5px; }
+.pc-name { font-family:'DM Serif Display',serif; font-size:19px; font-weight:400; color:var(--charcoal); line-height:1.3; letter-spacing:-0.2px; }
+.pc-id { font-size:11px; color:var(--muted); margin-top:5px; font-family:'SF Mono','Fira Mono',monospace; }
+.pc-gauge-block { margin:18px -4px 8px; padding:14px 0 6px; background:var(--linen); border-radius:var(--r-md); display:flex; justify-content:center; }
+.pc-divider { border:none; border-top:1px solid var(--stone); margin:14px 0 18px; }
+.pc-meta { display:grid; grid-template-columns:1fr 1fr; gap:14px 16px; }
+.pc-meta-item { display:flex; flex-direction:column; gap:3px; }
+.pc-meta-key { font-size:10px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:var(--muted); }
+.pc-meta-val { font-size:13.5px; font-weight:500; color:var(--charcoal); }
+.pc-meta-val.accent { color:var(--sage-dark); }
+.pc-tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:18px; }
+.pc-footer { display:flex; align-items:center; justify-content:space-between; padding:14px 28px; border-top:1px solid var(--stone); background:var(--linen); }
+.pc-updated { font-size:11px; color:var(--muted); }
+.pc-btn { font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:#fff; background:var(--sage-dark); border:none; border-radius:var(--r-sm); padding:9px 18px; cursor:pointer; transition:background .2s,transform .2s; display:flex; align-items:center; gap:6px; }
+.pc-btn:hover { background:var(--sage); transform:translateY(-1px); }
+
+#page-passport { background:var(--linen); }
+.pp-back-bar { position:sticky; top:0; z-index:100; background:var(--white); border-bottom:1px solid var(--border); padding:0 1.5rem; height:52px; display:flex; align-items:center; }
+.pp-back-btn { display:inline-flex; align-items:center; gap:8px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:var(--muted); background:var(--white); border:1px solid var(--border); border-radius:var(--r-sm); padding:7px 14px; cursor:pointer; transition:all .2s; }
+.pp-back-btn:hover { border-color:var(--sage-light); color:var(--sage-dark); }
+.pp-back-btn svg { width:14px; height:14px; }
+.pp-hero { background:var(--sage-dark); color:#fff; padding:36px 1.5rem 32px; position:relative; overflow:hidden; }
+.pp-hero::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(135deg,transparent,transparent 48px,rgba(255,255,255,.035) 48px,rgba(255,255,255,.035) 49px); pointer-events:none; }
+.pp-hero-top { position:relative; display:flex; align-items:center; gap:22px; max-width:1100px; margin:0 auto; }
+.pp-hero-avatar { width:70px; height:70px; border-radius:16px; background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25); display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink:0; }
+.pp-hero-info { flex:1; min-width:0; }
+.pp-hero-label { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.4px; color:rgba(255,255,255,0.6); margin-bottom:8px; }
+.pp-hero-name { font-family:'DM Serif Display',serif; font-size:clamp(22px,3vw,30px); font-weight:400; color:#fff; line-height:1.2; margin-bottom:8px; letter-spacing:-0.3px; }
+.pp-hero-id { font-size:12px; color:rgba(255,255,255,0.65); font-family:'SF Mono','Fira Mono',monospace; margin-bottom:14px; }
+.pp-hero-tags { display:flex; gap:6px; flex-wrap:wrap; }
+.pp-hero-tag { font-size:11px; font-weight:500; padding:4px 10px; border-radius:100px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.22); color:#fff; }
+.pp-hero-gauge { flex-shrink:0; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); border-radius:var(--r-md); padding:14px 22px 18px; }
+.pp-hero-stats { position:relative; display:flex; max-width:1100px; margin:22px auto 0; background:rgba(0,0,0,0.18); border-radius:var(--r-md); border:1px solid rgba(255,255,255,0.10); overflow:hidden; }
+.pp-hero-stat { flex:1; padding:12px 16px; border-right:1px solid rgba(255,255,255,0.08); }
+.pp-hero-stat:last-child { border-right:none; }
+.pp-stat-key { font-size:10px; color:rgba(255,255,255,0.55); margin-bottom:4px; letter-spacing:0.4px; }
+.pp-stat-val { font-size:13px; font-weight:600; color:#fff; }
+
+.pp-tabs { background:var(--white); border-bottom:1px solid var(--border); position:sticky; top:52px; z-index:99; }
+.pp-tabs-inner { max-width:1100px; margin:0 auto; padding:0 1.5rem; display:flex; overflow-x:auto; }
+.pp-tab-btn { font-family:'DM Sans',sans-serif; font-size:13.5px; padding:16px 22px; cursor:pointer; border:none; background:transparent; color:var(--muted); border-bottom:2px solid transparent; white-space:nowrap; transition:color .15s,border-color .15s; display:inline-flex; align-items:center; gap:8px; }
+.pp-tab-btn.active { color:var(--sage-dark); border-bottom-color:var(--sage-dark); font-weight:600; }
+.pp-tab-btn:hover:not(.active) { color:var(--charcoal); }
+.pp-content { max-width:1100px; margin:0 auto; padding:32px 1.5rem 24px; }
+.pp-panel { display:none; }
+.pp-panel.active { display:block; animation:fadeIn .25s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+.subsection { background:var(--white); border:1px solid var(--border); border-radius:var(--r); padding:26px 28px; margin-bottom:18px; }
+.subsection-head { margin-bottom:18px; }
+.subsection-eyebrow { font-size:10px; font-weight:600; letter-spacing:1.4px; text-transform:uppercase; color:var(--sage); margin-bottom:6px; }
+.subsection-title { font-family:'DM Serif Display',serif; font-size:21px; font-weight:400; color:var(--charcoal); letter-spacing:-0.3px; line-height:1.3; }
+.subsection-desc { font-size:13px; color:var(--muted); margin-top:6px; line-height:1.6; }
+.section-label { font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; color:var(--sage); margin-bottom:14px; margin-top:24px; display:flex; align-items:center; gap:10px; }
+.section-label::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--sage); flex-shrink:0; }
+.section-label:first-child { margin-top:0; }
+
+.tag { font-family:'DM Sans',sans-serif; font-size:11px; padding:4px 10px; border-radius:100px; font-weight:500; display:inline-block; }
+.tag-green { background:var(--sage-pale); color:var(--sage-dark); border:1px solid rgba(74,122,85,0.25); }
+.tag-teal  { background:var(--sage-pale); color:var(--sage-dark); border:1px solid rgba(74,122,85,0.25); }
+.tag-amber { background:var(--earth-pale); color:var(--earth); border:1px solid rgba(140,115,85,0.25); }
+.tag-blue  { background:var(--stone); color:var(--muted); border:1px solid var(--border); }
+.tag-empty { background:var(--stone); color:var(--muted); border:1px dashed var(--border); opacity:0.6; }
+
+.row-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:var(--gap); }
+.data-row { display:flex; flex-direction:column; gap:4px; padding:14px 16px; background:var(--linen); border-radius:var(--r-md); border:1px solid var(--border); border-left:3px solid transparent; }
+.data-row.accent-green { border-left-color:var(--sage); }
+.data-row.accent-amber { border-left-color:var(--earth); }
+.data-row.accent-teal  { border-left-color:var(--sage-dark); }
+.data-row.accent-blue  { border-left-color:var(--earth-light); }
+.row-key  { font-size:10.5px; font-weight:600; letter-spacing:0.7px; text-transform:uppercase; color:var(--muted); }
+.row-val  { font-family:'DM Serif Display',serif; font-size:17px; font-weight:400; color:var(--charcoal); letter-spacing:-0.2px; }
+.row-note { font-size:11.5px; color:var(--muted); line-height:1.55; }
+
+.fiber-bar-shell { height:30px; border-radius:8px; background:var(--stone); opacity:0.5; }
+.fiber-legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:12px; }
+.legend-item { display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--charcoal); }
+.legend-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; background:var(--stone); }
+
+.process-steps { display:flex; flex-direction:column; border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden; background:var(--linen); }
+.process-row { display:grid; grid-template-columns:36px 1fr auto; align-items:flex-start; gap:14px; padding:16px 18px; border-bottom:1px solid var(--stone); }
+.process-row:last-child { border-bottom:none; }
+.process-num { width:30px; height:30px; border-radius:50%; background:var(--sage-pale); color:var(--sage-dark); font-family:'DM Serif Display',serif; font-size:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid rgba(74,122,85,0.2); }
+.process-name { font-family:'DM Serif Display',serif; font-size:15.5px; font-weight:400; color:var(--charcoal); letter-spacing:-0.2px; }
+.process-sub  { font-size:12px; color:var(--muted); margin-top:4px; line-height:1.55; }
+.process-meta { font-size:11.5px; color:var(--muted); margin-top:5px; }
+.process-meta strong { color:var(--charcoal); font-weight:600; }
+.process-loc  { font-size:11px; color:var(--muted); text-align:right; white-space:nowrap; line-height:1.5; padding-top:4px; }
+
+.coc-banner { display:flex; align-items:flex-start; gap:12px; padding:14px 18px; background:var(--sage-pale); border:1px solid rgba(74,122,85,0.25); border-radius:var(--r-md); margin-bottom:14px; }
+.coc-banner-icon { font-size:18px; flex-shrink:0; line-height:1; padding-top:1px; }
+.coc-banner-body { font-size:12px; color:var(--charcoal); line-height:1.6; flex:1; }
+.coc-banner-body strong { font-weight:600; color:var(--sage-dark); }
+.coc-banner-tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; }
+.coc-tag { font-size:10px; font-weight:500; padding:3px 9px; border-radius:100px; background:var(--white); border:1px solid var(--border); color:var(--muted); letter-spacing:0.2px; }
+.coc-tag.active { background:var(--sage-dark); border-color:var(--sage-dark); color:#fff; font-weight:600; }
+
+.process-tc { margin-top:8px; display:grid; gap:4px; padding:8px 10px; background:var(--white); border:1px dashed var(--border); border-radius:6px; font-size:10.5px; color:var(--muted); line-height:1.55; font-family:'SF Mono','Fira Mono',monospace; }
+.process-tc-line { display:flex; gap:6px; align-items:baseline; }
+.process-tc-arrow { color:var(--sage); font-weight:600; flex-shrink:0; width:14px; }
+.process-tc-id { color:var(--charcoal); font-weight:500; }
+.process-tc-mass { margin-top:4px; padding-top:5px; border-top:1px dashed var(--border); display:flex; align-items:center; gap:6px; font-family:'DM Sans',sans-serif; }
+.process-tc-mass-tick { color:var(--sage); font-size:11px; }
+.process-tc-mass-warn { color:var(--earth); font-size:11px; }
+
+.eol-pathway-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:14px; }
+.eol-card { padding:14px 16px; background:var(--linen); border:1.5px solid var(--border); border-radius:var(--r-md); position:relative; transition:all .2s; }
+.eol-card.selected { background:var(--sage-pale); border-color:var(--sage-dark); }
+.eol-card.dimmed { opacity:0.5; }
+.eol-card-radio { width:14px; height:14px; border-radius:50%; border:2px solid var(--border); display:inline-block; vertical-align:middle; margin-right:7px; position:relative; }
+.eol-card.selected .eol-card-radio { border-color:var(--sage-dark); }
+.eol-card.selected .eol-card-radio::after { content:''; position:absolute; inset:2px; border-radius:50%; background:var(--sage-dark); }
+.eol-card-title { font-family:'DM Serif Display',serif; font-size:14px; font-weight:400; color:var(--charcoal); display:inline-block; vertical-align:middle; }
+.eol-card-desc { font-size:11px; color:var(--muted); margin-top:6px; line-height:1.5; }
+.eol-card-tag { font-size:9.5px; font-weight:600; letter-spacing:0.6px; text-transform:uppercase; margin-top:8px; color:var(--muted); }
+.eol-card.selected .eol-card-tag { color:var(--sage-dark); }
+@media (max-width:600px) { .eol-pathway-grid { grid-template-columns:1fr; } }
+
+.durability-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px; }
+.durability-card { padding:12px 14px; background:var(--linen); border:1px solid var(--border); border-radius:var(--r-sm); }
+.durability-card-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:4px; }
+.durability-name { font-size:12px; font-weight:600; color:var(--charcoal); }
+.durability-iso { font-size:10px; color:var(--muted); font-family:'SF Mono',monospace; }
+.durability-result { font-family:'DM Serif Display',serif; font-size:18px; font-weight:400; color:var(--sage-dark); letter-spacing:-0.3px; line-height:1.1; }
+.durability-note { font-size:10.5px; color:var(--muted); margin-top:3px; }
+
+.cert-grid { display:flex; flex-wrap:wrap; gap:8px; }
+.cert-badge { display:flex; align-items:center; gap:8px; padding:9px 14px; border:1px solid var(--border); border-radius:var(--r-sm); font-size:12.5px; font-weight:500; color:var(--charcoal); background:var(--linen); }
+.cert-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.cert-dot.verified { background:var(--sage); }
+.cert-dot.pending  { background:var(--earth-light); }
+.cert-dot.empty-dot { background:var(--stone); }
+
+.caveat { display:flex; gap:10px; align-items:flex-start; background:var(--earth-pale); border-left:3px solid var(--earth); border-radius:var(--r-sm); padding:10px 14px; margin-top:10px; font-size:11.5px; color:var(--earth); line-height:1.6; }
+.caveat-icon { flex-shrink:0; font-size:13px; margin-top:1px; }
+.caveat strong { font-weight:600; }
+
+.care-list { display:grid; gap:10px; }
+.care-item { display:flex; gap:12px; align-items:flex-start; padding:14px 16px; background:var(--linen); border:1px solid var(--border); border-radius:var(--r-md); }
+.care-icon { font-size:22px; flex-shrink:0; }
+.care-name { font-size:13px; font-weight:600; color:var(--charcoal); }
+.care-desc { font-size:12px; color:var(--muted); margin-top:2px; line-height:1.55; }
+
+.impact-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+.impact-card { padding:20px 18px 16px; background:var(--linen); border:1px solid var(--border); border-radius:var(--r-md); }
+.impact-icon { font-size:24px; margin-bottom:8px; }
+.impact-val { font-family:'DM Serif Display',serif; font-size:30px; font-weight:400; color:var(--charcoal); line-height:1.1; letter-spacing:-0.5px; }
+.impact-unit { font-size:12px; color:var(--muted); margin-left:4px; font-family:'DM Sans',sans-serif; }
+.impact-label { font-size:12px; color:var(--muted); margin-top:6px; line-height:1.5; }
+.impact-bench { font-size:10.5px; margin-top:10px; padding:3px 10px; border-radius:100px; display:inline-block; font-weight:500; }
+.bench-good { background:var(--sage-pale); color:var(--sage-dark); }
+.bench-mid  { background:var(--earth-pale); color:var(--earth); }
+
+.supplier-header { display:flex; align-items:flex-start; gap:16px; padding:20px 22px; background:var(--linen); border-radius:var(--r-md); margin-bottom:22px; border:1px solid var(--border); }
+.supplier-avatar { width:54px; height:54px; border-radius:12px; background:var(--white); border:1px solid var(--stone); display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+.supplier-info { flex:1; min-width:0; }
+.supplier-name { font-family:'DM Serif Display',serif; font-size:18px; font-weight:400; color:var(--charcoal); letter-spacing:-0.2px; line-height:1.3; }
+.supplier-meta { font-size:12px; color:var(--muted); margin-top:5px; line-height:1.6; }
+.supplier-meta-row { display:flex; flex-wrap:wrap; gap:14px; margin-top:8px; font-size:11.5px; }
+.supplier-meta-row > div span:first-child { color:var(--muted); margin-right:5px; }
+.supplier-meta-row > div span:last-child { color:var(--charcoal); font-weight:600; }
+.supplier-gauge-wrap { flex-shrink:0; align-self:center; background:var(--white); border:1px solid var(--border); border-radius:var(--r-md); padding:10px 14px 14px; }
+
+.cluster-head { display:flex; align-items:center; gap:12px; margin:24px 0 12px; }
+.cluster-num { font-family:'DM Serif Display',serif; font-size:13px; width:26px; height:26px; border-radius:50%; background:var(--sage-dark); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.cluster-title { font-family:'DM Serif Display',serif; font-size:17px; font-weight:400; color:var(--charcoal); letter-spacing:-0.2px; }
+.cluster-desc { font-size:11.5px; color:var(--muted); margin-left:auto; flex-shrink:0; }
+.cluster-divider { flex:1; height:1px; background:var(--border); }
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); gap:12px; }
+.kpi-card { padding:16px 18px; background:var(--white); border:1px solid var(--border); border-radius:var(--r-md); display:flex; flex-direction:column; gap:12px; transition:border-color .15s; }
+.kpi-card:hover { border-color:var(--sage-light); }
+.kpi-head { display:flex; align-items:center; justify-content:space-between; }
+.kpi-label { font-size:12px; font-weight:600; color:var(--charcoal); letter-spacing:0.2px; }
+.kpi-tag { font-size:9.5px; font-weight:600; letter-spacing:0.6px; text-transform:uppercase; padding:3px 8px; border-radius:100px; background:var(--sage-pale); color:var(--sage-dark); }
+.kpi-tag.warn { background:var(--earth-pale); color:var(--earth); }
+.kpi-bottom { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.kpi-readout { display:flex; flex-direction:column; gap:2px; }
+.kpi-val { font-family:'DM Serif Display',serif; font-size:24px; font-weight:400; color:var(--charcoal); line-height:1; letter-spacing:-0.4px; }
+.kpi-sub { font-size:11px; color:var(--muted); }
+.gauge[data-mini] svg { width:84px; height:50px; }
+
+.pp-footer { max-width:1100px; margin:16px auto 0; display:flex; align-items:center; justify-content:space-between; padding:22px 1.5rem 36px; font-size:11.5px; color:var(--muted); border-top:1px solid var(--border); gap:16px; }
+.pp-footer-text { line-height:1.6; }
+.qr-placeholder { width:44px; height:44px; background:var(--white); border:1px solid var(--border); border-radius:6px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:2px; padding:6px; flex-shrink:0; }
+.qr-cell { background:var(--charcoal); border-radius:1px; }
+
+@media(max-width:740px){
+  .header-inner{padding:22px 18px;flex-wrap:wrap;}
+  .header-badge{display:none;}
+  .pp-hero{padding:28px 1.25rem 24px;}
+  .pp-hero-top{flex-direction:column;align-items:flex-start;gap:16px;}
+  .pp-hero-gauge{align-self:stretch;text-align:center;}
+  .pp-content{padding:24px 1.25rem;}
+  .subsection{padding:22px 18px;}
+  .preview-card .pc-body{padding:22px;}
+  .preview-card .pc-footer{padding:14px 22px;}
+  .supplier-header{flex-wrap:wrap;}
+  .supplier-gauge-wrap{align-self:auto;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ GLOBAL HEADER ══ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+    </div>
+    <div class="header-titles">
+      <h1>Digital Fabric Passport</h1>
+      <p>Traceable. Verified. Circular.</p>
+    </div>
+    <span class="header-badge">Pre-DPP · Fabric-Level</span>
+  </div>
+</header>
+
+<!-- ══ PAGE 1 — PREVIEW ══ -->
+<div id="page-preview" class="page active">
+  <div class="preview-wrap">
+    <div class="preview-intro">
+      <h2>Your Fabric Passport</h2>
+      <p>A summary of materials, supply chain provenance, and fabric score — tap to explore the full record.</p>
+    </div>
+    <div class="preview-card">
+      <div class="pc-body">
+        <div class="pc-top">
+          <div class="pc-avatar">🧶</div>
+          <div class="pc-title">
+            <div class="pc-eyebrow">Digital Fabric Passport</div>
+            <div class="pc-name" data-field="fabric_name">—</div>
+            <div class="pc-id" data-field="passport_id">— · —</div>
+          </div>
+        </div>
+        <div class="pc-gauge-block">
+          <div class="gauge md" id="preview-gauge" data-field="fabric_score"></div>
+        </div>
+        <hr class="pc-divider">
+        <div class="pc-meta">
+          <div class="pc-meta-item">
+            <span class="pc-meta-key">Origin</span>
+            <span class="pc-meta-val" data-field="origin">—</span>
+          </div>
+          <div class="pc-meta-item">
+            <span class="pc-meta-key">Supplier</span>
+            <span class="pc-meta-val" data-field="supplier_short_name">—</span>
+          </div>
+          <div class="pc-meta-item">
+            <span class="pc-meta-key">Supplier Grade</span>
+            <span class="pc-meta-val accent" data-field="supplier_grade">—</span>
+          </div>
+          <div class="pc-meta-item">
+            <span class="pc-meta-key">On-Time Delivery</span>
+            <span class="pc-meta-val accent" data-field="otd_rate">—</span>
+          </div>
+        </div>
+        <div class="pc-tags" data-field="preview_tags">
+          <span class="tag tag-empty">— tag —</span>
+          <span class="tag tag-empty">— tag —</span>
+          <span class="tag tag-empty">— tag —</span>
+        </div>
+      </div>
+      <div class="pc-footer">
+        <span class="pc-updated" data-field="updated_date">Updated —</span>
+        <button class="pc-btn" onclick="goToPassport()">View full passport <span style="font-size:13px;">↗</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE 2 — FULL PASSPORT ══ -->
+<div id="page-passport" class="page">
+
+  <div class="pp-back-bar">
+    <button class="pp-back-btn" onclick="goToPreview()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back
+    </button>
+  </div>
+
+  <div class="pp-hero">
+    <div class="pp-hero-top">
+      <div class="pp-hero-avatar">🧶</div>
+      <div class="pp-hero-info">
+        <div class="pp-hero-label">Digital Fabric Passport</div>
+        <div class="pp-hero-name" data-field="fabric_name">—</div>
+        <div class="pp-hero-id" data-field="passport_id">— · —</div>
+        <div class="pp-hero-tags" data-field="hero_tags">
+          <span class="pp-hero-tag">— tag —</span>
+          <span class="pp-hero-tag">— tag —</span>
+          <span class="pp-hero-tag">— tag —</span>
+        </div>
+      </div>
+      <div class="pp-hero-gauge">
+        <div class="gauge md on-dark" id="hero-gauge" data-field="fabric_score"></div>
+      </div>
+    </div>
+    <div class="pp-hero-stats">
+      <div class="pp-hero-stat">
+        <div class="pp-stat-key">Origin</div>
+        <div class="pp-stat-val" data-field="origin">—</div>
+      </div>
+      <div class="pp-hero-stat">
+        <div class="pp-stat-key">Supplier</div>
+        <div class="pp-stat-val" data-field="supplier_short_name">—</div>
+      </div>
+      <div class="pp-hero-stat">
+        <div class="pp-stat-key">Supplier Grade</div>
+        <div class="pp-stat-val" data-field="supplier_grade">—</div>
+      </div>
+      <div class="pp-hero-stat">
+        <div class="pp-stat-key">Updated</div>
+        <div class="pp-stat-val" data-field="updated_date">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TABS ══ -->
+  <div class="pp-tabs">
+    <div class="pp-tabs-inner">
+      <button class="pp-tab-btn active" onclick="ppTab('profile',this)">🧵 Profile &amp; Composition</button>
+      <button class="pp-tab-btn"        onclick="ppTab('journey',this)">🗺️ Product Journey</button>
+      <button class="pp-tab-btn"        onclick="ppTab('care',this)">♻️ Performance &amp; Circularity</button>
+      <button class="pp-tab-btn"        onclick="ppTab('certs',this)">🏅 Certifications</button>
+      <button class="pp-tab-btn"        onclick="ppTab('impact',this)">🌿 Impact</button>
+      <button class="pp-tab-btn"        onclick="ppTab('supplier',this)">🏭 Supplier KPIs</button>
+    </div>
+  </div>
+
+  <div class="pp-content">
+
+    <!-- TAB 1 — PROFILE & COMPOSITION -->
+    <div id="pp-profile" class="pp-panel active">
+      <div class="subsection">
+        <div class="subsection-head">
+          <div class="subsection-eyebrow">Section 01</div>
+          <div class="subsection-title">Fibre Composition</div>
+          <div class="subsection-desc">Material breakdown, origin, recycled content, and yarn specifications.</div>
+        </div>
+        <p class="section-label">Fibre Types &amp; Percentages</p>
+        <div class="fiber-bar-shell" data-field="fibre_bar"></div>
+        <div class="fiber-legend" data-field="fibre_legend">
+          <div class="legend-item"><div class="legend-dot"></div><span class="empty w-md"></span></div>
+          <div class="legend-item"><div class="legend-dot"></div><span class="empty w-md"></span></div>
+          <div class="legend-item"><div class="legend-dot"></div><span class="empty w-md"></span></div>
+        </div>
+        <p class="section-label">Raw Material Origin</p>
+        <div class="row-grid" data-field="raw_material_origin">
+          <div class="data-row accent-green"><div class="row-key" data-field="fibre_1_name">—</div><div class="row-val" data-field="fibre_1_origin">—</div><div class="row-note" data-field="fibre_1_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key" data-field="fibre_2_name">—</div><div class="row-val" data-field="fibre_2_origin">—</div><div class="row-note" data-field="fibre_2_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key" data-field="fibre_3_name">—</div><div class="row-val" data-field="fibre_3_origin">—</div><div class="row-note" data-field="fibre_3_note">—</div></div>
+        </div>
+        <p class="section-label">Recycled Content &amp; Source</p>
+        <div class="row-grid">
+          <div class="data-row accent-green"><div class="row-key">Total Recycled %</div><div class="row-val" data-field="recycled_pct">—</div><div class="row-note" data-field="recycled_pct_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">Source Type</div><div class="row-val" data-field="recycled_source_type">—</div><div class="row-note" data-field="recycled_source_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key">Traceability Method</div><div class="row-val" data-field="traceability_method">—</div><div class="row-note" data-field="traceability_note">—</div></div>
+        </div>
+        <p class="section-label">Yarn Specifications</p>
+        <div class="row-grid">
+          <div class="data-row accent-teal"><div class="row-key">Yarn Count</div><div class="row-val" data-field="yarn_count">—</div><div class="row-note" data-field="yarn_count_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key">Twist</div><div class="row-val" data-field="yarn_twist">—</div><div class="row-note" data-field="yarn_twist_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key">Fibre Length</div><div class="row-val" data-field="fibre_length">—</div><div class="row-note" data-field="fibre_length_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key">Spinning Method</div><div class="row-val" data-field="spinning_method">—</div><div class="row-note" data-field="spinning_method_note">—</div></div>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-head">
+          <div class="subsection-eyebrow">Section 02</div>
+          <div class="subsection-title">Physical Specifications</div>
+          <div class="subsection-desc">Construction, dimensional stability, and durability test results.</div>
+        </div>
+        <p class="section-label">Construction</p>
+        <div class="row-grid">
+          <div class="data-row accent-teal"><div class="row-key">Weight</div><div class="row-val" data-field="weight">—</div><div class="row-note" data-field="weight_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key">Width</div><div class="row-val" data-field="width">—</div><div class="row-note" data-field="width_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key">Structure</div><div class="row-val" data-field="structure">—</div><div class="row-note" data-field="structure_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key">Colour State</div><div class="row-val" data-field="colour_state">—</div><div class="row-note" data-field="colour_state_note">—</div></div>
+        </div>
+        <p class="section-label">Shrinkage Test (ISO 6330)</p>
+        <div class="row-grid">
+          <div class="data-row accent-green"><div class="row-key">Shrinkage (Warp)</div><div class="row-val" data-field="shrinkage_warp">—</div><div class="row-note" data-field="shrinkage_warp_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">Shrinkage (Weft)</div><div class="row-val" data-field="shrinkage_weft">—</div><div class="row-note" data-field="shrinkage_weft_note">—</div></div>
+        </div>
+        <p class="section-label">Durability Tests</p>
+        <div class="row-grid">
+          <div class="data-row accent-blue"><div class="row-key">Pilling Resistance</div><div class="row-val" data-field="pilling">—</div><div class="row-note" data-field="pilling_note">—</div></div>
+          <div class="data-row accent-blue"><div class="row-key">Abrasion Resistance</div><div class="row-val" data-field="abrasion">—</div><div class="row-note" data-field="abrasion_note">—</div></div>
+          <div class="data-row accent-blue"><div class="row-key">Tensile Strength (Warp)</div><div class="row-val" data-field="tensile_warp">—</div><div class="row-note" data-field="tensile_warp_note">—</div></div>
+          <div class="data-row accent-blue"><div class="row-key">Tear Strength</div><div class="row-val" data-field="tear_strength">—</div><div class="row-note" data-field="tear_strength_note">—</div></div>
+        </div>
+        <p class="section-label">Colour Fastness (ISO 105)</p>
+        <div class="row-grid">
+          <div class="data-row accent-green"><div class="row-key">Washing</div><div class="row-val" data-field="cf_washing">—</div><div class="row-note" data-field="cf_washing_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">Rubbing (Dry)</div><div class="row-val" data-field="cf_rub_dry">—</div><div class="row-note" data-field="cf_rub_dry_note">—</div></div>
+          <div class="data-row accent-amber"><div class="row-key">Rubbing (Wet)</div><div class="row-val" data-field="cf_rub_wet">—</div><div class="row-note" data-field="cf_rub_wet_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">Light Fastness</div><div class="row-val" data-field="cf_light">—</div><div class="row-note" data-field="cf_light_note">—</div></div>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-head">
+          <div class="subsection-eyebrow">Section 03</div>
+          <div class="subsection-title">Chemical Substances</div>
+          <div class="subsection-desc">Dyes, finishing agents, and residue testing.</div>
+        </div>
+        <p class="section-label">Dyes &amp; Finishing Agents Used</p>
+        <div class="row-grid">
+          <div class="data-row accent-teal"><div class="row-key">Dyestuff Class</div><div class="row-val" data-field="dyestuff_class">—</div><div class="row-note" data-field="dyestuff_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key">Pre-treatment Agent</div><div class="row-val" data-field="pretreatment_agent">—</div><div class="row-note" data-field="pretreatment_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key">Softener</div><div class="row-val" data-field="softener">—</div><div class="row-note" data-field="softener_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key">Heat Setting</div><div class="row-val" data-field="heat_setting">—</div><div class="row-note" data-field="heat_setting_note">—</div></div>
+        </div>
+        <p class="section-label">Residue Test Results</p>
+        <div class="row-grid">
+          <div class="data-row accent-green"><div class="row-key">Formaldehyde</div><div class="row-val" data-field="res_formaldehyde">—</div><div class="row-note" data-field="res_formaldehyde_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">AZO Dyes</div><div class="row-val" data-field="res_azo">—</div><div class="row-note" data-field="res_azo_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">Heavy Metals</div><div class="row-val" data-field="res_heavy_metals">—</div><div class="row-note" data-field="res_heavy_metals_note">—</div></div>
+          <div class="data-row accent-amber"><div class="row-key">Finishing Residue</div><div class="row-val" data-field="res_finishing">—</div><div class="row-note" data-field="res_finishing_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">SVHC (REACH Annex XIV)</div><div class="row-val" data-field="res_svhc">—</div><div class="row-note" data-field="res_svhc_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">PFAS</div><div class="row-val" data-field="res_pfas">—</div><div class="row-note" data-field="res_pfas_note">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2 — PRODUCT JOURNEY -->
+    <div id="pp-journey" class="pp-panel">
+      <div class="subsection">
+        <div class="subsection-head">
+          <div class="subsection-eyebrow">Section 01</div>
+          <div class="subsection-title">Supply Chain Traceability</div>
+          <div class="subsection-desc">End-to-end production stages with named facilities, dates, and Transaction Certificate chain.</div>
+        </div>
+        <div class="coc-banner">
+          <span class="coc-banner-icon">🔗</span>
+          <div class="coc-banner-body">
+            <strong>Chain of Custody Model:</strong> <span data-field="coc_model_summary">—</span>
+            <div class="coc-banner-tags">
+              <span class="coc-tag" data-field="coc_tag_physical">Physical / Segregated</span>
+              <span class="coc-tag" data-field="coc_tag_mass_balance">Mass Balance</span>
+              <span class="coc-tag" data-field="coc_tag_book_claim">Book and Claim</span>
+            </div>
+          </div>
+        </div>
+        <p class="section-label">Production Stages &amp; TC Chain</p>
+        <div class="process-steps" data-field="supply_chain_steps">
+          <div class="process-row"><div class="process-num">1</div><div><div class="process-name" data-field="step_1_name">—</div><div class="process-sub" data-field="step_1_desc">—</div><div class="process-meta"><strong>Facility:</strong> <span data-field="step_1_facility">—</span></div><div class="process-tc" data-field="step_1_tc"><div class="process-tc-line"><span class="process-tc-arrow">↑</span><span data-field="step_1_tc_in">—</span></div><div class="process-tc-line"><span class="process-tc-arrow">↓</span><span data-field="step_1_tc_out">—</span></div><div class="process-tc-mass"><span class="process-tc-mass-tick" data-field="step_1_tc_status">—</span><span data-field="step_1_tc_note">—</span></div></div></div><div class="process-loc" data-field="step_1_loc">—<br>—</div></div>
+          <div class="process-row"><div class="process-num">2</div><div><div class="process-name" data-field="step_2_name">—</div><div class="process-sub" data-field="step_2_desc">—</div><div class="process-meta"><strong>Facility:</strong> <span data-field="step_2_facility">—</span></div><div class="process-tc" data-field="step_2_tc"><div class="process-tc-line"><span class="process-tc-arrow">↑</span><span data-field="step_2_tc_in">—</span></div><div class="process-tc-line"><span class="process-tc-arrow">↓</span><span data-field="step_2_tc_out">—</span></div><div class="process-tc-mass"><span class="process-tc-mass-tick" data-field="step_2_tc_status">—</span><span data-field="step_2_tc_note">—</span></div></div></div><div class="process-loc" data-field="step_2_loc">—<br>—</div></div>
+          <div class="process-row"><div class="process-num">3</div><div><div class="process-name" data-field="step_3_name">—</div><div class="process-sub" data-field="step_3_desc">—</div><div class="process-meta"><strong>Facility:</strong> <span data-field="step_3_facility">—</span></div><div class="process-tc" data-field="step_3_tc"><div class="process-tc-line"><span class="process-tc-arrow">↑</span><span data-field="step_3_tc_in">—</span></div><div class="process-tc-line"><span class="process-tc-arrow">↓</span><span data-field="step_3_tc_out">—</span></div><div class="process-tc-mass"><span class="process-tc-mass-tick" data-field="step_3_tc_status">—</span><span data-field="step_3_tc_note">—</span></div></div></div><div class="process-loc" data-field="step_3_loc">—<br>—</div></div>
+          <div class="process-row"><div class="process-num">4</div><div><div class="process-name" data-field="step_4_name">—</div><div class="process-sub" data-field="step_4_desc">—</div><div class="process-meta"><strong>Facility:</strong> <span data-field="step_4_facility">—</span></div><div class="process-tc" data-field="step_4_tc"><div class="process-tc-line"><span class="process-tc-arrow">↑</span><span data-field="step_4_tc_in">—</span></div><div class="process-tc-line"><span class="process-tc-arrow">↓</span><span data-field="step_4_tc_out">—</span></div><div class="process-tc-mass"><span class="process-tc-mass-tick" data-field="step_4_tc_status">—</span><span data-field="step_4_tc_note">—</span></div></div></div><div class="process-loc" data-field="step_4_loc">—<br>—</div></div>
+          <div class="process-row"><div class="process-num">5</div><div><div class="process-name" data-field="step_5_name">—</div><div class="process-sub" data-field="step_5_desc">—</div><div class="process-meta"><strong>Facility:</strong> <span data-field="step_5_facility">—</span></div><div class="process-tc" data-field="step_5_tc"><div class="process-tc-line"><span class="process-tc-arrow">↑</span><span data-field="step_5_tc_in">—</span></div><div class="process-tc-line"><span class="process-tc-arrow">↓</span><span data-field="step_5_tc_out">—</span></div><div class="process-tc-mass"><span class="process-tc-mass-tick" data-field="step_5_tc_status">—</span><span data-field="step_5_tc_note">—</span></div></div></div><div class="process-loc" data-field="step_5_loc">—<br>—</div></div>
+          <div class="process-row"><div class="process-num">6</div><div><div class="process-name" data-field="step_6_name">—</div><div class="process-sub" data-field="step_6_desc">—</div><div class="process-meta"><strong>Facility:</strong> <span data-field="step_6_facility">—</span></div><div class="process-tc" data-field="step_6_tc"><div class="process-tc-line"><span class="process-tc-arrow">↑</span><span data-field="step_6_tc_in">—</span></div><div class="process-tc-line"><span class="process-tc-arrow">↓</span><span data-field="step_6_tc_out">—</span></div><div class="process-tc-mass"><span class="process-tc-mass-tick" data-field="step_6_tc_status">—</span><span data-field="step_6_tc_note">—</span></div></div></div><div class="process-loc" data-field="step_6_loc">—<br>—</div></div>
+        </div>
+        <div class="caveat"><span class="caveat-icon">ℹ️</span><div><strong>TC validity is anchored to transaction date.</strong> Each Transaction Certificate is verified valid at the time of handover, regardless of current scope-cert renewal status. Mass balance ratios are checked against industry processing-loss benchmarks.</div></div>
+      </div>
+    </div>
+
+    <!-- TAB 3 — PERFORMANCE & CIRCULARITY -->
+    <div id="pp-care" class="pp-panel">
+      <div class="subsection">
+        <div class="subsection-head">
+          <div class="subsection-eyebrow">Section 01</div>
+          <div class="subsection-title">In-Use Performance</div>
+          <div class="subsection-desc">Durability test panel and microfibre fragment release — measured at the <strong>finished fabric</strong> level, feeding directly into garment DPP durability claims.</div>
+        </div>
+        <p class="section-label">Durability Test Panel</p>
+        <div class="durability-grid" data-field="durability_tests">
+          <div class="durability-card"><div class="durability-card-head"><div class="durability-name" data-field="dur_1_name">—</div><div class="durability-iso" data-field="dur_1_iso">—</div></div><div class="durability-result" data-field="dur_1_result">—</div><div class="durability-note" data-field="dur_1_note">—</div></div>
+          <div class="durability-card"><div class="durability-card-head"><div class="durability-name" data-field="dur_2_name">—</div><div class="durability-iso" data-field="dur_2_iso">—</div></div><div class="durability-result" data-field="dur_2_result">—</div><div class="durability-note" data-field="dur_2_note">—</div></div>
+          <div class="durability-card"><div class="durability-card-head"><div class="durability-name" data-field="dur_3_name">—</div><div class="durability-iso" data-field="dur_3_iso">—</div></div><div class="durability-result" data-field="dur_3_result">—</div><div class="durability-note" data-field="dur_3_note">—</div></div>
+          <div class="durability-card"><div class="durability-card-head"><div class="durability-name" data-field="dur_4_name">—</div><div class="durability-iso" data-field="dur_4_iso">—</div></div><div class="durability-result" data-field="dur_4_result">—</div><div class="durability-note" data-field="dur_4_note">—</div></div>
+          <div class="durability-card"><div class="durability-card-head"><div class="durability-name" data-field="dur_5_name">—</div><div class="durability-iso" data-field="dur_5_iso">—</div></div><div class="durability-result" data-field="dur_5_result">—</div><div class="durability-note" data-field="dur_5_note">—</div></div>
+          <div class="durability-card"><div class="durability-card-head"><div class="durability-name" data-field="dur_6_name">—</div><div class="durability-iso" data-field="dur_6_iso">—</div></div><div class="durability-result" data-field="dur_6_result">—</div><div class="durability-note" data-field="dur_6_note">—</div></div>
+          <div class="durability-card"><div class="durability-card-head"><div class="durability-name" data-field="dur_7_name">—</div><div class="durability-iso" data-field="dur_7_iso">—</div></div><div class="durability-result" data-field="dur_7_result">—</div><div class="durability-note" data-field="dur_7_note">—</div></div>
+          <div class="durability-card"><div class="durability-card-head"><div class="durability-name" data-field="dur_8_name">—</div><div class="durability-iso" data-field="dur_8_iso">—</div></div><div class="durability-result" data-field="dur_8_result">—</div><div class="durability-note" data-field="dur_8_note">—</div></div>
+        </div>
+        <p class="section-label">Microfibre Fragment Release</p>
+        <div class="row-grid">
+          <div class="data-row accent-green"><div class="row-key">Shedding Rate (per wash)</div><div class="row-val" data-field="microfibre_rate">—</div><div class="row-note" data-field="microfibre_note">—</div></div>
+        </div>
+        <div class="caveat"><span class="caveat-icon">ℹ️</span><div><strong>Captured at fabric level for downstream LCA modelling.</strong> Microfibre release is becoming a mandated EU disclosure under the Textiles Strategy 2030.</div></div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-head">
+          <div class="subsection-eyebrow">Section 02</div>
+          <div class="subsection-title">EOL Pathway Profile</div>
+          <div class="subsection-desc">Mill-declared <strong>primary end-of-life pathway</strong> with supporting fabric-intrinsic data.</div>
+        </div>
+        <p class="section-label">Primary Pathway Declaration</p>
+        <div class="eol-pathway-grid">
+          <div class="eol-card" data-field="eol_card_technical"><div><span class="eol-card-radio"></span><span class="eol-card-title">Technical Cycle</span></div><div class="eol-card-desc">Designed to circulate within human-made systems — mechanical or chemical fibre-to-fibre recycling.</div><div class="eol-card-tag" data-field="eol_card_technical_tag">—</div></div>
+          <div class="eol-card" data-field="eol_card_biological"><div><span class="eol-card-radio"></span><span class="eol-card-title">Biological Cycle</span></div><div class="eol-card-desc">Designed to return to nature — finished fabric biodegrades in defined conditions.</div><div class="eol-card-tag" data-field="eol_card_biological_tag">—</div></div>
+          <div class="eol-card" data-field="eol_card_mixed"><div><span class="eol-card-radio"></span><span class="eol-card-title">Mixed</span></div><div class="eol-card-desc">Honest middle-ground — partial recyclability with limitations explicitly stated.</div><div class="eol-card-tag" data-field="eol_card_mixed_tag">—</div></div>
+        </div>
+        <p class="section-label" data-field="eol_profile_label">Pathway-specific Profile</p>
+        <div class="row-grid" data-field="eol_profile_rows">
+          <div class="data-row accent-amber"><div class="row-key" data-field="eol_row_1_key">—</div><div class="row-val" data-field="eol_row_1_val">—</div><div class="row-note" data-field="eol_row_1_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key" data-field="eol_row_2_key">—</div><div class="row-val" data-field="eol_row_2_val">—</div><div class="row-note" data-field="eol_row_2_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key" data-field="eol_row_3_key">—</div><div class="row-val" data-field="eol_row_3_val">—</div><div class="row-note" data-field="eol_row_3_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key" data-field="eol_row_4_key">—</div><div class="row-val" data-field="eol_row_4_val">—</div><div class="row-note" data-field="eol_row_4_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key" data-field="eol_row_5_key">—</div><div class="row-val" data-field="eol_row_5_val">—</div><div class="row-note" data-field="eol_row_5_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key" data-field="eol_row_6_key">—</div><div class="row-val" data-field="eol_row_6_val">—</div><div class="row-note" data-field="eol_row_6_note">—</div></div>
+        </div>
+        <div class="caveat"><span class="caveat-icon">⚠️</span><div><strong>Fabric-level inputs only.</strong> Final EOL feasibility depends on garment construction, trims, dye load, and regional recycling infrastructure available at end-of-life.</div></div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-head">
+          <div class="subsection-eyebrow">Section 03</div>
+          <div class="subsection-title">Care Recommendation Inputs</div>
+          <div class="subsection-desc">Fabric chemistry ceilings — what the fibre and finish system can tolerate. <strong>Final care label is set at garment level.</strong></div>
+        </div>
+        <div class="care-list">
+          <div class="care-item"><div class="care-icon">🌡️</div><div><div class="care-name">Max Wash Temperature</div><div class="care-desc" data-field="care_wash_ceiling">—</div></div></div>
+          <div class="care-item"><div class="care-icon">💨</div><div><div class="care-name">Dry Method Ceiling</div><div class="care-desc" data-field="care_dry_ceiling">—</div></div></div>
+          <div class="care-item"><div class="care-icon">🧴</div><div><div class="care-name">Bleach Tolerance</div><div class="care-desc" data-field="care_bleach_ceiling">—</div></div></div>
+          <div class="care-item"><div class="care-icon">♨️</div><div><div class="care-name">Iron Temperature Ceiling</div><div class="care-desc" data-field="care_iron_ceiling">—</div></div></div>
+        </div>
+        <div class="caveat"><span class="caveat-icon">⚠️</span><div><strong>These are ceilings, not final labels.</strong> Garment maker must confirm against trim materials before finalising the consumer care label.</div></div>
+      </div>
+    </div>
+
+    <!-- TAB 4 — CERTIFICATIONS -->
+    <div id="pp-certs" class="pp-panel">
+      <div class="subsection">
+        <div class="subsection-head">
+          <div class="subsection-eyebrow">Section 01</div>
+          <div class="subsection-title">Certifications &amp; Compliance</div>
+          <div class="subsection-desc">Third-party verifications and regulatory declarations covering this batch.</div>
+        </div>
+        <p class="section-label">Active Certifications</p>
+        <div class="cert-grid" data-field="certifications">
+          <div class="cert-badge"><div class="cert-dot empty-dot"></div><span class="empty w-md"></span></div>
+          <div class="cert-badge"><div class="cert-dot empty-dot"></div><span class="empty w-md"></span></div>
+          <div class="cert-badge"><div class="cert-dot empty-dot"></div><span class="empty w-md"></span></div>
+          <div class="cert-badge"><div class="cert-dot empty-dot"></div><span class="empty w-md"></span></div>
+          <div class="cert-badge"><div class="cert-dot empty-dot"></div><span class="empty w-md"></span></div>
+          <div class="cert-badge"><div class="cert-dot empty-dot"></div><span class="empty w-md"></span></div>
+        </div>
+        <p class="section-label">Documentation On File</p>
+        <div class="row-grid">
+          <div class="data-row accent-green"><div class="row-key">Transaction Certificate (TC)</div><div class="row-val" data-field="doc_tc_number">—</div><div class="row-note" data-field="doc_tc_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">Third-party Test Report</div><div class="row-val" data-field="doc_test_lab">—</div><div class="row-note" data-field="doc_test_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">SVHC Declaration</div><div class="row-val" data-field="doc_svhc">—</div><div class="row-note" data-field="doc_svhc_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">REACH Compliance</div><div class="row-val" data-field="doc_reach">—</div><div class="row-note" data-field="doc_reach_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">Chain of Custody</div><div class="row-val" data-field="doc_coc">—</div><div class="row-note" data-field="doc_coc_note">—</div></div>
+          <div class="data-row accent-teal"><div class="row-key">Audit Report</div><div class="row-val" data-field="doc_audit">—</div><div class="row-note" data-field="doc_audit_note">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5 — IMPACT -->
+    <div id="pp-impact" class="pp-panel">
+      <div class="subsection">
+        <div class="subsection-head">
+          <div class="subsection-eyebrow">Section 01</div>
+          <div class="subsection-title">Production Impact (Cradle-to-Gate)</div>
+          <div class="subsection-desc">Resource use, emissions, and effluent records measured per kilogram of finished fabric.</div>
+        </div>
+        <p class="section-label">Headline Metrics</p>
+        <div class="impact-grid">
+          <div class="impact-card"><div class="impact-icon">💧</div><div><span class="impact-val" data-field="water_val">—</span><span class="impact-unit" data-field="water_unit">—</span></div><div class="impact-label">Water Consumption</div><div class="impact-bench bench-mid" data-field="water_bench">—</div></div>
+          <div class="impact-card"><div class="impact-icon">🌡️</div><div><span class="impact-val" data-field="carbon_val">—</span><span class="impact-unit" data-field="carbon_unit">—</span></div><div class="impact-label">Carbon Emissions</div><div class="impact-bench bench-good" data-field="carbon_bench">—</div></div>
+          <div class="impact-card"><div class="impact-icon">⚡</div><div><span class="impact-val" data-field="energy_val">—</span><span class="impact-unit" data-field="energy_unit">—</span></div><div class="impact-label">Factory Energy Consumption</div><div class="impact-bench bench-good" data-field="energy_bench">—</div></div>
+          <div class="impact-card"><div class="impact-icon">🌊</div><div><span class="impact-val" data-field="wastewater_val">—</span><span class="impact-unit" data-field="wastewater_unit">—</span></div><div class="impact-label">Wastewater Recovery Rate</div><div class="impact-bench bench-good" data-field="wastewater_bench">—</div></div>
+        </div>
+        <p class="section-label">Water — Process Breakdown</p>
+        <div class="row-grid">
+          <div class="data-row accent-blue"><div class="row-key">Cultivation</div><div class="row-val" data-field="water_cultivation">—</div><div class="row-note" data-field="water_cultivation_note">—</div></div>
+          <div class="data-row accent-blue"><div class="row-key">Spinning &amp; Knitting</div><div class="row-val" data-field="water_spinning">—</div><div class="row-note" data-field="water_spinning_note">—</div></div>
+          <div class="data-row accent-blue"><div class="row-key">Pre-treatment &amp; Finishing</div><div class="row-val" data-field="water_finishing">—</div><div class="row-note" data-field="water_finishing_note">—</div></div>
+        </div>
+        <p class="section-label">Carbon Emissions — Stage Breakdown</p>
+        <div class="row-grid">
+          <div class="data-row accent-green"><div class="row-key">Raw Material Cultivation</div><div class="row-val" data-field="co2_cultivation">—</div><div class="row-note" data-field="co2_cultivation_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">Spinning &amp; Processing</div><div class="row-val" data-field="co2_spinning">—</div><div class="row-note" data-field="co2_spinning_note">—</div></div>
+          <div class="data-row accent-amber"><div class="row-key">Knitting</div><div class="row-val" data-field="co2_knitting">—</div><div class="row-note" data-field="co2_knitting_note">—</div></div>
+          <div class="data-row accent-amber"><div class="row-key">Dyeing &amp; Finishing</div><div class="row-val" data-field="co2_dyeing">—</div><div class="row-note" data-field="co2_dyeing_note">—</div></div>
+          <div class="data-row accent-blue"><div class="row-key">Logistics &amp; Transport</div><div class="row-val" data-field="co2_logistics">—</div><div class="row-note" data-field="co2_logistics_note">—</div></div>
+        </div>
+        <p class="section-label">Wastewater Treatment Records</p>
+        <div class="row-grid">
+          <div class="data-row accent-green"><div class="row-key">Treatment Method</div><div class="row-val" data-field="ww_method">—</div><div class="row-note" data-field="ww_method_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">Recovery Rate</div><div class="row-val" data-field="ww_recovery_rate">—</div><div class="row-note" data-field="ww_recovery_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">COD Discharge</div><div class="row-val" data-field="ww_cod">—</div><div class="row-note" data-field="ww_cod_note">—</div></div>
+          <div class="data-row accent-green"><div class="row-key">ZDHC Compliance</div><div class="row-val" data-field="ww_zdhc">—</div><div class="row-note" data-field="ww_zdhc_note">—</div></div>
+        </div>
+        <p class="section-label">Factory Energy Mix</p>
+        <div class="row-grid">
+          <div class="data-row accent-green"><div class="row-key">Renewable Share</div><div class="row-val" data-field="energy_renewable">—</div><div class="row-note" data-field="energy_renewable_note">—</div></div>
+          <div class="data-row accent-amber"><div class="row-key">Grid Electricity</div><div class="row-val" data-field="energy_grid">—</div><div class="row-note" data-field="energy_grid_note">—</div></div>
+          <div class="data-row accent-amber"><div class="row-key">Natural Gas</div><div class="row-val" data-field="energy_gas">—</div><div class="row-note" data-field="energy_gas_note">—</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6 — SUPPLIER KPIs -->
+    <div id="pp-supplier" class="pp-panel">
+      <div class="subsection">
+        <div class="subsection-head">
+          <div class="subsection-eyebrow">Primary Supplier</div>
+          <div class="subsection-title">Performance Dashboard</div>
+          <div class="subsection-desc">12-month rolling KPIs across delivery, quality, and compliance — rated by cluster grade.</div>
+        </div>
+        <div class="supplier-header">
+          <div class="supplier-avatar">🏭</div>
+          <div class="supplier-info">
+            <div class="supplier-name" data-field="supplier_full_name">—</div>
+            <div class="supplier-meta" data-field="supplier_meta">—</div>
+            <div class="supplier-meta-row">
+              <div><span>Annual Capacity:</span><span data-field="supplier_capacity">—</span></div>
+              <div><span>Workforce:</span><span data-field="supplier_workforce">—</span></div>
+              <div><span>Last Audit:</span><span data-field="supplier_last_audit">—</span></div>
+              <div><span>Tier:</span><span data-field="supplier_tier">—</span></div>
+            </div>
+          </div>
+          <div class="supplier-gauge-wrap">
+            <div class="gauge sm" id="supplier-overall-gauge" data-field="supplier_overall_grade"></div>
+          </div>
+        </div>
+        <div class="cluster-head"><div class="cluster-num">A</div><div class="cluster-title">Delivery &amp; Execution</div><div class="cluster-divider"></div><div class="cluster-desc">2 indicators · benchmark 90%+</div></div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">On-Time Delivery Rate</div><div class="kpi-tag" data-field="kpi_otd_tag">—</div></div><div class="kpi-bottom"><div class="kpi-readout"><div class="kpi-val" data-field="kpi_otd_val">—</div><div class="kpi-sub" data-field="kpi_otd_benchmark">—</div></div><div class="gauge" data-mini data-grade="C" data-field="kpi_otd_grade"></div></div></div>
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Quantity Execution Accuracy</div><div class="kpi-tag" data-field="kpi_qty_tag">—</div></div><div class="kpi-bottom"><div class="kpi-readout"><div class="kpi-val" data-field="kpi_qty_val">—</div><div class="kpi-sub" data-field="kpi_qty_benchmark">—</div></div><div class="gauge" data-mini data-grade="C" data-field="kpi_qty_grade"></div></div></div>
+        </div>
+        <div class="cluster-head"><div class="cluster-num">B</div><div class="cluster-title">Quality &amp; Consistency</div><div class="cluster-divider"></div><div class="cluster-desc">2 indicators · ΔE / AQL standards</div></div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Quality Pass Rate</div><div class="kpi-tag" data-field="kpi_qpr_tag">—</div></div><div class="kpi-bottom"><div class="kpi-readout"><div class="kpi-val" data-field="kpi_qpr_val">—</div><div class="kpi-sub" data-field="kpi_qpr_benchmark">—</div></div><div class="gauge" data-mini data-grade="C" data-field="kpi_qpr_grade"></div></div></div>
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Batch Colour Consistency</div><div class="kpi-tag" data-field="kpi_colour_tag">—</div></div><div class="kpi-bottom"><div class="kpi-readout"><div class="kpi-val" data-field="kpi_colour_val">—</div><div class="kpi-sub" data-field="kpi_colour_benchmark">—</div></div><div class="gauge" data-mini data-grade="C" data-field="kpi_colour_grade"></div></div></div>
+        </div>
+        <div class="cluster-head"><div class="cluster-num">C</div><div class="cluster-title">Compliance &amp; Transparency</div><div class="cluster-divider"></div><div class="cluster-desc">3 indicators · audit verified</div></div>
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Document Completeness</div><div class="kpi-tag" data-field="kpi_doc_tag">—</div></div><div class="kpi-bottom"><div class="kpi-readout"><div class="kpi-val" data-field="kpi_doc_val">—</div><div class="kpi-sub" data-field="kpi_doc_benchmark">—</div></div><div class="gauge" data-mini data-grade="C" data-field="kpi_doc_grade"></div></div></div>
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Audit Compliance Rating</div><div class="kpi-tag" data-field="kpi_audit_tag">—</div></div><div class="kpi-bottom"><div class="kpi-readout"><div class="kpi-val" data-field="kpi_audit_val">—</div><div class="kpi-sub" data-field="kpi_audit_benchmark">—</div></div><div class="gauge" data-mini data-grade="C" data-field="kpi_audit_grade"></div></div></div>
+          <div class="kpi-card"><div class="kpi-head"><div class="kpi-label">Supply Chain Transparency</div><div class="kpi-tag" data-field="kpi_transparency_tag">—</div></div><div class="kpi-bottom"><div class="kpi-readout"><div class="kpi-val" data-field="kpi_transparency_val">—</div><div class="kpi-sub" data-field="kpi_transparency_benchmark">—</div></div><div class="gauge" data-mini data-grade="C" data-field="kpi_transparency_grade"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.pp-content -->
+
+  <div class="pp-footer">
+    <div class="pp-footer-text">
+      <div data-field="footer_update">Data updated: — · Aligned with ESPR Delegated Act (anticipated 2027)</div>
+      <div style="margin-top:3px;">Digital Fabric Passport linkable to garment DPP for full supply chain traceability</div>
+    </div>
+    <div class="qr-placeholder">
+      <div class="qr-cell"></div><div></div><div class="qr-cell"></div>
+      <div></div><div class="qr-cell"></div><div></div>
+      <div class="qr-cell"></div><div></div><div class="qr-cell"></div>
+    </div>
+  </div>
+
+</div><!-- /#page-passport -->
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   ① DATA INJECTION POINT
+   ────────────────────────────────────────────────────────────
+   填入真實數值以啟動計算引擎。
+   所有欄位保持 null → 顯示 "Awaiting data" 空白狀態。
+
+   【Fabric Score 計算輸入】
+     compositionTotal      — 必須等於 100 才能通過關卡
+     svhcPassed            — boolean，SVHC 測試通過
+     originDisclosed       — boolean，原產地已申報
+     hasTestReport         — boolean，第三方測試報告在檔
+     recycledContentPct    — 再生原料百分比 (0–100)
+     isMonoMaterial        — boolean，是否為單一材質
+     traceabilityTiers     — 已驗證生產階段數量
+     durabilityTestsPassed — 通過的 ISO 耐久測試項目數
+     chemicalFinish        — 'None' | 'Standard' | 其他字串
+     hasZDHC               — boolean，持有 ZDHC 化學品聲明
+     carbonBetterThanAvg   — 碳排低於業界平均的百分比
+
+   【Supplier Score 計算輸入】
+     otdRate               — 準時交貨率 % (0–100)
+     aqlRate               — 品質通過率 % (0–100)
+     renewableEnergyPct    — 再生能源佔比 % (0–100)
+     wastewaterRecoveryPct — 廢水回收率 % (0–100)
+     socialAuditGrade      — 'A' | 'B' | 'C' | 'D' | 'F'
+   ════════════════════════════════════════════════════════════ */
+const passportData = {
+  /* ── 強制 EU DPP 關卡 ── */
+  compositionTotal:      null,   /* e.g. 100   */
+  svhcPassed:            null,   /* e.g. true  */
+  originDisclosed:       null,   /* e.g. true  */
+  hasTestReport:         null,   /* e.g. true  */
+
+  /* ── Cluster 1 · 成分與身份識別 (max 20) ── */
+  recycledContentPct:    null,   /* e.g. 20    */
+  isMonoMaterial:        null,   /* e.g. false */
+
+  /* ── Cluster 2 · 溯源可追蹤性 (max 25) ── */
+  traceabilityTiers:     null,   /* e.g. 6     */
+
+  /* ── Cluster 3 · 物性表現與循環性 (max 25) ── */
+  durabilityTestsPassed: null,   /* e.g. 4     */
+  chemicalFinish:        null,   /* e.g. 'None'*/
+  hasZDHC:               null,   /* e.g. true  */
+
+  /* ── Cluster 5 · 環境衝擊 (max 15) ── */
+  carbonBetterThanAvg:   null,   /* e.g. 42    */
+
+  /* ── Supplier KPIs ── */
+  otdRate:               null,   /* e.g. 96.4  */
+  aqlRate:               null,   /* e.g. 98.7  */
+  renewableEnergyPct:    null,   /* e.g. 38    */
+  wastewaterRecoveryPct: null,   /* e.g. 92    */
+  socialAuditGrade:      null,   /* e.g. 'A'   */
+};
+
+/* ════════════════════════════════════════════════════════════
+   ② SCORING ENGINE
+   ════════════════════════════════════════════════════════════ */
+function calculateScores(d) {
+  const out = {};
+
+  /* ── 強制關卡：四項全部符合才計分 ── */
+  const gateReady = (
+    d.compositionTotal === 100 &&
+    d.svhcPassed       === true &&
+    d.originDisclosed  === true &&
+    d.hasTestReport    === true
+  );
+
+  if (!gateReady) {
+    out.gatePassed = false;
+    out.gateReason = (
+      d.compositionTotal === null || d.svhcPassed === null ||
+      d.originDisclosed  === null || d.hasTestReport === null
+    )
+      ? 'Scoring inputs not yet provided (passportData contains null values).'
+      : 'Missing mandatory EU DPP fields (SVHC, Origin, Composition, or Test Report).';
+    return out;
+  }
+  out.gatePassed = true;
+
+  /* ── Fabric Score (max 100) ── */
+
+  // C1: 成分與身份識別 (max 20)
+  let c1 = 0;
+  if (d.recycledContentPct >= 50)    c1 += 15;
+  else if (d.recycledContentPct > 0) c1 += 10;
+  c1 += d.isMonoMaterial ? 5 : 3;
+
+  // C2: 溯源可追蹤性 (max 25)
+  const c2 = (d.traceabilityTiers || 0) >= 4
+    ? 25
+    : (d.traceabilityTiers || 0) * 5;
+
+  // C3: 物性表現與循環性 (max 25)
+  let c3 = Math.min((d.durabilityTestsPassed || 0) * 2.5, 10);
+  if (d.chemicalFinish === 'None') c3 += 7;
+  if (d.hasZDHC)                   c3 += 8;
+
+  // C4: 認證 (max 15) — 以 ZDHC 為代理指標
+  const c4 = d.hasZDHC ? 15 : 5;
+
+  // C5: 環境衝擊 (max 15)
+  const c5 = (d.carbonBetterThanAvg || 0) >= 20 ? 15 : 10;
+
+  out.fabricScore    = c1 + c2 + c3 + c4 + c5;
+  out.fabricGrade    = getGrade(out.fabricScore);
+  out.fabricClusters = { c1, c2, c3, c4, c5 };
+
+  /* ── Supplier Score (max 100) ── */
+
+  // sA: 交期與執行 (max 35)
+  const sA_otd = (d.otdRate || 0) >= 95 ? 18 : (d.otdRate || 0) >= 90 ? 10 : 0;
+  const sA_aql = (d.aqlRate || 0) >= 98 ? 17 : 10;
+  const sA     = sA_otd + sA_aql;
+
+  // sB: 環境管理 (max 35)
+  const sB_e = (d.renewableEnergyPct    || 0) >= 30 ? 18 : 10;
+  const sB_w = (d.wastewaterRecoveryPct || 0) >= 80 ? 17 : 10;
+  const sB   = sB_e + sB_w;
+
+  // sC: 社會合規 (max 30)
+  const sC = d.socialAuditGrade === 'A' ? 30 : 15;
+
+  out.supplierScore    = sA + sB + sC;
+  out.supplierGrade    = getGrade(out.supplierScore);
+  out.supplierClusters = { sA, sB, sC };
+
+  out.kpis = {
+    otd:   { grade: getGrade(d.otdRate  || 0).letter },
+    aql:   { grade: getGrade(d.aqlRate  || 0).letter },
+    audit: { grade: d.socialAuditGrade || 'F' },
+  };
+
+  return out;
+}
+
+function getGrade(score) {
+  if (score >= 90) return { letter: 'A', label: 'Excellent', color: '#4A7A55' };
+  if (score >= 80) return { letter: 'B', label: 'Good',      color: '#7AAF88' };
+  if (score >= 70) return { letter: 'C', label: 'Fair',      color: '#8C7355' };
+  if (score >= 60) return { letter: 'D', label: 'Poor',      color: '#C4AA8A' };
+  return                  { letter: 'F', label: 'Fail',      color: '#B85C5C' };
+}
+
+/* ════════════════════════════════════════════════════════════
+   ③ GAUGE CONSTANTS & GEOMETRY
+   ════════════════════════════════════════════════════════════ */
+const GRADE_MAP = {
+  'A': { color: '#4A7A55', label: 'Excellent', angle: 18  },
+  'B': { color: '#7AAF88', label: 'Good',      angle: 54  },
+  'C': { color: '#8C7355', label: 'Fair',      angle: 90  },
+  'D': { color: '#C4AA8A', label: 'Poor',      angle: 126 },
+  'F': { color: '#B85C5C', label: 'Fail',      angle: 162 },
+};
+const GRADE_IDX = { 'F': 0, 'D': 1, 'C': 2, 'B': 3, 'A': 4 };
+const TIERS = [
+  { from: 180, to: 144, color: '#B85C5C' },
+  { from: 144, to: 108, color: '#C4AA8A' },
+  { from: 108, to: 72,  color: '#8C7355' },
+  { from: 72,  to: 36,  color: '#7AAF88' },
+  { from: 36,  to: 0,   color: '#4A7A55' },
+];
+
+function scoreToAngle(score) {
+  const s = Math.max(0, Math.min(100, score));
+  if (s >= 90) return 36  - ((s - 90) / 10) * 36;
+  if (s >= 80) return 72  - ((s - 80) / 10) * 36;
+  if (s >= 70) return 108 - ((s - 70) / 10) * 36;
+  if (s >= 60) return 144 - ((s - 60) / 10) * 36;
+  return              180 - (s / 60) * 36;
+}
+function polar(cx, cy, r, deg) {
+  const rad = (deg * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
+}
+function arcPath(cx, cy, r, s, e) {
+  const sp = polar(cx, cy, r, s), ep = polar(cx, cy, r, e);
+  const large = Math.abs(e - s) > 180 ? 1 : 0;
+  const sweep  = e < s ? 1 : 0;
+  return `M ${sp.x.toFixed(2)} ${sp.y.toFixed(2)} A ${r} ${r} 0 ${large} ${sweep} ${ep.x.toFixed(2)} ${ep.y.toFixed(2)}`;
+}
+function tierLabels(onDark) {
+  const c  = onDark ? 'rgba(255,255,255,0.7)' : '#6B6860';
+  const cA = onDark ? '#FFFFFF' : '#28422E';
+  return `
+    <text x="22"  y="118" text-anchor="middle" font-size="9.5" font-weight="600" fill="${c}">F</text>
+    <text x="42"  y="48"  text-anchor="middle" font-size="9.5" font-weight="600" fill="${c}">D</text>
+    <text x="100" y="20"  text-anchor="middle" font-size="9.5" font-weight="600" fill="${c}">C</text>
+    <text x="158" y="48"  text-anchor="middle" font-size="9.5" font-weight="600" fill="${c}">B</text>
+    <text x="178" y="118" text-anchor="middle" font-size="10"  font-weight="700" fill="${cA}">A</text>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   ④ RENDER FUNCTIONS
+   ════════════════════════════════════════════════════════════ */
+function renderGauge(el, score, opts = {}) {
+  const cx = 100, cy = 100, r = 75;
+  const grade  = getGrade(score);
+  const needle = scoreToAngle(score);
+  const ai     = GRADE_IDX[grade.letter];
+  const segs   = TIERS.map((t, i) =>
+    `<path d="${arcPath(cx,cy,r,t.from,t.to)}" stroke="${t.color}" stroke-width="14" fill="none"
+      stroke-linecap="butt" opacity="${i === ai ? 1 : 0.28}"/>`).join('');
+  const ne = polar(cx, cy, r - 4, needle);
+  const od = el.classList.contains('on-dark');
+  const nc = od ? '#FFF' : '#252520';
+  el.innerHTML = `
+    <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+      ${segs}${tierLabels(od)}
+      <line x1="${cx}" y1="${cy}" x2="${ne.x.toFixed(2)}" y2="${ne.y.toFixed(2)}"
+        stroke="${nc}" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="${cx}" cy="${cy}" r="6" fill="${nc}"/>
+      <circle cx="${cx}" cy="${cy}" r="2.5" fill="${od ? '#28422E' : '#FAF7F2'}"/>
+    </svg>
+    <div class="gauge-readout" style="bottom:18%;">
+      <div class="gauge-score">${score}</div>
+      <div class="gauge-grade" style="color:${od ? 'rgba(255,255,255,0.85)' : grade.color};">
+        ${grade.letter} · ${grade.label}
+      </div>
+      ${opts.cap ? `<div class="gauge-cap">${opts.cap}</div>` : ''}
+    </div>`;
+}
+
+function renderLetterGauge(el, letter, opts = {}) {
+  const cx = 100, cy = 100, r = 75;
+  const g  = GRADE_MAP[letter] || GRADE_MAP['C'];
+  const ai = GRADE_IDX[letter] ?? 2;
+  const segs = TIERS.map((t, i) =>
+    `<path d="${arcPath(cx,cy,r,t.from,t.to)}" stroke="${t.color}" stroke-width="14" fill="none"
+      stroke-linecap="butt" opacity="${i === ai ? 1 : 0.28}"/>`).join('');
+  const ne = polar(cx, cy, r - 4, g.angle);
+  const od = el.classList.contains('on-dark');
+  const nc = od ? '#FFF' : '#252520';
+  el.innerHTML = `
+    <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+      ${segs}${tierLabels(od)}
+      <line x1="${cx}" y1="${cy}" x2="${ne.x.toFixed(2)}" y2="${ne.y.toFixed(2)}"
+        stroke="${nc}" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="${cx}" cy="${cy}" r="6" fill="${nc}"/>
+      <circle cx="${cx}" cy="${cy}" r="2.5" fill="${od ? '#28422E' : '#FAF7F2'}"/>
+    </svg>
+    <div class="gauge-readout" style="bottom:18%;">
+      <div class="gauge-score" style="color:${od ? '#fff' : g.color};">${letter}</div>
+      <div class="gauge-grade" style="color:${od ? 'rgba(255,255,255,0.85)' : g.color};">${g.label}</div>
+      ${opts.cap ? `<div class="gauge-cap">${opts.cap}</div>` : ''}
+    </div>`;
+}
+
+function renderMiniGauge(el, letter) {
+  const cx = 50, cy = 50, r = 35;
+  const g  = GRADE_MAP[letter] || GRADE_MAP['C'];
+  el.innerHTML = `
+    <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
+      <path d="${arcPath(cx,cy,r,180,0)}" stroke="#EAE4DA" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <path d="${arcPath(cx,cy,r,180,g.angle)}" stroke="${g.color}" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <text x="50" y="54" text-anchor="middle" font-family="DM Serif Display,serif"
+        font-size="16" font-weight="600" fill="${g.color}">${letter}</text>
+    </svg>`;
+}
+
+/* 空白狀態：灰色弧，無針頭，"Awaiting data" */
+function renderEmptyGauge(el, cap) {
+  const od = el.classList.contains('on-dark');
+  el.innerHTML = `
+    <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+      <path d="${arcPath(100,100,75,180,0)}" stroke="#D9D2C5" stroke-width="14"
+        fill="none" stroke-linecap="butt"/>
+      ${tierLabels(od)}
+    </svg>
+    <div class="gauge-readout" style="bottom:18%;">
+      <div class="gauge-score" style="color:${od ? 'rgba(255,255,255,0.35)' : '#D9D2C5'};">—</div>
+      <div class="gauge-grade" style="color:${od ? 'rgba(255,255,255,0.3)' : '#C4B9A8'};">Awaiting data</div>
+      ${cap ? `<div class="gauge-cap">${cap}</div>` : ''}
+    </div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   ⑤ MAIN — 執行引擎並渲染所有 Gauge
+   ════════════════════════════════════════════════════════════ */
+function runEngineAndRender() {
+  const scores = calculateScores(passportData);
+
+  const previewEl  = document.getElementById('preview-gauge');
+  const heroEl     = document.getElementById('hero-gauge');
+  const supplierEl = document.getElementById('supplier-overall-gauge');
+
+  /* ── Fabric Score Gauge ── */
+  if (scores.gatePassed) {
+    if (previewEl)  renderGauge(previewEl,  scores.fabricScore, { cap: 'Fabric Score' });
+    if (heroEl)     renderGauge(heroEl,     scores.fabricScore, { cap: 'Fabric Score' });
+  } else {
+    if (previewEl)  renderEmptyGauge(previewEl,  'Fabric Score');
+    if (heroEl)     renderEmptyGauge(heroEl,      'Fabric Score');
+    if (scores.gateReason) console.info('[DFP Shell] Gate not passed:', scores.gateReason);
+  }
+
+  /* ── Supplier Overall Gauge ── */
+  if (scores.gatePassed && GRADE_MAP[scores.supplierGrade.letter]) {
+    if (supplierEl) renderLetterGauge(supplierEl, scores.supplierGrade.letter, { cap: 'Overall Rating' });
+  } else {
+    if (supplierEl) renderEmptyGauge(supplierEl, 'Overall Rating');
+  }
+
+  /* ── KPI Mini Gauges ──
+     data-field → engine 輸出的字母等級
+     Gate 未通過時，回退到 HTML 的 data-grade 屬性（預設 'C'）
+  */
+  const miniMap = scores.gatePassed ? {
+    'kpi_otd_grade':          scores.kpis.otd.grade,
+    'kpi_qty_grade':          scores.kpis.aql.grade,
+    'kpi_qpr_grade':          scores.kpis.aql.grade,
+    'kpi_colour_grade':       scores.kpis.aql.grade,
+    'kpi_doc_grade':          scores.kpis.audit.grade,
+    'kpi_audit_grade':        scores.kpis.audit.grade,
+    'kpi_transparency_grade': scores.kpis.audit.grade,
+  } : {};
+
+  document.querySelectorAll('[data-mini]').forEach(el => {
+    const letter = miniMap[el.dataset.field] || el.dataset.grade || 'C';
+    renderMiniGauge(el, GRADE_MAP[letter] ? letter : 'C');
+  });
+}
+
+runEngineAndRender();
+
+/* ── Navigation ── */
+function goToPassport() {
+  document.getElementById('page-preview').classList.remove('active');
+  document.getElementById('page-passport').classList.add('active');
+  window.scrollTo(0, 0);
+}
+function goToPreview() {
+  document.getElementById('page-passport').classList.remove('active');
+  document.getElementById('page-preview').classList.add('active');
+  window.scrollTo(0, 0);
+}
+function ppTab(id, btn) {
+  document.querySelectorAll('.pp-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.pp-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pp-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

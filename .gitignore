@@ -111,3 +111,8 @@ qc_excel/
 
 # Misc / scratch
 download.html
+passport_test/
+
+# FabricAI sub-app — secrets and ephemeral session/upload data
+server/fabricai_app/config.py
+server/fabricai_app/data/

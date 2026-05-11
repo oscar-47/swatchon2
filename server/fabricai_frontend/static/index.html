@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FabricAI</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* =================================================================
+     * Palette — archival vellum + electric-cyan tech accent.
+     * Inherits swatchon's surface tones for visual cohesion;
+     * swaps the burnt-sienna accent for an electric blue-cyan that
+     * signals high-tech / future without breaking the archival feel.
+     * ================================================================= */
+    :root {
+      --surface-page:    oklch(0.985 0.004 85);         /* vellum */
+      --surface-card:    oklch(0.998 0.002 85);         /* warmer white */
+      --surface-sunk:    oklch(0.955 0.006 85);         /* subtle sink */
+      --surface-tint:    oklch(0.96 0.014 235);         /* cool tinted block (tech) */
+
+      --ink-primary:     oklch(0.20 0.04 250);
+      --ink-secondary:   oklch(0.42 0.04 250);
+      --ink-muted:       oklch(0.58 0.02 250);
+      --ink-faint:       oklch(0.72 0.01 250);
+
+      --rule:            oklch(0.90 0.006 250);
+      --rule-strong:     oklch(0.80 0.008 250);
+
+      --accent:          oklch(0.55 0.18 235);          /* electric cyan-blue */
+      --accent-deep:     oklch(0.45 0.22 240);
+      --accent-tint:     oklch(0.92 0.05 235);          /* very pale accent wash */
+      --accent-glow:     oklch(0.75 0.16 230);
+
+      --ok:              oklch(0.52 0.09 155);          /* sage (swatchon) */
+      --warn:            oklch(0.62 0.11 75);           /* ochre (swatchon) */
+      --error:           oklch(0.55 0.18 25);           /* terracotta */
+
+      --bubble-user-grad: linear-gradient(135deg, oklch(0.55 0.18 235) 0%, oklch(0.50 0.22 270) 100%);
+
+      --font-body:    'Schibsted Grotesk', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Libre Caslon Text', Georgia, serif;
+      --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+      --content-max:  720px;
+      --content-px:   1.25rem;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; width: 100%; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 14.5px;
+      line-height: 1.55;
+      color: var(--ink-primary);
+      background: var(--surface-page);
+      /* very faint dot-grid for tech texture */
+      background-image: radial-gradient(circle at 1px 1px, oklch(0.85 0.02 235 / 0.10) 1px, transparent 0);
+      background-size: 18px 18px;
+      overflow: hidden;
+    }
+
+    /* --- App shell --------------------------------------------------- */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+    }
+
+    .app-header {
+      flex-shrink: 0;
+      padding: 0.7rem var(--content-px);
+      background: var(--surface-card);
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .app-header .brand {
+      font-family: var(--font-display);
+      font-size: 18px;
+      letter-spacing: 0.01em;
+    }
+    .app-header .brand .dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent-glow);
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    /* --- Reset button (top-right, viewport-fixed) -------------------- */
+    .reset-fab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 0;
+      background: transparent;
+      color: var(--error);
+      border: 1px solid var(--error);
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .reset-fab:hover  { background: var(--error); color: #fff; }
+    .reset-fab:active { transform: translateY(1px); }
+    .reset-fab:disabled { opacity: 0.4; cursor: not-allowed; }
+    .reset-fab::before {
+      content: '\21bb';
+      font-size: 13px;
+    }
+
+    /* --- Scrolling chat region --------------------------------------- */
+    .chat {
+      flex: 1; min-height: 0;
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+      padding: 1.25rem var(--content-px) 0.5rem;
+      display: flex; flex-direction: column;
+      align-items: center;
+      scrollbar-width: thin;
+      scrollbar-color: var(--rule-strong) transparent;
+    }
+    .chat::-webkit-scrollbar       { width: 8px; }
+    .chat::-webkit-scrollbar-track { background: transparent; }
+    .chat::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: 4px; }
+
+    .chat-inner {
+      width: 100%;
+      max-width: var(--content-max);
+      display: flex; flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* --- Welcome card (snap-rendered on entry) ----------------------- */
+    .welcome {
+      background: var(--surface-card);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--accent);
+      padding: 1rem 1.1rem;
+      border-radius: 0;
+    }
+    .welcome .label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 0.4rem;
+    }
+    .welcome .body {
+      font-size: 15px;
+      line-height: 1.55;
+    }
+    .welcome .result-row {
+      display: flex; flex-wrap: wrap;
+      gap: 0.6rem 1.5rem;
+      margin-top: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ink-secondary);
+    }
+    .welcome .result-row strong {
+      color: var(--ink-primary);
+      margin-left: 0.3rem;
+    }
+
+    /* --- Selection panel (language + role) --------------------------- */
+    .panel {
+      background: transparent;
+      padding: 0.6rem 0;
+    }
+    .panel .panel-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      margin-bottom: 0.55rem;
+    }
+    .panel .panel-tagline {
+      font-style: italic;
+      font-size: 13px;
+      color: var(--ink-secondary);
+      margin-bottom: 0.55rem;
+    }
+
+    /* Outlined square pill — base for all selection chips */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--surface-card);
+      color: var(--ink-primary);
+      border: 1px solid var(--rule-strong);
+      border-radius: 0;
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent-deep); }
+    .chip.selected {
+      background: var(--ink-primary);
+      color: var(--surface-card);
+      border-color: var(--ink-primary);
+    }
+    .chip.selected:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+
+    /* Row layouts */
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip-row.equal > .chip { flex: 1 1 0; justify-content: center; }
+
+    /* --- Starter-question chips (vertical list of 3) ----------------- */
+    .starter-list {
+      display: flex; flex-direction: column;
+      gap: 6px;
+      margin-top: 0.4rem;
+    }
+    .starter {
+      text-align: left;
+      padding: 9px 14px;
+      background: var(--surface-tint);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--accent-glow);
+      border-radius: 0;
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--ink-primary);
+      cursor: pointer;
+      transition: background 0.12s ease, border-color 0.12s ease;
+    }
+    .starter:hover {
+      background: var(--accent-tint);
+      border-left-color: var(--accent);
+    }
+    .starter::before {
+      content: '\2192   ';
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* --- Topic tabs (always visible once role chosen) ---------------- */
+    .topic-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--rule);
+      margin-top: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .topic-tab {
+      padding: 8px 14px;
+      background: transparent;
+      color: var(--ink-secondary);
+      border: 0;
+      border-bottom: 2px solid transparent;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease;
+      margin-bottom: -1px;
+    }
+    .topic-tab:hover { color: var(--ink-primary); }
+    .topic-tab.active {
+      color: var(--accent-deep);
+      border-bottom-color: var(--accent);
+    }
+
+    /* --- Topic divider (separator inserted on topic switch) ---------- */
+    .topic-divider {
+      display: flex; align-items: center;
+      gap: 12px;
+      color: var(--ink-muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin: 0.6rem 0 0.2rem;
+    }
+    .topic-divider::before, .topic-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* --- Bubbles ----------------------------------------------------- */
+    .bubble {
+      max-width: 80%;
+      padding: 0.7rem 1rem;
+      border-radius: 0;
+      line-height: 1.55;
+      font-size: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .bubble.user {
+      align-self: flex-end;
+      background: var(--bubble-user-grad);
+      color: #fff;
+      border: 0;
+      box-shadow: 0 4px 14px oklch(0.55 0.18 235 / 0.18);
+    }
+    .bubble.assistant {
+      align-self: flex-start;
+      background: var(--surface-card);
+      color: var(--ink-primary);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--ink-primary);
+    }
+    .bubble.system {
+      align-self: center;
+      background: transparent;
+      color: var(--ink-muted);
+      font-size: 12.5px;
+      font-style: italic;
+      max-width: 90%;
+      text-align: center;
+      padding: 0.3rem 0;
+    }
+
+    /* Sources block under assistant bubbles (cited like ChatGPT) */
+    .sources {
+      align-self: flex-start;
+      max-width: 80%;
+      margin-top: -0.4rem;
+      padding: 0 0.4rem;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-muted);
+      letter-spacing: 0.02em;
+    }
+    .sources .label {
+      color: var(--accent-deep);
+      font-weight: 500;
+      margin-right: 6px;
+    }
+
+    /* attachments inline */
+    .bubble .attachments { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .bubble .attachments img {
+      max-height: 90px; max-width: 140px; border-radius: 0; object-fit: cover;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .bubble .attachments .file-tag {
+      font-size: 0.78rem; background: rgba(0,0,0,0.15); padding: 3px 8px; border-radius: 0;
+    }
+
+    .thinking {
+      align-self: flex-start;
+      color: var(--ink-muted);
+      font-style: italic;
+      font-size: 12.5px;
+      padding: 0.3rem 0.4rem;
+    }
+    .thinking::before {
+      content: '\25CF';
+      display: inline-block;
+      margin-right: 6px;
+      color: var(--accent);
+      animation: ff-pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes ff-pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+    /* --- Attachment preview strip ------------------------------------ */
+    .attachment-strip { flex-shrink: 0; padding: 6px var(--content-px) 0; display: flex; justify-content: center; }
+    .attachment-strip .inner {
+      width: 100%; max-width: var(--content-max);
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .attachment-strip .inner:empty { display: none; }
+    .att-preview {
+      position: relative; background: var(--surface-card);
+      border: 1px solid var(--rule);
+      display: flex; align-items: center;
+    }
+    .att-preview img { height: 50px; max-width: 90px; object-fit: cover; }
+    .att-preview .fname {
+      font-size: 11px; padding: 4px 8px; color: var(--ink-secondary); max-width: 120px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .att-preview .remove {
+      position: absolute; top: 2px; right: 2px;
+      width: 16px; height: 16px; line-height: 14px; text-align: center;
+      background: rgba(0,0,0,0.6); color: #fff; border: none;
+      border-radius: 0; font-size: 11px; cursor: pointer; padding: 0;
+    }
+
+    /* --- Bottom input area ------------------------------------------- */
+    .input-shelf {
+      flex-shrink: 0;
+      border-top: 1px solid var(--rule);
+      background: var(--surface-card);
+      padding: 0.45rem var(--content-px) 0.4rem;
+    }
+    /* Row above the input that pairs the "ask anything else" prompt
+       (left) with the "Enter to send" keyboard hint (right). Same vertical
+       location as the previous standalone tagline. */
+    .ask-row {
+      max-width: var(--content-max);
+      margin: 0 auto 6px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .ask-tagline {
+      font-size: 11.5px;
+      font-style: italic;
+      color: var(--ink-muted);
+    }
+    .enter-hint {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--ink-faint);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .input-row {
+      max-width: var(--content-max);
+      margin: 0 auto;
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .input-row .btn-attach {
+      width: 38px; height: 38px; flex-shrink: 0;
+      border: 1px solid var(--rule-strong);
+      border-radius: 0;
+      background: var(--surface-card);
+      color: var(--ink-primary);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .input-row .btn-attach:hover { border-color: var(--accent); color: var(--accent-deep); }
+    .input-row textarea {
+      flex: 1; min-width: 0;
+      min-height: 38px; max-height: 120px;
+      padding: 0.45rem 0.7rem;
+      border: 1px solid var(--rule-strong);
+      border-radius: 0;
+      background: var(--surface-card);
+      color: var(--ink-primary);
+      font-family: inherit; font-size: 14px;
+      line-height: 1.5; resize: none;
+    }
+    .input-row textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-tint);
+    }
+    .input-row .btn-send {
+      padding: 0 1.1rem; height: 38px;
+      border: 1px solid var(--accent-deep);
+      background: var(--accent-deep);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .input-row .btn-send:hover { background: var(--accent); border-color: var(--accent); }
+    .input-row .btn-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="app-header">
+      <div class="brand"><span class="dot"></span>FabricAI</div>
+      <button class="reset-fab" id="resetBtn" type="button" title="Restart session">Reset</button>
+    </div>
+
+    <div class="chat" id="chat">
+      <div class="chat-inner" id="chatInner"></div>
+    </div>
+
+    <!-- Hidden file input -->
+    <input type="file" id="fileInput" multiple
+           accept="image/*,application/pdf,.csv,.xlsx,.txt,.json" hidden />
+
+    <div class="attachment-strip">
+      <div class="inner" id="attachStrip"></div>
+    </div>
+
+    <div class="input-shelf">
+      <div class="ask-row">
+        <span class="ask-tagline">You can also ask anything else here.</span>
+        <span class="enter-hint">Enter to send · Shift+Enter for new line</span>
+      </div>
+      <div class="input-row">
+        <button class="btn-attach" id="attachBtn" title="Attach file">+</button>
+        <textarea id="input" rows="1" placeholder="Ask anything about Fabric…"></textarea>
+        <button class="btn-send" id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+"use strict";
+
+/* =====================================================================
+ * State.
+ * Single source of truth. UI is recomputed from this whenever it changes.
+ * No framework — vanilla DOM with targeted re-renders.
+ * ===================================================================== */
+const state = {
+  phase: "selection",      // "selection" | "chat"
+  language: "en",
+  role: null,              // set on role click → moves phase to "chat"
+  topic: null,             // default set when entering chat
+  recentResult: null,      // {fabric_id, structure:{primary,secondary,confidence}, ...} or null
+  cfg: null,               // /api/config payload
+  sessionId: null,
+  pendingFiles: [],
+  pendingImages: [],
+  sending: false,
+};
+
+/* =====================================================================
+ * UI Translations.
+ * Every string the UI renders is looked up via t(category, key). Switching
+ * language re-renders the entire selection panel (or the chat-phase topic
+ * bar / input placeholder / ask-tagline). Existing chat bubbles remain in
+ * whichever language they were generated in — that's accurate history.
+ *
+ * The "other" language: UI stays in English, but the model is told to
+ * respond in the user-typed language.
+ * ===================================================================== */
+const STRINGS = {
+  en: {
+    ui: {
+      langPanelLabel:     "Language",
+      welcomeLabelLatest: "Latest fabric recognition",
+      welcomeLabelEmpty:  "Welcome",
+      welcomeBodyLatest:  "Your most recent analysis is ready. Pick your role and topic below to explore it from the angle that matters to you.",
+      welcomeBodyEmpty:   "Welcome to FabricAI — your conversational lens on the Fabric Recognition platform. No fabric has been analysed yet, but you can still ask about Fabric Knowledge, the technology, or the supply chain. Pick your role and topic below.",
+      resultID:           "ID",
+      resultFamily:       "Family",
+      resultSubcategory:  "Sub-category",
+      resultConfidence:   "Confidence",
+      rolePanelLabel:     "Choose your perspective",
+      roleTagline:        "Same data, different people, different angle.",
+      lensLabel:          "Lens",
+      starterQsLabel:     "Guided starter questions",
+      askTagline:         "You can also ask anything else here.",
+      inputPlaceholder:   "Ask anything about Fabric…",
+      enterHint:          "Enter to send · Shift+Enter for new line",
+      resetBtn:           "Reset",
+      resetBtnTitle:      "Restart session",
+      resetConfirm:       "Restart the session? This clears the chat and brings you back to role selection.",
+      thinking:           "Thinking…",
+      sourcesLabel:       "Sources:",
+      pickRoleNudge:      "Pick a role above first so I can respond from the right perspective.",
+      uploadFailed:       "Upload failed",
+      networkError:       "Network error",
+      genericError:       "Something went wrong.",
+      otherLangPrompt:    "Type the language you'd like FabricAI to respond in (e.g. 'Korean', 'Portuguese'):",
+    },
+    roles: {
+      commercial:     "Commercial",
+      retail:         "Retail",
+      sourcing:       "Sourcing",
+      operations:     "Operations",
+      sustainability: "Sustainability",
+    },
+    topics: {
+      explain_results:    "Explain Results",
+      fabric_knowledge:   "Fabric Knowledge",
+      explain_technology: "Explain Technology",
+      supply_chain:       "Supply Chain",
+    },
+    starters: {
+      explain_results: [
+        "What does my latest Fabric Recognition result mean?",
+        "Why isn't the system 100% confident about this fabric?",
+        "What kinds of garments could be made from this fabric?",
+        "How accurate is this classification, and what would make it more reliable?",
+        "Is this fabric a single layer or a double-cloth?",
+      ],
+      fabric_knowledge: [
+        "How is the detected fabric type traditionally constructed?",
+        "What's the difference between Twill and Satin?",
+        "What's the difference between Jersey and Rib Knit?",
+        "What's the difference between knit and woven fabrics?",
+        "Which fabric types drape softly, and which hold structure?",
+      ],
+      explain_technology: [
+        "How does Fabric Recognition work, in plain terms?",
+        "How does the Digital Fabric Passport work?",
+        "How does FabricAI access Fabric Recognition results?",
+        "What is multi-view consensus and why does it matter?",
+        "How does FabricAI know when to refuse a question?",
+      ],
+      supply_chain: [
+        "Which fabric type is the most economical to source at scale?",
+        "Which fabric construction has the lowest carbon footprint in manufacturing?",
+        "Where are the major manufacturing hubs for this kind of fabric?",
+        "Which certifications matter most for this kind of fabric?",
+        "What's a typical lead time for sourcing this fabric type?",
+      ],
+    },
+  },
+  it: {
+    ui: {
+      langPanelLabel:     "Lingua",
+      welcomeLabelLatest: "Ultimo riconoscimento tessuto",
+      welcomeLabelEmpty:  "Benvenuto",
+      welcomeBodyLatest:  "La tua analisi più recente è pronta. Scegli ruolo e argomento qui sotto per esplorarla dall'angolazione che ti interessa.",
+      welcomeBodyEmpty:   "Benvenuto in FabricAI — la tua lente conversazionale sulla piattaforma Fabric Recognition. Nessun tessuto è stato ancora analizzato, ma puoi comunque chiedere di Conoscenza dei tessuti, della tecnologia o della catena di fornitura. Scegli ruolo e argomento qui sotto.",
+      resultID:           "ID",
+      resultFamily:       "Famiglia",
+      resultSubcategory:  "Sottocategoria",
+      resultConfidence:   "Affidabilità",
+      rolePanelLabel:     "Scegli la tua prospettiva",
+      roleTagline:        "Stessi dati, persone diverse, angolazioni diverse.",
+      lensLabel:          "Lente",
+      starterQsLabel:     "Domande guidate iniziali",
+      askTagline:         "Puoi anche chiedere qualsiasi altra cosa qui.",
+      inputPlaceholder:   "Chiedi qualsiasi cosa sui tessuti…",
+      enterHint:          "Invio per inviare · Maiusc+Invio per andare a capo",
+      resetBtn:           "Reset",
+      resetBtnTitle:      "Riavvia sessione",
+      resetConfirm:       "Riavviare la sessione? La chat verrà cancellata e tornerai alla selezione del ruolo.",
+      thinking:           "Sto pensando…",
+      sourcesLabel:       "Fonti:",
+      pickRoleNudge:      "Scegli prima un ruolo qui sopra così posso risponderti dalla giusta prospettiva.",
+      uploadFailed:       "Caricamento fallito",
+      networkError:       "Errore di rete",
+      genericError:       "Qualcosa è andato storto.",
+      otherLangPrompt:    "Digita la lingua in cui vuoi che FabricAI risponda (es. 'Coreano', 'Portoghese'):",
+    },
+    roles: {
+      commercial:     "Commerciale",
+      retail:         "Retail",
+      sourcing:       "Approvvigionamento",
+      operations:     "Operazioni",
+      sustainability: "Sostenibilità",
+    },
+    topics: {
+      explain_results:    "Spiega i risultati",
+      fabric_knowledge:   "Conoscenza tessuti",
+      explain_technology: "Spiega la tecnologia",
+      supply_chain:       "Catena di fornitura",
+    },
+    starters: {
+      explain_results: [
+        "Cosa significa il mio ultimo risultato di Fabric Recognition?",
+        "Perché il sistema non è sicuro al 100% su questo tessuto?",
+        "Che tipo di capi si potrebbero produrre con questo tessuto?",
+        "Quanto è accurata questa classificazione e cosa la renderebbe più affidabile?",
+        "Questo tessuto è a strato singolo o un doppio strato?",
+      ],
+      fabric_knowledge: [
+        "Come viene tradizionalmente costruito il tipo di tessuto rilevato?",
+        "Qual è la differenza tra Twill (saia) e Satin (raso)?",
+        "Qual è la differenza tra Jersey e Rib Knit (a coste)?",
+        "Qual è la differenza tra tessuti a maglia (knit) e a trama (woven)?",
+        "Quali tipi di tessuto cadono morbidi e quali mantengono la struttura?",
+      ],
+      explain_technology: [
+        "Come funziona Fabric Recognition, in parole semplici?",
+        "Come funziona il Digital Fabric Passport?",
+        "Come accede FabricAI ai risultati di Fabric Recognition?",
+        "Cos'è il multi-view consensus e perché è importante?",
+        "Come fa FabricAI a sapere quando rifiutare una domanda?",
+      ],
+      supply_chain: [
+        "Quale tipo di tessuto è più economico da approvvigionare in grandi volumi?",
+        "Quale costruzione tessile ha la minore impronta di carbonio in produzione?",
+        "Dove sono i principali poli manifatturieri per questo tipo di tessuto?",
+        "Quali certificazioni sono più importanti per questo tipo di tessuto?",
+        "Qual è un tempo di consegna tipico per l'approvvigionamento di questo tipo di tessuto?",
+      ],
+    },
+  },
+  es: {
+    ui: {
+      langPanelLabel:     "Idioma",
+      welcomeLabelLatest: "Último reconocimiento de tejido",
+      welcomeLabelEmpty:  "Bienvenido",
+      welcomeBodyLatest:  "Tu análisis más reciente está listo. Elige tu rol y tema abajo para explorarlo desde el ángulo que te importa.",
+      welcomeBodyEmpty:   "Bienvenido a FabricAI — tu lente conversacional sobre la plataforma Fabric Recognition. Aún no se ha analizado ningún tejido, pero puedes preguntar sobre Conocimiento de tejidos, la tecnología o la cadena de suministro. Elige tu rol y tema abajo.",
+      resultID:           "ID",
+      resultFamily:       "Familia",
+      resultSubcategory:  "Subcategoría",
+      resultConfidence:   "Confianza",
+      rolePanelLabel:     "Elige tu perspectiva",
+      roleTagline:        "Mismos datos, distintas personas, distintos ángulos.",
+      lensLabel:          "Lente",
+      starterQsLabel:     "Preguntas iniciales guiadas",
+      askTagline:         "También puedes preguntar cualquier otra cosa aquí.",
+      inputPlaceholder:   "Pregunta cualquier cosa sobre tejidos…",
+      enterHint:          "Enter para enviar · Mayús+Enter para nueva línea",
+      resetBtn:           "Reiniciar",
+      resetBtnTitle:      "Reiniciar sesión",
+      resetConfirm:       "¿Reiniciar la sesión? Se borrará el chat y volverás a la selección de rol.",
+      thinking:           "Pensando…",
+      sourcesLabel:       "Fuentes:",
+      pickRoleNudge:      "Elige primero un rol arriba para que pueda responderte desde la perspectiva correcta.",
+      uploadFailed:       "Carga fallida",
+      networkError:       "Error de red",
+      genericError:       "Algo salió mal.",
+      otherLangPrompt:    "Escribe el idioma en el que quieres que FabricAI responda (p. ej., 'Coreano', 'Portugués'):",
+    },
+    roles: {
+      commercial:     "Comercial",
+      retail:         "Minorista",
+      sourcing:       "Compras",
+      operations:     "Operaciones",
+      sustainability: "Sostenibilidad",
+    },
+    topics: {
+      explain_results:    "Explicar resultados",
+      fabric_knowledge:   "Conocimiento de tejidos",
+      explain_technology: "Explicar la tecnología",
+      supply_chain:       "Cadena de suministro",
+    },
+    starters: {
+      explain_results: [
+        "¿Qué significa mi último resultado de Fabric Recognition?",
+        "¿Por qué el sistema no está 100% seguro de este tejido?",
+        "¿Qué tipo de prendas se podrían fabricar con este tejido?",
+        "¿Qué tan precisa es esta clasificación y qué la haría más confiable?",
+        "¿Este tejido es de una sola capa o un tejido doble?",
+      ],
+      fabric_knowledge: [
+        "¿Cómo se construye tradicionalmente el tipo de tejido detectado?",
+        "¿Cuál es la diferencia entre Sarga (Twill) y Satén (Satin)?",
+        "¿Cuál es la diferencia entre Jersey y Rib Knit (canalé)?",
+        "¿Cuál es la diferencia entre tejidos de punto (knit) y tejidos planos (woven)?",
+        "¿Qué tipos de tejido caen suavemente y cuáles mantienen la estructura?",
+      ],
+      explain_technology: [
+        "¿Cómo funciona Fabric Recognition, en términos sencillos?",
+        "¿Cómo funciona el Digital Fabric Passport?",
+        "¿Cómo accede FabricAI a los resultados de Fabric Recognition?",
+        "¿Qué es el consenso multi-vista y por qué es importante?",
+        "¿Cómo sabe FabricAI cuándo rechazar una pregunta?",
+      ],
+      supply_chain: [
+        "¿Qué tipo de tejido es el más económico para abastecer a gran escala?",
+        "¿Qué construcción textil tiene la menor huella de carbono en fabricación?",
+        "¿Dónde están los principales polos manufactureros para este tipo de tejido?",
+        "¿Qué certificaciones son más importantes para este tipo de tejido?",
+        "¿Cuál es un tiempo de entrega típico para abastecer este tipo de tejido?",
+      ],
+    },
+  },
+  zh: {
+    ui: {
+      langPanelLabel:     "语言",
+      welcomeLabelLatest: "最新织物识别",
+      welcomeLabelEmpty:  "欢迎",
+      welcomeBodyLatest:  "您最近的分析已就绪。请在下方选择您的角色和主题，从您关心的角度进行探讨。",
+      welcomeBodyEmpty:   "欢迎使用 FabricAI —— 面料识别平台的对话式视角。尚未分析任何面料，但您仍可询问面料知识、技术或供应链相关问题。请在下方选择您的角色和主题。",
+      resultID:           "ID",
+      resultFamily:       "类别",
+      resultSubcategory:  "子类别",
+      resultConfidence:   "置信度",
+      rolePanelLabel:     "选择您的视角",
+      roleTagline:        "相同的数据，不同的人，不同的视角。",
+      lensLabel:          "视角",
+      starterQsLabel:     "引导式入门问题",
+      askTagline:         "您也可以在这里询问其他任何问题。",
+      inputPlaceholder:   "询问任何关于面料的问题…",
+      enterHint:          "回车发送 · Shift+回车 换行",
+      resetBtn:           "重置",
+      resetBtnTitle:      "重启会话",
+      resetConfirm:       "确定要重启会话吗？这将清除聊天记录并返回到角色选择界面。",
+      thinking:           "思考中…",
+      sourcesLabel:       "来源：",
+      pickRoleNudge:      "请先在上方选择一个角色，这样我可以从合适的视角为您回答。",
+      uploadFailed:       "上传失败",
+      networkError:       "网络错误",
+      genericError:       "出错了。",
+      otherLangPrompt:    "请输入您希望 FabricAI 用以回复的语言（例如 '韩语', '葡萄牙语'）：",
+    },
+    roles: {
+      commercial:     "商业",
+      retail:         "零售",
+      sourcing:       "采购",
+      operations:     "运营",
+      sustainability: "可持续性",
+    },
+    topics: {
+      explain_results:    "解释结果",
+      fabric_knowledge:   "面料知识",
+      explain_technology: "解释技术",
+      supply_chain:       "供应链",
+    },
+    starters: {
+      explain_results: [
+        "我最新的面料识别结果意味着什么？",
+        "为什么系统对这块面料不是100%确定？",
+        "这种面料可以用来制作什么样的服装？",
+        "这个分类有多准确？怎样能让它更可靠？",
+        "这块面料是单层还是双层结构？",
+      ],
+      fabric_knowledge: [
+        "检测到的这类面料传统上是如何制造的？",
+        "斜纹（Twill）和缎纹（Satin）有什么区别？",
+        "Jersey（平针）和Rib Knit（罗纹）有什么区别？",
+        "针织面料和梭织面料有什么区别？",
+        "哪些面料类型悬垂柔软，哪些保持结构？",
+      ],
+      explain_technology: [
+        "用通俗的话讲，面料识别是如何工作的？",
+        "数字面料护照是如何工作的？",
+        "FabricAI 如何访问面料识别的结果？",
+        "什么是多视图共识？为什么它很重要？",
+        "FabricAI 如何判断何时拒绝回答问题？",
+      ],
+      supply_chain: [
+        "哪种面料类型在大规模采购时最经济？",
+        "哪种织物结构在制造过程中碳足迹最低？",
+        "这类面料的主要制造中心在哪里？",
+        "对这种面料来说，哪些认证最重要？",
+        "采购这种面料的典型交货周期是多久？",
+      ],
+    },
+  },
+  tr: {
+    ui: {
+      langPanelLabel:     "Dil",
+      welcomeLabelLatest: "Son kumaş tanıma",
+      welcomeLabelEmpty:  "Hoş geldiniz",
+      welcomeBodyLatest:  "En son analiziniz hazır. Aşağıdan rolünüzü ve konunuzu seçerek, sizi ilgilendiren açıdan inceleyin.",
+      welcomeBodyEmpty:   "FabricAI'a hoş geldiniz — Fabric Recognition platformuna konuşma tabanlı bir bakış. Henüz hiçbir kumaş analiz edilmedi, ancak yine de Kumaş Bilgisi, teknoloji veya tedarik zinciri hakkında soru sorabilirsiniz. Aşağıdan rolünüzü ve konunuzu seçin.",
+      resultID:           "ID",
+      resultFamily:       "Aile",
+      resultSubcategory:  "Alt kategori",
+      resultConfidence:   "Güven",
+      rolePanelLabel:     "Bakış açınızı seçin",
+      roleTagline:        "Aynı veri, farklı insanlar, farklı bakış açısı.",
+      lensLabel:          "Lens",
+      starterQsLabel:     "Yönlendirilmiş başlangıç soruları",
+      askTagline:         "Burada başka bir şey de sorabilirsiniz.",
+      inputPlaceholder:   "Kumaş hakkında her şeyi sorun…",
+      enterHint:          "Göndermek için Enter · Yeni satır için Shift+Enter",
+      resetBtn:           "Sıfırla",
+      resetBtnTitle:      "Oturumu yeniden başlat",
+      resetConfirm:       "Oturum yeniden başlatılsın mı? Bu, sohbeti temizler ve rol seçimine döner.",
+      thinking:           "Düşünüyor…",
+      sourcesLabel:       "Kaynaklar:",
+      pickRoleNudge:      "Doğru bakış açısından yanıt verebilmem için önce yukarıdan bir rol seçin.",
+      uploadFailed:       "Yükleme başarısız",
+      networkError:       "Ağ hatası",
+      genericError:       "Bir şeyler ters gitti.",
+      otherLangPrompt:    "FabricAI'ın yanıt vermesini istediğiniz dili yazın (ör. 'Korece', 'Portekizce'):",
+    },
+    roles: {
+      commercial:     "Ticari",
+      retail:         "Perakende",
+      sourcing:       "Tedarik",
+      operations:     "Operasyon",
+      sustainability: "Sürdürülebilirlik",
+    },
+    topics: {
+      explain_results:    "Sonuçları açıkla",
+      fabric_knowledge:   "Kumaş bilgisi",
+      explain_technology: "Teknolojiyi açıkla",
+      supply_chain:       "Tedarik zinciri",
+    },
+    starters: {
+      explain_results: [
+        "En son Fabric Recognition sonucum ne anlama geliyor?",
+        "Sistem neden bu kumaş hakkında %100 emin değil?",
+        "Bu kumaştan ne tür giysiler üretilebilir?",
+        "Bu sınıflandırma ne kadar doğru ve daha güvenilir hale getirmek için ne gerekir?",
+        "Bu kumaş tek katman mı yoksa çift kat mı?",
+      ],
+      fabric_knowledge: [
+        "Tespit edilen kumaş türü geleneksel olarak nasıl üretilir?",
+        "Twill (dimi) ile Satin (saten) arasındaki fark nedir?",
+        "Jersey ile Rib Knit (ribana) arasındaki fark nedir?",
+        "Örme (knit) ve dokuma (woven) kumaşlar arasındaki fark nedir?",
+        "Hangi kumaş türleri yumuşak dökümlüdür, hangileri yapı korur?",
+      ],
+      explain_technology: [
+        "Fabric Recognition, basit terimlerle nasıl çalışır?",
+        "Digital Fabric Passport nasıl çalışır?",
+        "FabricAI, Fabric Recognition sonuçlarına nasıl erişir?",
+        "Çoklu görünüm uzlaşması (multi-view consensus) nedir ve neden önemlidir?",
+        "FabricAI bir soruyu ne zaman reddedeceğini nasıl bilir?",
+      ],
+      supply_chain: [
+        "Büyük ölçekli tedarikte en ekonomik kumaş türü hangisidir?",
+        "Üretim sırasında en düşük karbon ayak izine sahip kumaş yapısı nedir?",
+        "Bu tür kumaşın başlıca üretim merkezleri nerelerdir?",
+        "Bu tür kumaş için hangi sertifikalar en önemlidir?",
+        "Bu tür kumaşın tedariki için tipik bir teslim süresi nedir?",
+      ],
+    },
+  },
+};
+
+/* Look up the active language's strings, with English fallback for "other"
+ * (when the user typed a free-form language, the UI stays in English but
+ * the model is instructed to respond in their language). */
+function activeLangKey() {
+  const id = state.language;
+  return STRINGS[id] ? id : "en";
+}
+function t(category, key) {
+  const lang = activeLangKey();
+  const cat = STRINGS[lang][category] || STRINGS.en[category];
+  return (cat && cat[key] != null) ? cat[key] : (STRINGS.en[category][key] ?? "");
+}
+function tStarters(topicId) {
+  const lang = activeLangKey();
+  const arr = (STRINGS[lang].starters || {})[topicId];
+  return Array.isArray(arr) ? arr : (STRINGS.en.starters[topicId] || []);
+}
+
+/* DOM refs */
+const chatEl       = document.getElementById("chat");
+const chatInner    = document.getElementById("chatInner");
+const inputEl      = document.getElementById("input");
+const sendBtn      = document.getElementById("sendBtn");
+const attachBtn    = document.getElementById("attachBtn");
+const fileInput    = document.getElementById("fileInput");
+const attachStrip  = document.getElementById("attachStrip");
+const resetBtn     = document.getElementById("resetBtn");
+
+/* ---------- Tiny helpers ---------- */
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+function escapeHtml(s) {
+  const d = document.createElement("span");
+  d.textContent = s;
+  return d.innerHTML;
+}
+function scrollToBottom() {
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+/* ---------- Attempt to fetch the user's most-recent fabric result ---------- */
+async function fetchRecentResult() {
+  try {
+    const r = await fetch("http://localhost:8000/api/results/recent?limit=1", {
+      cache: "no-store"
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    if (!data.results || !data.results.length) return null;
+
+    // Get the full record so we have the structure block
+    const id = data.results[0].fabric_id;
+    const r2 = await fetch("http://localhost:8000/api/results/" + id, { cache: "no-store" });
+    if (!r2.ok) return null;
+    return await r2.json();
+  } catch (_) {
+    return null;
+  }
+}
+
+/* ---------- Render: welcome card (snap, no typing effect) ---------- */
+function renderWelcome() {
+  const card = el("div", "welcome");
+
+  if (state.recentResult && state.recentResult.metadata) {
+    const md = state.recentResult.metadata;
+    const s = md.structure || {};
+    card.appendChild(el("div", "label", t("ui", "welcomeLabelLatest")));
+    const body = el("div", "body");
+    body.textContent = t("ui", "welcomeBodyLatest");
+    card.appendChild(body);
+    const row = el("div", "result-row");
+    function field(k, v) {
+      const span = el("span");
+      span.textContent = k + ": ";
+      const strong = document.createElement("strong");
+      strong.textContent = v == null ? "—" : v;
+      span.appendChild(strong);
+      return span;
+    }
+    row.appendChild(field(t("ui", "resultID"), (md.fabric_id || "").slice(0, 12)));
+    row.appendChild(field(t("ui", "resultFamily"), s.primary || "—"));
+    if (s.secondary) row.appendChild(field(t("ui", "resultSubcategory"), s.secondary));
+    if (typeof s.confidence === "number") {
+      row.appendChild(field(t("ui", "resultConfidence"), s.confidence.toFixed(3)));
+    }
+    card.appendChild(row);
+  } else {
+    card.appendChild(el("div", "label", t("ui", "welcomeLabelEmpty")));
+    const body = el("div", "body");
+    body.textContent = t("ui", "welcomeBodyEmpty");
+    card.appendChild(body);
+  }
+  return card;
+}
+
+/* ---------- Render: language strip ---------- */
+function renderLanguageStrip() {
+  const panel = el("div", "panel");
+  panel.appendChild(el("div", "panel-label", t("ui", "langPanelLabel")));
+  const row = el("div", "chip-row");
+  for (const lang of state.cfg.languages) {
+    const b = el("button", "chip" + (state.language === lang.id ? " selected" : ""), lang.label);
+    b.dataset.lang = lang.id;
+    b.addEventListener("click", () => onLanguagePick(lang.id));
+    row.appendChild(b);
+  }
+  panel.appendChild(row);
+  return panel;
+}
+
+/* ---------- Render: role selection ---------- */
+function renderRoleSelection() {
+  const panel = el("div", "panel");
+  panel.appendChild(el("div", "panel-label", t("ui", "rolePanelLabel")));
+  panel.appendChild(el("div", "panel-tagline", t("ui", "roleTagline")));
+  const row = el("div", "chip-row equal");
+  for (const role of state.cfg.roles) {
+    // Use translated role label if available; fall back to backend-provided label.
+    const label = t("roles", role.id) || role.label;
+    const b = el("button", "chip" + (state.role === role.id ? " selected" : ""), label);
+    b.dataset.role = role.id;
+    b.addEventListener("click", () => onRolePick(role.id));
+    row.appendChild(b);
+  }
+  panel.appendChild(row);
+  return panel;
+}
+
+/* ---------- Render: topic bar ---------- */
+function renderTopicBar() {
+  const bar = el("div", "topic-bar");
+  for (const topic of state.cfg.topics) {
+    const label = t("topics", topic.id) || topic.label;
+    const b = el("button", "topic-tab" + (state.topic === topic.id ? " active" : ""), label);
+    b.dataset.topic = topic.id;
+    b.addEventListener("click", () => onTopicPick(topic.id));
+    bar.appendChild(b);
+  }
+  return bar;
+}
+
+/* ---------- Render: starter questions for a topic ---------- */
+function renderStarterQuestions(topicId) {
+  const wrap = el("div", "starter-list");
+  // Localized starters for the active language; falls back to English.
+  const qs = tStarters(topicId);
+  for (const q of qs) {
+    const b = el("button", "starter", q);
+    b.addEventListener("click", () => {
+      inputEl.value = q;
+      sendMessage();
+    });
+    wrap.appendChild(b);
+  }
+  return wrap;
+}
+
+/* ---------- Render: topic divider in transcript ---------- */
+function appendTopicDivider(topicId) {
+  const topicLabel = t("topics", topicId) ||
+                     (state.cfg.topics.find(x => x.id === topicId) || {}).label || topicId;
+  const d = el("div", "topic-divider", topicLabel);
+  chatInner.appendChild(d);
+  // Insert this topic's starter questions just below the divider so the
+  // user gets fresh suggestions without losing the prior transcript.
+  const promptLabel = el("div", "panel-label");
+  promptLabel.textContent = t("ui", "starterQsLabel");
+  promptLabel.style.marginTop = "0.4rem";
+  chatInner.appendChild(promptLabel);
+  chatInner.appendChild(renderStarterQuestions(topicId));
+}
+
+/* ---------- Build the entire selection UI (initial entry) ---------- */
+function renderInitialUI() {
+  chatInner.innerHTML = "";
+  chatInner.appendChild(renderWelcome());
+  chatInner.appendChild(renderLanguageStrip());
+  chatInner.appendChild(renderRoleSelection());
+  scrollToBottom();
+}
+
+/* ---------- Event handlers for the selection phase ---------- */
+function onLanguagePick(langId) {
+  if (langId === "other") {
+    const custom = prompt(t("ui", "otherLangPrompt"));
+    if (!custom) return;
+    state.language = custom.trim();
+  } else {
+    state.language = langId;
+  }
+  // Refresh static UI chrome that depends on language.
+  applyChromeLanguage();
+  // Re-render the entire selection panel (or chat panel) so all visible
+  // labels switch language at once.
+  if (state.phase === "selection") {
+    renderInitialUI();
+  } else {
+    // In chat phase, re-render the topic bar / lens summary while keeping
+    // the existing transcript untouched (those messages are historical
+    // facts in their original language).
+    rerenderChatChrome();
+  }
+}
+
+function onRolePick(roleId) {
+  state.role = roleId;
+  state.phase = "chat";
+  state.topic = state.cfg.default_topic || "explain_results";
+  enterChatPhase();
+}
+
+/* Apply language-dependent attributes that live on static elements
+ * (placeholder, ask-row strings, reset button). */
+function applyChromeLanguage() {
+  inputEl.placeholder = t("ui", "inputPlaceholder");
+  resetBtn.textContent = t("ui", "resetBtn");
+  resetBtn.title = t("ui", "resetBtnTitle");
+  const askTag = document.querySelector(".ask-tagline");
+  if (askTag) askTag.textContent = t("ui", "askTagline");
+  const enterHint = document.querySelector(".enter-hint");
+  if (enterHint) enterHint.textContent = t("ui", "enterHint");
+}
+
+function enterChatPhase() {
+  // Keep the welcome card visible as the first thing in the transcript
+  // (so the user has continuity), then add topic bar + starter questions
+  // for the default topic.
+  chatInner.innerHTML = "";
+  chatInner.appendChild(renderWelcome());
+  chatInner.appendChild(renderLensSummary());
+  chatInner.appendChild(renderTopicBar());
+  appendTopicDivider(state.topic);
+  applyChromeLanguage();
+  scrollToBottom();
+  inputEl.focus();
+}
+
+/* The compact "Lens: <role> · <language>" panel under the welcome card. */
+function renderLensSummary() {
+  const summary = el("div", "panel");
+  summary.style.padding = "0.2rem 0 0.4rem";
+  summary.classList.add("lens-summary");
+  const sumLabel = el("div", "panel-label");
+  const langLabel = (state.cfg.languages.find(l => l.id === state.language) || {}).label
+                    || state.language;
+  const roleLabel = t("roles", state.role) ||
+                    (state.cfg.roles.find(r => r.id === state.role) || {}).label
+                    || state.role;
+  sumLabel.textContent = t("ui", "lensLabel") + ": " + roleLabel + " · " + langLabel;
+  summary.appendChild(sumLabel);
+  return summary;
+}
+
+/* In chat phase, re-render the welcome card + lens summary + topic bar
+ * to reflect a newly-picked language. The transcript above (existing
+ * bubbles, dividers, starter chips) is preserved as historical content. */
+function rerenderChatChrome() {
+  // Replace the welcome card (always the first .welcome in chatInner).
+  const oldWelcome = chatInner.querySelector(".welcome");
+  if (oldWelcome) oldWelcome.replaceWith(renderWelcome());
+  // Replace the lens summary.
+  const oldLens = chatInner.querySelector(".lens-summary");
+  if (oldLens) oldLens.replaceWith(renderLensSummary());
+  // Replace the topic bar (preserve the active state).
+  const oldBar = chatInner.querySelector(".topic-bar");
+  if (oldBar) oldBar.replaceWith(renderTopicBar());
+}
+
+function onTopicPick(topicId) {
+  if (topicId === state.topic) return;  // already on it
+  state.topic = topicId;
+
+  // Update the topic-bar's active class without re-creating the rest
+  for (const tab of chatInner.querySelectorAll(".topic-tab")) {
+    tab.classList.toggle("active", tab.dataset.topic === topicId);
+  }
+
+  // Append a divider + new starter questions to the existing transcript
+  appendTopicDivider(topicId);
+  scrollToBottom();
+}
+
+/* ---------- Bubbles ---------- */
+function addBubble(role, content, attachments) {
+  const div = el("div", "bubble " + role);
+  div.innerHTML = escapeHtml(content);
+  if (attachments && attachments.length) {
+    const strip = el("div", "attachments");
+    for (const a of attachments) {
+      if (a.mime && a.mime.startsWith("image/")) {
+        const img = document.createElement("img");
+        img.src = a.url; img.alt = a.name;
+        strip.appendChild(img);
+      } else {
+        const tag = el("span", "file-tag", a.name);
+        strip.appendChild(tag);
+      }
+    }
+    div.appendChild(strip);
+  }
+  chatInner.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function addAssistantBubble(rawAnswer) {
+  // Split out the trailing "Sources:" line (English token always — the
+  // backend system prompt mandates the English word "Sources:" so we can
+  // parse reliably across languages). Render it under a localized label.
+  const m = rawAnswer.match(/\n*\s*Sources:\s*([^\n]+)\s*$/i);
+  let body = rawAnswer;
+  let sourcesText = null;
+  if (m) {
+    body = rawAnswer.slice(0, m.index).replace(/\s+$/, "");
+    sourcesText = m[1].trim();
+  }
+  addBubble("assistant", body || rawAnswer);
+  if (sourcesText) {
+    const sf = el("div", "sources");
+    const lab = el("span", "label", t("ui", "sourcesLabel"));
+    sf.appendChild(lab);
+    sf.appendChild(document.createTextNode(" " + sourcesText));
+    chatInner.appendChild(sf);
+  }
+  scrollToBottom();
+}
+
+function showThinking() {
+  const node = el("div", "thinking", t("ui", "thinking"));
+  node.id = "thinking";
+  chatInner.appendChild(node);
+  scrollToBottom();
+}
+function hideThinking() {
+  const node = document.getElementById("thinking");
+  if (node) node.remove();
+}
+
+/* ---------- Attachments ---------- */
+inputEl.addEventListener("input", () => {
+  inputEl.style.height = "auto";
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + "px";
+});
+inputEl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
+sendBtn.addEventListener("click", () => sendMessage());
+attachBtn.addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", () => {
+  for (const f of fileInput.files) {
+    state.pendingFiles.push(f);
+    if (f.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => state.pendingImages.push(reader.result);
+      reader.readAsDataURL(f);
+    }
+  }
+  fileInput.value = "";
+  renderAttachmentStrip();
+});
+function renderAttachmentStrip() {
+  attachStrip.innerHTML = "";
+  state.pendingFiles.forEach((file, idx) => {
+    const wrap = el("div", "att-preview");
+    if (file.type.startsWith("image/")) {
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      wrap.appendChild(img);
+    } else {
+      const span = el("span", "fname", file.name);
+      wrap.appendChild(span);
+    }
+    const rm = el("button", "remove", "×");
+    rm.onclick = () => {
+      state.pendingFiles.splice(idx, 1);
+      renderAttachmentStrip();
+    };
+    wrap.appendChild(rm);
+    attachStrip.appendChild(wrap);
+  });
+}
+
+async function uploadFiles(files) {
+  const form = new FormData();
+  form.append("session_id", state.sessionId);
+  for (const f of files) form.append("files", f);
+  const res = await fetch("/api/upload", { method: "POST", body: form });
+  if (!res.ok) throw new Error("upload failed");
+  const data = await res.json();
+  return data.attachments;
+}
+
+/* ---------- Send a message ---------- */
+async function sendMessage() {
+  const text = inputEl.value.trim();
+  if ((!text && !state.pendingFiles.length) || !state.sessionId || state.sending) return;
+  if (state.phase !== "chat") {
+    // The user typed before picking a role; nudge them.
+    addBubble("system", t("ui", "pickRoleNudge"));
+    return;
+  }
+
+  state.sending = true;
+  sendBtn.disabled = true;
+
+  // Upload attachments
+  let attachments = null;
+  if (state.pendingFiles.length) {
+    try {
+      attachments = await uploadFiles(state.pendingFiles);
+    } catch (e) {
+      addBubble("system", t("ui", "uploadFailed") + ": " + e.message);
+      state.sending = false; sendBtn.disabled = false;
+      return;
+    }
+    state.pendingFiles = [];
+    renderAttachmentStrip();
+  }
+
+  addBubble("user", text || "(attachment)", attachments);
+  inputEl.value = "";
+  inputEl.style.height = "auto";
+  showThinking();
+
+  try {
+    const body = {
+      session_id: state.sessionId,
+      question: text || "(see attached files)",
+      role: state.role,
+      topic: state.topic,
+      language: state.language,
+    };
+    if (attachments) body.attachments = attachments;
+    if (state.pendingImages.length) body.images = state.pendingImages;
+    state.pendingImages = [];
+
+    const res = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    hideThinking();
+    const data = await res.json();
+    if (!res.ok) {
+      addBubble("system", data.detail || t("ui", "genericError"));
+      return;
+    }
+    addAssistantBubble(data.answer);
+  } catch (e) {
+    hideThinking();
+    addBubble("system", t("ui", "networkError") + ": " + e.message);
+  } finally {
+    state.sending = false;
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+}
+
+/* ---------- Reset (full restart back to selection) ---------- */
+async function resetSession() {
+  if (!confirm(t("ui", "resetConfirm"))) return;
+  resetBtn.disabled = true;
+  try {
+    const res = await fetch("/api/session/" + state.sessionId + "/reset", { method: "POST" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    state.sessionId = data.session_id;
+    // Wipe local state back to defaults
+    state.phase = "selection";
+    state.language = state.cfg.default_language || "en";
+    state.role = null;
+    state.topic = null;
+    state.pendingFiles = [];
+    state.pendingImages = [];
+    inputEl.value = "";
+    inputEl.style.height = "auto";
+    renderAttachmentStrip();
+
+    // Refresh the recent result and re-render
+    state.recentResult = await fetchRecentResult();
+    renderInitialUI();
+  } catch (e) {
+    addBubble("system", t("ui", "genericError") + ": " + e.message);
+  } finally {
+    resetBtn.disabled = false;
+  }
+}
+resetBtn.addEventListener("click", resetSession);
+
+/* ---------- Boot sequence ---------- */
+async function boot() {
+  try {
+    const cfgRes = await fetch("/api/config");
+    state.cfg = await cfgRes.json();
+    state.language = state.cfg.default_language || "en";
+  } catch (e) {
+    addBubble("system", t("ui", "genericError") + ": " + e.message);
+    return;
+  }
+
+  // Create a fresh session
+  try {
+    const r = await fetch("/api/session", { method: "POST" });
+    state.sessionId = (await r.json()).session_id;
+  } catch (e) {
+    addBubble("system", t("ui", "genericError") + ": " + e.message);
+    return;
+  }
+
+  // Try to find the user's most recent fabric result for the welcome card.
+  state.recentResult = await fetchRecentResult();
+
+  applyChromeLanguage();   // sets placeholder, footer hint, ask-tagline, etc.
+  renderInitialUI();
+}
+boot();
+</script>
+</body>
+</html>

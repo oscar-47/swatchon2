@@ -1186,6 +1186,18 @@ body {
   color: var(--ink-muted);
   font-variant-numeric: tabular-nums;
 }
+.pp-funding {
+  max-width: 1040px; margin: 0 auto;
+  padding: 24px 48px 8px;
+  border-top: 1px solid var(--rule);
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-muted);
+  text-align: left;
+}
+@media (max-width: 900px) { .pp-funding { padding: 24px 24px 8px; } }
 
 /* ══════════════════════════════════
    RESPONSIVE
@@ -1255,10 +1267,10 @@ body {
         </svg>
       </div>
       <div class="pp-hero-info">
-        <h1 class="pp-hero-name">Organic Cotton Single Jersey Knit</h1>
-        <div class="pp-hero-id num">FAB-2025-CN-0847 · Batch LOT#24Q3-0112</div>
-        <p class="pp-hero-desc">A mid-weight combed ring-spun jersey in 70% GOTS-certified organic cotton, blended with 20% post-consumer recycled cotton and 10% Lycra® elastane. Suitable for next-to-skin apparel across seasons.</p>
-        <div class="pp-hero-tags">
+        <h1 class="pp-hero-name" data-ff="fabric_name">Organic Cotton Single Jersey Knit</h1>
+        <div class="pp-hero-id num" data-ff="passport_id">FAB-2025-CN-0847 · Batch LOT#24Q3-0112</div>
+        <p class="pp-hero-desc" data-ff="description">A mid-weight combed ring-spun jersey in 70% GOTS-certified organic cotton, blended with 20% post-consumer recycled cotton and 10% Lycra® elastane. Suitable for next-to-skin apparel across seasons.</p>
+        <div class="pp-hero-tags" data-ff="tags">
           <span class="pp-tag">GOTS Certified</span>
           <span class="pp-tag">30% Recycled Fibre</span>
           <span class="pp-tag">Fully Recyclable</span>
@@ -1267,7 +1279,7 @@ body {
       </div>
       <div class="pp-hero-score">
         <div class="pp-hero-score-ring">
-          <div class="pp-hero-score-num">82</div>
+          <div class="pp-hero-score-num" data-ff="esg_score">82</div>
           <div class="pp-hero-score-lbl">ESG</div>
         </div>
         <div class="pp-hero-score-cap">Overall Score — of 100</div>
@@ -1280,11 +1292,11 @@ body {
     <div class="pp-meta-grid">
       <div class="pp-meta-cell">
         <div class="pp-meta-key">Origin</div>
-        <div class="pp-meta-val"><em>India →</em> China</div>
+        <div class="pp-meta-val" data-ff="origin"><em>India →</em> China</div>
       </div>
       <div class="pp-meta-cell">
         <div class="pp-meta-key">Supplier</div>
-        <div class="pp-meta-val">Guangdong Hengyuan</div>
+        <div class="pp-meta-val" data-ff="supplier">Guangdong Hengyuan</div>
       </div>
       <div class="pp-meta-cell">
         <div class="pp-meta-key">Supplier Score</div>
@@ -1352,7 +1364,7 @@ body {
         <div class="section-label-sub">by mass, finished fabric</div>
       </div>
 
-      <div class="fibre-wrap">
+      <div class="fibre-wrap" data-ff="fibre_wrap">
         <div class="fibre-row">
           <div class="fibre-name">Organic Cotton <em>GOTS-certified, India</em></div>
           <div class="fibre-track"><div class="fibre-fill accent" style="width:70%;"></div></div>
@@ -1378,42 +1390,49 @@ body {
         <div class="data-row">
           <div class="data-row-key">Weight</div>
           <div class="data-row-body">
-            <div class="data-row-val num">180 gsm</div>
+            <div class="data-row-val num" data-ff="weight">180 gsm</div>
             <div class="data-row-note">Suitable for all-season wear</div>
           </div>
         </div>
         <div class="data-row">
           <div class="data-row-key">Width</div>
           <div class="data-row-body">
-            <div class="data-row-val num">150 cm</div>
+            <div class="data-row-val num" data-ff="width">150 cm</div>
           </div>
         </div>
         <div class="data-row">
           <div class="data-row-key">Construction</div>
           <div class="data-row-body">
-            <div class="data-row-val">Plain Single Jersey</div>
+            <div class="data-row-val" data-ff="construction">Plain Single Jersey</div>
             <div class="data-row-note">Single-face knit</div>
           </div>
         </div>
         <div class="data-row">
           <div class="data-row-key">Yarn Count</div>
           <div class="data-row-body">
-            <div class="data-row-val num">30S / 2</div>
+            <div class="data-row-val num" data-ff="yarn_count">30S / 2</div>
             <div class="data-row-note">Ring-spun combed</div>
           </div>
         </div>
         <div class="data-row">
           <div class="data-row-key">Shrinkage</div>
           <div class="data-row-body">
-            <div class="data-row-val num">≤ 3%</div>
+            <div class="data-row-val num" data-ff="shrinkage">≤ 3%</div>
             <div class="data-row-note">Pre-washed &amp; pre-shrunk</div>
           </div>
         </div>
         <div class="data-row">
           <div class="data-row-key">Colour State</div>
           <div class="data-row-body">
-            <div class="data-row-val">Greige (undyed)</div>
+            <div class="data-row-val" data-ff="colour_state">Greige (undyed)</div>
             <div class="data-row-note">Available for custom dyeing</div>
+          </div>
+        </div>
+        <div class="data-row" data-ff-row="care_row">
+          <div class="data-row-key">Care</div>
+          <div class="data-row-body">
+            <div class="data-row-val" data-ff="care" style="line-height:1.5;white-space:normal;">Machine wash cold</div>
+            <div class="data-row-note">Care and use guidance</div>
           </div>
         </div>
       </div>
@@ -2153,6 +2172,11 @@ body {
     </div>
   </div>
 
+  <!-- Funding statement -->
+  <div class="pp-funding">
+    This research is funded by the Laboratory for Artificial Intelligence in Design (FabricFlow: AI-Integrated Textile Supply Ecosystem, Project Code: RP2-2), Innovation and Technology Fund, Hong Kong Special Administrative Region.
+  </div>
+
   <!-- Colophon -->
   <div class="pp-colophon">
     <span>FabricFlow · London 2026</span>
@@ -2233,6 +2257,108 @@ function ppTab(id, btn) {
     window.scrollTo({ top: contentTop.offsetTop - 4, behavior: 'smooth' });
   }
 }
+
+/* ══════════════════════════════════
+   FF DYNAMIC INJECTION — read sessionStorage payload from demo upload
+══════════════════════════════════ */
+(function injectExtracted() {
+  let raw = null;
+  try { raw = sessionStorage.getItem('ff_passport'); } catch (_) {}
+  if (!raw) return;
+  let p; try { p = JSON.parse(raw); } catch (_) { return; }
+  if (!p || typeof p !== 'object') return;
+
+  function setText(sel, val) {
+    const el = document.querySelector(sel);
+    if (el && val) el.textContent = val;
+  }
+  function setHTML(sel, html) {
+    const el = document.querySelector(sel);
+    if (el && html) el.innerHTML = html;
+  }
+  // Hero
+  if (p.fabricName) setText('[data-ff="fabric_name"]', p.fabricName);
+  if (p.fabricId) setText('[data-ff="passport_id"]', p.fabricId + (p.dateStr ? ' · Compiled ' + p.dateStr : ''));
+  if (typeof p.esgScore === 'number') setText('[data-ff="esg_score"]', p.esgScore);
+
+  // Description (composition driven)
+  if (p.composition) {
+    const comp = String(p.composition).trim();
+    const sus = (p.sustainability || []).filter(Boolean).join(', ');
+    const desc = 'Composition: ' + comp + (sus ? '. Certifications: ' + sus + '.' : '.') + (p.weight ? ' ' + p.weight + ' fabric.' : '');
+    setText('[data-ff="description"]', desc);
+  }
+
+  // Tags
+  const tagsEl = document.querySelector('[data-ff="tags"]');
+  if (tagsEl) {
+    const tags = [];
+    (p.sustainability || []).slice(0, 3).forEach(s => tags.push('<span class="pp-tag">' + escHtml(s) + '</span>'));
+    if (p.fabricL1) tags.push('<span class="pp-tag pp-tag-muted">' + escHtml(p.fabricL1.charAt(0) + p.fabricL1.slice(1).toLowerCase()) + '</span>');
+    if (tags.length) tagsEl.innerHTML = tags.join('');
+  }
+
+  // Hero meta
+  if (p.origin) setText('[data-ff="origin"]', p.origin);
+  if (p.manufacturer) setText('[data-ff="supplier"]', p.manufacturer);
+
+  // Composition tab
+  if (p.weight) setText('[data-ff="weight"]', p.weight);
+  if (p.width) setText('[data-ff="width"]', p.width);
+  if (p.yarnCount) setText('[data-ff="yarn_count"]', p.yarnCount);
+  if (p.shrinkage) setText('[data-ff="shrinkage"]', p.shrinkage);
+  if (p.colourState) setText('[data-ff="colour_state"]', p.colourState);
+  if (p.care) setText('[data-ff="care"]', p.care);
+  if (p.fabricL1) {
+    setText('[data-ff="construction"]', p.fabricL1.charAt(0) + p.fabricL1.slice(1).toLowerCase() + (p.fabricName ? ' — ' + p.fabricName : ''));
+  }
+
+  // Fibre composition rows: prefer pre-aggregated fibreRows, else parse composition string
+  let parts = Array.isArray(p.fibreRows) && p.fibreRows.length ? p.fibreRows : [];
+  if (!parts.length && p.composition) parts = parseComposition(String(p.composition));
+  if (parts.length) {
+    const wrap = document.querySelector('[data-ff="fibre_wrap"]');
+    if (wrap) {
+      wrap.innerHTML = parts.map(function (it, i) {
+        const acc = i === 0 ? ' accent' : '';
+        return '<div class="fibre-row">' +
+               '  <div class="fibre-name">' + escHtml(it.name) + (it.note ? ' <em>' + escHtml(it.note) + '</em>' : '') + '</div>' +
+               '  <div class="fibre-track"><div class="fibre-fill' + acc + '" style="width:' + Math.min(100, it.pct) + '%;"></div></div>' +
+               '  <div class="fibre-pct num">' + it.pct + '%</div>' +
+               '</div>';
+      }).join('');
+    }
+  }
+
+  // Source banner
+  injectBanner(p);
+
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function parseComposition(s) {
+    // Match patterns like "62% Cotton" or "Cotton 62%"
+    const out = [];
+    const re = /(\d+(?:\.\d+)?)\s*%\s*([A-Za-z][A-Za-z &/-]{1,30})|([A-Za-z][A-Za-z &/-]{1,30})\s*(\d+(?:\.\d+)?)\s*%/g;
+    let m;
+    while ((m = re.exec(s)) !== null) {
+      const pct = parseFloat(m[1] || m[4]);
+      const name = (m[2] || m[3] || '').trim();
+      if (pct > 0 && pct <= 100 && name && !out.find(x => x.name.toLowerCase() === name.toLowerCase())) {
+        out.push({ name: name, pct: pct, note: '' });
+      }
+    }
+    return out;
+  }
+
+  function injectBanner(payload) {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'max-width:1040px;margin:0 auto;padding:14px 48px;background:var(--accent-soft);border-bottom:1px solid var(--rule);font-family:Schibsted Grotesk,sans-serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);font-weight:600;';
+    banner.textContent = '§ Live · Compiled from ' + (payload.uploadCount || 0) + ' uploaded document' + ((payload.uploadCount||0) === 1 ? '' : 's');
+    const back = document.querySelector('.pp-back-bar');
+    if (back && back.parentNode) back.parentNode.insertBefore(banner, back.nextSibling);
+  }
+})();
 </script>
+<script src="/widgets/fabricai_drawer.js" defer></script>
 </body>
 </html>

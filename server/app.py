@@ -17,6 +17,7 @@ from server.models.loader import build_eval_transform, load_checkpoint
 from server.ocr_parser import OCRFieldParser
 from server.double_verifier import DoubleStructureVerifier
 from server.quality_inspector import QualityInspector
+from server.passport_v2_parser import build_passport as build_passport_v2
 
 # OCR Configuration
 OCR_ENABLED = True
@@ -331,6 +332,66 @@ async def recognize_label(file: UploadFile = File(...)):
         }
 
 
+@app.post("/api/extract_doc")
+async def extract_document(file: UploadFile = File(...)):
+    """Extract text from PDF/DOCX uploads, parse fabric fields."""
+    try:
+        data = await file.read()
+        name = (file.filename or "").lower()
+        ext = name.rsplit(".", 1)[-1] if "." in name else ""
+        text = ""
+        if ext == "pdf":
+            from pypdf import PdfReader
+            r = PdfReader(BytesIO(data))
+            text = "\n".join((p.extract_text() or "") for p in r.pages)
+        elif ext in ("doc", "docx"):
+            import docx as _docx
+            d = _docx.Document(BytesIO(data))
+            parts = [p.text for p in d.paragraphs]
+            for tbl in d.tables:
+                for row in tbl.rows:
+                    parts.append(" | ".join(c.text for c in row.cells))
+            text = "\n".join(parts)
+        else:
+            return {"success": False, "message": f"Unsupported extension: {ext}"}
+        text = (text or "").strip()
+        if not text:
+            return {"success": False, "message": "No text extracted"}
+        parsed = CACHE.ocr_parser.parse_all_fields(text)
+        return {
+            "success": True,
+            "filename": file.filename,
+            "ext": ext,
+            "char_count": len(text),
+            "text": text[:6000],
+            "parsed": parsed,
+        }
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return {"success": False, "message": str(e)}
+
+
+@app.post("/api/build_passport_v2")
+async def build_passport_v2_endpoint(files: List[UploadFile] = File(...)):
+    """Aggregate multiple PDF/DOCX docs → full passport_v2 JSON payload.
+
+    Accepts Felicity's 18-doc test bundle (or a subset). Returns a flat
+    `data-field` → value map plus `score_inputs` consumed by passport_v2.html.
+    """
+    try:
+        pairs: List[tuple] = []
+        for f in files:
+            data = await f.read()
+            pairs.append((f.filename or "unnamed", data))
+        if not pairs:
+            return {"success": False, "message": "no files"}
+        payload = build_passport_v2(pairs)
+        return {"success": True, "fields": payload, "doc_count": len(pairs)}
+    except Exception as e:
+        import traceback; traceback.print_exc()
+        return {"success": False, "message": str(e)}
+
+
 @app.post("/api/create_metadata")
 async def create_fabric_metadata(
     fabric_images: List[UploadFile] = File(...),
@@ -524,8 +585,33 @@ if os.path.isdir(MOCK_DIR):
     async def read_passport():
         return FileResponse(os.path.join(MOCK_DIR, "passport_view.html"))
 
+    @app.get("/passport_v2")
+    async def read_passport_v2():
+        return FileResponse(os.path.join(MOCK_DIR, "passport_v2.html"))
+
     # Serve web/ sub-directories (assets, js, css) so relative paths in HTML work
     for sub in ("assets", "js", "css"):
         sub_path = os.path.join(MOCK_DIR, sub)
         if os.path.isdir(sub_path):
             app.mount(f"/{sub}", StaticFiles(directory=sub_path), name=f"mock_{sub}")
+
+    # Demo reference specimens (images + passport PDFs) — served from the user's
+    # ~/Downloads/sample folder so the homepage can preload real samples on click.
+    _sample_dir = os.path.expanduser("~/Downloads/sample")
+    if os.path.isdir(_sample_dir):
+        app.mount("/sample", StaticFiles(directory=_sample_dir), name="sample")
+
+    # FabricAI sub-app — Haochen's OpenAI-backed assistant, mounted same-origin.
+    # Exposed at /fabricai/* (e.g. /fabricai/api/ask). The slim drawer widget
+    # in mock_demo / passport pages calls these endpoints directly.
+    try:
+        from server.fabricai_app.main import app as fabricai_app
+        app.mount("/fabricai", fabricai_app, name="fabricai")
+    except Exception as _fai_err:  # noqa: BLE001 — log + continue without breaking host
+        import logging as _lg
+        _lg.getLogger(__name__).warning("FabricAI sub-app not mounted: %s", _fai_err)
+
+    # Serve the chat drawer widget (shared partial) so any page can <script src> it.
+    _widget_dir = os.path.join(MOCK_DIR, "widgets")
+    if os.path.isdir(_widget_dir):
+        app.mount("/widgets", StaticFiles(directory=_widget_dir), name="widgets")

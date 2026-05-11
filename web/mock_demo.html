@@ -1148,6 +1148,81 @@
     line-height: 1.5;
   }
 
+  /* v2 passport preview — iframe-embedded canonical shell */
+  #dpp #dppPassportPreview {
+    margin-top: 32px;
+  }
+  #dpp .v2-preview-frame {
+    width: 100%;
+    max-width: 560px;
+    height: 720px;
+    display: block;
+    margin: 0 auto;
+    border: none;
+    overflow: hidden;
+    background: transparent;
+  }
+  #dpp .v2-loading {
+    text-align: center;
+    padding: 36px 24px;
+    font-family: var(--font-display, 'Libre Caslon Text', serif);
+    font-size: 18px;
+    color: var(--ink-secondary, #6a635a);
+    background: var(--paper, #fafaf6);
+    border: 1px solid var(--rule, #e5e0d4);
+    border-radius: 14px;
+    max-width: 520px;
+    margin: 32px auto;
+  }
+  #dpp .v2-loading.v2-error { color: var(--accent, #a85a32); }
+
+  /* Bulk upload — top-of-page convenience drop zone */
+  #dpp .bulk-drop {
+    position: relative;
+    margin: 0 0 28px;
+    padding: 22px 26px;
+    background: var(--paper);
+    border: 1.5px dashed var(--rule);
+    border-radius: 14px;
+    transition: background .2s, border-color .2s;
+    cursor: pointer;
+  }
+  #dpp .bulk-drop input {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: pointer;
+  }
+  #dpp .bulk-drop:hover, #dpp .bulk-drop.over {
+    background: var(--vellum-soft, #f7f3ec);
+    border-color: var(--accent, #a85a32);
+  }
+  #dpp .bulk-drop-inner {
+    display: flex; align-items: center; gap: 18px;
+    pointer-events: none;
+  }
+  #dpp .bulk-drop-icon {
+    width: 38px; height: 38px;
+    color: var(--accent, #a85a32);
+    flex-shrink: 0;
+  }
+  #dpp .bulk-drop-icon svg { width: 100%; height: 100%; }
+  #dpp .bulk-drop-title {
+    font-family: var(--font-display, 'Libre Caslon Text', serif);
+    font-size: 18px;
+    color: var(--ink, #1a1814);
+    margin-bottom: 4px;
+  }
+  #dpp .bulk-drop-sub {
+    font-size: 13px;
+    color: var(--ink-secondary, #6a635a);
+    line-height: 1.5;
+  }
+  #dpp .bulk-drop-sub code {
+    font-family: 'SF Mono', 'Fira Mono', monospace;
+    background: var(--vellum-soft, #f0ebe1);
+    padding: 1px 5px; border-radius: 3px;
+    font-size: 11.5px;
+  }
+
   /* 5-column archive index */
   #dpp .cards-grid {
     display: grid;
@@ -1901,10 +1976,52 @@
     font-family: 'Libre Caslon Text', serif;
   }
 
+  /* -- INLINE SPECIMEN QUICK PICK (inside §01 empty state) -- */
+  .inline-specimens {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .inline-specimen {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: var(--paper, #faf8f3);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 200ms ease, background 200ms ease;
+    text-align: left;
+  }
+  .inline-specimen:hover { border-color: var(--accent, #a85a32); background: var(--accent-tint); }
+  .inline-specimen img {
+    width: 44px; height: 44px; object-fit: cover; border-radius: 4px; display: block; flex-shrink: 0;
+  }
+  .inline-specimen-text { display: flex; flex-direction: column; }
+  .inline-specimen-name {
+    font-family: 'Libre Caslon Text', serif;
+    font-size: 13px;
+    color: var(--ink-primary);
+    line-height: 1.2;
+  }
+  .inline-specimen-type {
+    font-family: 'Schibsted Grotesk', sans-serif;
+    font-size: 9px;
+    color: var(--ink-muted);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
   /* -- REFERENCE SPECIMENS -- */
   .demo-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0;
     border-top: 1px solid var(--rule);
   }
@@ -1924,8 +2041,32 @@
     transition: background 200ms ease;
     text-align: left;
   }
-  .demo-sample:nth-child(6n) { border-right: none; }
+  .demo-sample:nth-child(2n) { border-right: none; }
   .demo-sample:hover { border-color: var(--rule); background: var(--accent-tint); box-shadow: none; transform: none; }
+
+  /* Real-image specimen cards (2 cards, side-by-side, bigger preview) */
+  .demo-sample-real {
+    grid-template-columns: 96px 1fr;
+    gap: 18px;
+    padding: 22px 24px 22px 0;
+  }
+  .demo-swatch-real {
+    width: 96px;
+    height: 96px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    background: var(--paper, #faf8f3);
+  }
+  .demo-swatch-real img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .demo-sample-hint {
+    font-family: 'Schibsted Grotesk', sans-serif;
+    font-size: 11px;
+    color: var(--ink-muted);
+    margin-top: 6px;
+    font-style: italic;
+  }
 
   .demo-swatch {
     width: 56px;
@@ -2495,7 +2636,7 @@
   .survey-float {
     position: fixed;
     bottom: 24px;
-    right: 24px;
+    right: 24px;       /* corner — FabricAI FAB stacks above this */
     z-index: 100;
     display: flex;
     align-items: center;
@@ -2673,10 +2814,13 @@
         Aggregated image features may be used to improve classification accuracy.
         By proceeding, you authorise the application to process the images you upload.
       </p>
+      <p class="landing-consent-body" style="margin-top:18px;font-style:italic;font-size:12.5px;color:var(--ink-muted);">
+        This research is funded by the Laboratory for Artificial Intelligence in Design (FabricFlow: AI-Integrated Textile Supply Ecosystem, Project Code: RP2-2), Innovation and Technology Fund, Hong Kong Special Administrative Region.
+      </p>
     </div>
 
     <div class="landing-cta-wrap">
-      <a class="landing-survey-link" href="https://docs.google.com/forms/d/e/1FAIpQLScburLMh2gwwU09OZZycKSGpX35aDMFT2mlMAdc-OnAYmjmgg/viewform?usp=sharing" target="_blank" rel="noopener noreferrer">Take the research survey</a>
+      <a class="landing-survey-link" href="https://forms.gle/phgmNo2DnA2UWBAA8" target="_blank" rel="noopener noreferrer">Take the research survey</a>
       <button class="btn-landing-cta" onclick="dismissWebLanding('recognition')">
         Begin analysis
       </button>
@@ -2772,7 +2916,7 @@
             </div>
           </div>
 
-          <input type="file" id="fabricFileInput" accept="image/jpeg,image/png" style="display:none" />
+          <input type="file" id="fabricFileInput" accept="image/jpeg,image/png" multiple style="display:none" />
 
           <div class="upload-meta">
             <span class="upload-hint">JPEG/PNG, min 224 x 224 px. Flat-lay with good lighting recommended.</span>
@@ -2884,10 +3028,11 @@
     </div>
   </section>
 
+
   <hr class="divider">
 
-  <!-- DEMO SAMPLES -->
-  <section class="section section-locked" id="demo">
+  <!-- DEMO SAMPLES — always visible (not gated behind recognition) -->
+  <section class="section" id="demo">
     <div class="section-label">
       <div class="section-label-icon amber">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2897,14 +3042,13 @@
       <div class="section-label-text" data-chapter="§ 03">Reference Specimens</div>
       <div class="section-label-sub">Try the classifier on known samples</div>
     </div>
-
     <div class="demo-grid" id="demoGrid"></div>
   </section>
 
 </main>
 
 <!-- FLOATING RESEARCH SURVEY BUTTON -->
-<a class="survey-float" href="https://docs.google.com/forms/d/e/1FAIpQLScburLMh2gwwU09OZZycKSGpX35aDMFT2mlMAdc-OnAYmjmgg/viewform?usp=sharing&ouid=104205222595274221826" target="_blank" rel="noopener noreferrer">
+<a class="survey-float" href="https://forms.gle/phgmNo2DnA2UWBAA8" target="_blank" rel="noopener noreferrer">
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
   </svg>
@@ -2915,23 +3059,45 @@
 // ============================================================
 // DATA
 // ============================================================
+// Reference specimens — real images + passport PDFs preloaded from ~/Downloads/sample.
 const FABRIC_DATA = {
-  jersey: { name: "Jersey", l1: "KNIT", s1: "Knit", s1c: 98.2, s2: "Jersey", s2c: 92.1, conf: 92, fullName: "Jersey (Plain Knit)", construction: "Weft Knit", uses: "T-shirts, Underwear, Casual wear", chars: "Lightweight, stretchy, curls at edges" },
-  twill: { name: "Twill Weave", l1: "WOVEN", s1: "Woven", s1c: 99.1, s2: "Twill", s2c: 88.3, conf: 88, fullName: "Twill Weave", construction: "Woven - Twill", uses: "Denim, Chinos, Workwear", chars: "Diagonal rib, durable, drapes well" },
-  satin: { name: "Satin Weave", l1: "WOVEN", s1: "Woven", s1c: 97.5, s2: "Satin", s2c: 85.7, conf: 85, fullName: "Satin Weave", construction: "Woven - Satin", uses: "Evening wear, Lingerie, Bedding", chars: "Lustrous face, dull back, slippery" },
-  rib: { name: "Rib Knit", l1: "KNIT", s1: "Knit", s1c: 96.8, s2: "Rib Knit", s2c: 71.0, conf: 71, fullName: "Rib Knit (1x1 / 2x2)", construction: "Weft Knit - Rib", uses: "Cuffs, Collars, Fitted tops", chars: "Vertical ridges, stretch recovery" },
-  french_terry: { name: "French Terry", l1: "KNIT", s1: "Knit", s1c: 95.4, s2: "French Terry", s2c: 55.0, conf: 55, fullName: "French Terry", construction: "Weft Knit - Loop back", uses: "Sweatshirts, Joggers, Hoodies", chars: "Smooth face, looped back, absorbent" },
-  jacquard: { name: "Woven Jacquard", l1: "WOVEN", s1: "Woven", s1c: 94.2, s2: "Woven+Jacquard", s2c: 67.0, conf: 67, fullName: "Woven Jacquard", construction: "Woven - Jacquard", uses: "Upholstery, Brocade, Tapestry", chars: "Complex woven patterns, reversible" },
+  rib_knit: {
+    name: 'Rib Knit',
+    l1: 'KNIT',
+    fullName: '1x1 Rib Knit — Organic Cotton/Elastane',
+    construction: 'Weft Knit · Rib',
+    uses: 'Cuffs, Collars, Fitted tops',
+    chars: 'Vertical ridges, stretch recovery',
+    images: [
+      '/sample/knit_rib_knit_original.jpg',
+      '/sample/knit_rib_knit_zoomin.jpg',
+    ],
+    pdfPrefix: 'RibKnit_',
+    pdfCount: 18,
+  },
+  twill_weave: {
+    name: 'Twill Weave',
+    l1: 'WOVEN',
+    fullName: '3/1 Z-Twill — Organic Cotton/Recycled Polyester',
+    construction: 'Woven · Twill',
+    uses: 'Denim, Chinos, Workwear',
+    chars: 'Diagonal rib, durable, drapes well',
+    images: [
+      '/sample/woven_twill_original.jpg',
+      '/sample/woven_twill_zoomin.jpg',
+    ],
+    pdfPrefix: 'TwillWoven_',
+    pdfCount: 18,
+  },
 };
 
-const SWATCH_CLASSES = {
-  jersey: 'swatch-jersey',
-  twill: 'swatch-twill',
-  satin: 'swatch-satin',
-  rib: 'swatch-rib',
-  french_terry: 'swatch-terry',
-  jacquard: 'swatch-jacquard',
-};
+// Filename list for each specimen's passport bundle (must match ~/Downloads/sample/passport_test/)
+const PASSPORT_DOC_NAMES = ['01a_TechSpec','01b_MaterialList','01c_ChemicalSubstances',
+  '02a_PurchaseOrder','02b_BillOfLading','02c_MillProfile',
+  '03a_DurabilityTestReport','03b_EOLPathwayProfile','03c_CareRecommendation',
+  '04a_GOTSScopeCertificate','04b_REACHDeclaration','04c_OEKOTEX100Certificate',
+  '05a_LCAReport','05b_ResourceAudit','05c_SocialAuditReport',
+  '06a_SupplierScorecard','06b_QCInspectionReport','06c_ColourConsistencyReport'];
 
 // DPP Sections (Felicity design)
 const DPP_SECTIONS = [
@@ -3109,6 +3275,16 @@ document.addEventListener('DOMContentLoaded', () => {
   buildDemoGrid();
   dppBuildCards();
   setupFileInputs();
+  // Bulk drop-zone drag-and-drop wiring
+  const bd = document.getElementById('dppBulkDrop');
+  if (bd) {
+    bd.addEventListener('dragover', e => { e.preventDefault(); bd.classList.add('over'); });
+    bd.addEventListener('dragleave', () => bd.classList.remove('over'));
+    bd.addEventListener('drop', e => {
+      e.preventDefault(); bd.classList.remove('over');
+      dppBulkAdd(Array.from(e.dataTransfer.files));
+    });
+  }
 });
 
 // ============================================================
@@ -3142,15 +3318,26 @@ function buildDemoGrid() {
   grid.innerHTML = '';
   Object.entries(FABRIC_DATA).forEach(([key, f]) => {
     const el = document.createElement('div');
-    el.className = 'demo-sample';
+    el.className = 'demo-sample demo-sample-real';
     el.onclick = () => runDemoSample(key);
     el.innerHTML = `
-      <div class="demo-swatch ${SWATCH_CLASSES[key]}"></div>
+      <div class="demo-swatch-real">
+        <img src="${f.images[0]}" alt="${f.name}" loading="lazy">
+      </div>
       <div class="demo-sample-name">${f.name}</div>
       <div class="demo-sample-type">${f.l1}</div>
+      <div class="demo-sample-hint">Preloads photos + 18 documents</div>
     `;
     grid.appendChild(el);
   });
+}
+
+// Fetch a URL → File object so we can drop it into the existing upload pipelines.
+async function urlToFile(url, filename, mime) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('fetch failed ' + url + ' · ' + r.status);
+  const blob = await r.blob();
+  return new File([blob], filename, { type: mime || blob.type || 'application/octet-stream' });
 }
 
 // ============================================================
@@ -3259,8 +3446,43 @@ function dppHandleFiles(input, key) {
   input.value = '';
 }
 
+// ── Bulk upload — auto-routes by filename suffix `_NNa_`, `_NNb_`, `_NNc_` ──
+function dppRouteFile(file) {
+  const m = (file.name || '').match(/_0?(\d{1,2})([abc])_/i);
+  if (!m) return 's0a';                    // unknown → Profile/Identity bucket
+  const cluster = parseInt(m[1], 10);
+  const letter = m[2].toLowerCase();
+  // 01..05 map 1:1 to sections 0..4; cluster 06 (supplier performance KPIs) → Journey (ch02, sec 1).
+  const sec = (cluster >= 1 && cluster <= 5) ? (cluster - 1) : 1;
+  return 's' + sec + letter;
+}
+
+function dppBulkHandle(input) {
+  dppBulkAdd(Array.from(input.files));
+  input.value = '';
+}
+
+function dppBulkAdd(files) {
+  const groups = {};
+  files.forEach(f => {
+    const key = dppRouteFile(f);
+    (groups[key] = groups[key] || []).push(f);
+  });
+  Object.keys(groups).forEach(k => dppAddFilesToStore(groups[k], k));
+  // After routing, refresh chapter badges + Compile Passport enable-state.
+  dppUpdateHomeBadges();
+  const note = document.getElementById('dpp-global-note');
+  if (note) {
+    const total = DPP_SECTIONS.reduce((s, sec) => s + dppSectionFileCount(sec.id), 0);
+    const populated = DPP_SECTIONS.filter(sec => dppSectionFileCount(sec.id) > 0).length;
+    note.innerHTML = `<strong>${total} files</strong> uploaded across ${populated} of 5 sections · routed by filename`;
+  }
+  console.log('[FF] bulk routed', Object.keys(groups).map(k => k + '=' + groups[k].length).join(', '));
+}
+
 function dppAddFilesToStore(files, key) {
   const imgExts = ['jpg','jpeg','png'];
+  const docExts = ['pdf','doc','docx'];
   files.forEach(f => {
     if (!dppFileStore[key].find(x => x.name === f.name && x.size === f.size)) {
       dppFileStore[key].push(f);
@@ -3268,12 +3490,46 @@ function dppAddFilesToStore(files, key) {
       const ext = f.name.split('.').pop().toLowerCase();
       if (imgExts.includes(ext)) {
         dppRunOcr(f, key, idx);
+      } else if (docExts.includes(ext)) {
+        dppExtractDoc(f, key, idx);
       }
     }
   });
   dppRenderFileList(key);
   dppUpdateDetailCount(DPP_SECTIONS[dppCurrentSectionId]);
   console.log('[DPP]', key, dppFileStore[key].map(f => f.name));
+}
+
+function dppExtractDoc(file, storeKey, fileIndex) {
+  const ocrKey = storeKey + '_' + fileIndex;
+  dppOcrResults[ocrKey] = { status: 'loading' };
+  dppRenderFileList(storeKey);
+  const fd = new FormData();
+  fd.append('file', file);
+  fetch('/api/extract_doc', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        dppOcrResults[ocrKey] = {
+          status: 'done',
+          text: data.text || '',
+          confidence: 1.0,
+          parsed: data.parsed || {},
+          source: data.ext || 'doc'
+        };
+      } else {
+        dppOcrResults[ocrKey] = { status: 'error', message: data.message };
+      }
+      dppRenderFileList(storeKey);
+      const preview = document.getElementById('dppPassportPreview');
+      if (preview && preview.innerHTML.trim()) {
+        dppGeneratePassportPreview();
+      }
+    })
+    .catch(() => {
+      dppOcrResults[ocrKey] = { status: 'error' };
+      dppRenderFileList(storeKey);
+    });
 }
 
 function dppRunOcr(file, storeKey, fileIndex) {
@@ -3400,7 +3656,48 @@ function dppGeneratePassportPreview() {
   const total = DPP_SECTIONS.reduce((s, sec) => s + dppSectionFileCount(sec.id), 0);
   if (total === 0) { alert('Please upload at least one document before generating.'); return; }
 
-  // Generate a fabric ID hash
+  // ── v2 path: ask backend to aggregate the full passport, then mount the v2 shell as an iframe ──
+  const fd = new FormData();
+  let fileCount = 0;
+  DPP_SECTIONS.forEach(sec => sec.subsections.forEach(ss => {
+    (dppFileStore[ss.storeKey] || []).forEach(f => { fd.append('files', f, f.name); fileCount++; });
+  }));
+  const container = document.getElementById('dppPassportPreview');
+  container.innerHTML = '<div class="v2-loading">Compiling passport — extracting from ' + fileCount + ' documents…</div>';
+  container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Reset localStorage so the iframe shows the empty shell first instead of a stale payload
+  localStorage.setItem('ff_passport_v2', JSON.stringify({ fields: { _loading: true } }));
+
+  fetch('/api/build_passport_v2', { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) {
+        container.innerHTML = '<div class="v2-loading v2-error">Build failed: ' + (data.message || 'unknown') + '</div>';
+        return;
+      }
+      localStorage.setItem('ff_passport_v2', JSON.stringify({ fields: data.fields }));
+      window._ffPassportV2 = data.fields;
+      // Embed the v2 preview card via iframe so the styling stays canonical
+      container.innerHTML = '<iframe class="v2-preview-frame" id="dppPreviewFrame" src="/passport_v2?embed=1" title="Passport preview" scrolling="no"></iframe>';
+      // Auto-resize iframe to its content (no inner scroll)
+      window.addEventListener('message', function ffResize(ev){
+        var d = ev && ev.data;
+        if (!d || d.type !== 'ff_preview_height') return;
+        var f = document.getElementById('dppPreviewFrame');
+        if (f && typeof d.height === 'number' && d.height > 0) f.style.height = (d.height + 8) + 'px';
+      }, { once: false });
+      console.log('[FF] v2 preview rendered · doc_count=', data.doc_count, '· fields=', Object.keys(data.fields).length);
+    })
+    .catch(err => {
+      console.error('[FF] build_passport_v2 error', err);
+      container.innerHTML = '<div class="v2-loading v2-error">Network error — see console</div>';
+    });
+  return;
+
+  // ── (legacy preview generator removed; v2 iframe is canonical) ──
+  /*
+  // legacy block disabled — kept commented for reference only
   const hashSrc = DPP_SECTIONS.flatMap(s => s.subsections.flatMap(ss => dppFileStore[ss.storeKey].map(f => f.name))).join('|');
   let hash = 0;
   for (let i = 0; i < hashSrc.length; i++) { hash = ((hash << 5) - hash) + hashSrc.charCodeAt(i); hash |= 0; }
@@ -3418,14 +3715,28 @@ function dppGeneratePassportPreview() {
   let composition = null;
   let origin = null;
   let weight = null;
+  let width = null;
   let care = null;
   let manufacturer = null;
+  let yarnCount = null;
+  let shrinkage = null;
+  let colourState = null;
   const sustainability = [];
+  const fibreRows = [];   // [{name, pct, note}]
+  const allTexts = [];
   const pushStr = (arr, val) => {
     if (!val) return;
     String(val).split(/[,;/]/).map(s => s.trim()).filter(Boolean).forEach(s => {
       if (!arr.includes(s)) arr.push(s);
     });
+  };
+  const cleanOrigin = v => {
+    if (!v) return null;
+    const s = String(v).trim();
+    // skip column-header noise like "Note"/"Origin"
+    if (/^(note|origin|country|location)$/i.test(s)) return null;
+    if (s.length < 3) return null;
+    return s;
   };
   DPP_SECTIONS.forEach(sec => {
     sec.subsections.forEach(ss => {
@@ -3437,21 +3748,91 @@ function dppGeneratePassportPreview() {
           if (!composition && p.composition) {
             composition = Array.isArray(p.composition) ? p.composition.join(', ') : String(p.composition);
           }
-          if (!origin && p.origin) origin = String(p.origin).trim();
+          const og = cleanOrigin(p.origin);
+          if (!origin && og) origin = og;
           if (!weight && p.weight) weight = String(p.weight).trim();
+          if (!width && p.width) width = String(p.width).trim();
           if (!care && p.care) care = String(p.care).trim();
           if (p.sustainability) {
             if (Array.isArray(p.sustainability)) p.sustainability.forEach(s => pushStr(sustainability, s));
             else pushStr(sustainability, p.sustainability);
           }
-          if (!manufacturer && ocr.text) {
-            const m = ocr.text.match(/(?:manufactur(?:er|ed by)|supplier|mill|vendor)\s*[:\-]\s*([A-Z][A-Za-z0-9 &.,'-]{2,40})/i);
-            if (m) manufacturer = m[1].trim();
-          }
+          if (ocr.text) allTexts.push(ocr.text);
         }
       });
     });
   });
+
+  // Aggregate raw text for multi-fibre + supplier + advanced specs
+  const allText = allTexts.join('\n');
+  if (allText) {
+    if (!origin) {
+      // server parser fails on parentheses; do a relaxed JS pass
+      const re = /(?:Country\s+of\s+Origin|Origin|Made\s+in|Ships?\s+from)\s*[:\-|\n\r]+\s*([A-Za-z][A-Za-z0-9 ,.'()\-]{2,80}?)(?=\s*(?:\n|\r|\.|care|sustain|certif|price|lot|date|weight|width|pattern|composition|$))/i;
+      const m = allText.match(re);
+      if (m && m[1]) {
+        const v = m[1].trim().replace(/\s+/g, ' ').slice(0, 80);
+        if (!/^(Note|Country|Location)$/i.test(v) && v.length >= 3) origin = v;
+      }
+    }
+    if (!manufacturer) {
+      // Match "Supplier:", "Supplier Name", "Supplier Name |", "Company |", with newline allowed.
+      const patterns = [
+        /(?:Supplier\s*Name|Manufactur(?:er|ed\s+by)|Company|Mill|Vendor)\s*[:\-|\n\r]+\s*([A-Z][A-Za-z0-9 &.,'\-]{2,80})/i,
+        /(?:^|\n)\s*Supplier\s*[:\-|\n\r]+\s*([A-Z][A-Za-z0-9 &.,'\-]{2,80})/i,
+      ];
+      for (const re of patterns) {
+        const m = allText.match(re);
+        if (m && m[1]) {
+          const v = m[1].trim().split(/\n+/)[0].replace(/\s+/g, ' ').slice(0, 80);
+          // skip if value is column header
+          if (!/^(Address|Location|Tier|Workforce|Score|Annual|Last|Date|Result|Country|Origin)$/i.test(v) && v.length >= 4) {
+            manufacturer = v;
+            break;
+          }
+        }
+      }
+    }
+    if (!yarnCount) {
+      const m = allText.match(/Yarn\s+Count[:\s\n|]+([^\n]{1,60})/i);
+      if (m) yarnCount = m[1].trim();
+    }
+    if (!shrinkage) {
+      const m = allText.match(/Shrinkage[^:\n]*[:\s\n|]+([^\n]{1,60})/i);
+      if (m) shrinkage = m[1].trim();
+    }
+    if (!colourState) {
+      const m = allText.match(/Colou?r\s+State[:\s\n|]+([^\n]{1,40})/i);
+      if (m) colourState = m[1].trim();
+    }
+    // Multi-fibre: scan "62 % Cotton" or "Cotton ... 62%" pairs
+    const re = /(\d{1,3}(?:\.\d+)?)\s*%\s+([A-Z][A-Za-z][A-Za-z\s\-/]{1,40}?)(?=\s*(?:[,.;\n|]|\d|$))|([A-Z][A-Za-z][A-Za-z\s\-/]{1,40}?)\s*[:\s]\s*(\d{1,3}(?:\.\d+)?)\s*%/g;
+    let m, hits = [];
+    while ((m = re.exec(allText)) !== null) {
+      const pct = parseFloat(m[1] || m[4]);
+      let name = (m[2] || m[3] || '').trim().replace(/\s+/g, ' ');
+      if (!name || pct <= 0 || pct > 100) continue;
+      // Filter junk fibre names
+      if (/^(in|of|the|and|or|with|by|fastness|content|recovery|share|capacity|conformance|standard|cycle|sea|deposit|of\s)/i.test(name)) continue;
+      if (name.length > 40) continue;
+      // De-dup by name
+      if (!hits.find(h => h.name.toLowerCase() === name.toLowerCase())) {
+        hits.push({ name, pct });
+      }
+    }
+    // Keep only fibre-like names (must contain known textile word) when possible
+    const FIBRE_WORDS = /(cotton|linen|wool|silk|polyester|nylon|elastane|spandex|lycra|viscose|rayon|tencel|lyocell|modal|hemp|jute|acrylic|cashmere|mohair|alpaca|bamboo|polyamide|polyethylene|polypropylene)/i;
+    const fibreLike = hits.filter(h => FIBRE_WORDS.test(h.name));
+    const chosen = fibreLike.length ? fibreLike : hits;
+    chosen.slice(0, 4).forEach(h => fibreRows.push(h));
+    // Sum sanity check ≤ 105%
+    const total = fibreRows.reduce((s, r) => s + r.pct, 0);
+    if (total > 105 && fibreRows.length > 1) {
+      // duplicate or wrong — keep top 2 by pct
+      fibreRows.sort((a, b) => b.pct - a.pct);
+      fibreRows.length = Math.min(2, fibreRows.length);
+    }
+  }
 
   // ESG score — derive from sections completed
   const esgScore = Math.min(99, Math.round(40 + (populated.length / 5) * 50));
@@ -3478,7 +3859,9 @@ function dppGeneratePassportPreview() {
   const originVal = origin ? dppEscH(origin) : pend;
   const supplierVal = manufacturer ? dppEscH(manufacturer) : pend;
   const supplierScore = weight ? dppEscH(weight) : '<span class="pc-pending">&mdash;</span>';
-  const onTimeVal = care ? dppEscH(care.length > 24 ? care.slice(0, 22) + '…' : care) : '<span class="pc-pending">&mdash;</span>';
+  // Demo preview card: keep card-card compact but allow up to 60 chars
+  const careForCard = care ? (care.length > 60 ? care.slice(0, 58) + '…' : care) : null;
+  const onTimeVal = careForCard ? dppEscH(careForCard) : '<span class="pc-pending">&mdash;</span>';
 
   const previewHtml = `
     <div class="preview-card">
@@ -3517,7 +3900,7 @@ function dppGeneratePassportPreview() {
       </div>
       <div class="pc-footer">
         <span class="pc-updated">Updated ${dateStr}</span>
-        <button class="pc-btn" onclick="window.open('/passport','_blank')">
+        <button class="pc-btn" onclick="dppOpenPassport()">
           View full passport <span style="font-size:13px;">\u2197</span>
         </button>
       </div>
@@ -3528,6 +3911,29 @@ function dppGeneratePassportPreview() {
   container.innerHTML = previewHtml;
   container.scrollIntoView({ behavior: 'smooth', block: 'start' });
   console.log('[DPP] Passport preview generated:', fabricId);
+
+  // Persist payload so /passport can render extracted fields.
+  try {
+    const payload = {
+      fabricId, dateStr, fabricName: lastFabricResult ? lastFabricResult.fullName : null,
+      fabricL1, composition, weight, width, origin, care, manufacturer,
+      yarnCount, shrinkage, colourState,
+      sustainability, esgScore, fibreRows,
+      uploadCount: total,
+      filenames: DPP_SECTIONS.flatMap(s => s.subsections.flatMap(ss => dppFileStore[ss.storeKey].map(f => f.name))),
+    };
+    sessionStorage.setItem('ff_passport', JSON.stringify(payload));
+  } catch (e) { console.warn('[DPP] persist failed', e); }
+  */
+}
+
+function dppOpenPassport() {
+  // If the preview iframe already has fresh data, just open the standalone v2 window.
+  // Otherwise trigger a re-build first.
+  const cached = window._ffPassportV2;
+  if (cached) { window.open('/passport_v2', '_blank'); return; }
+  dppGeneratePassportPreview();
+  setTimeout(() => { if (window._ffPassportV2) window.open('/passport_v2', '_blank'); }, 1500);
 }
 
 // DPP Utils
@@ -3559,16 +3965,25 @@ function dppIconSVG(name) {
 // FILE INPUTS
 // ============================================================
 function setupFileInputs() {
-  // Fabric upload input
+  // Fabric upload input — supports picking multiple images at once. Files
+  // are placed sequentially into the first empty slots starting from the
+  // currently-active one; extras beyond the 3 slots are dropped.
   const fi = document.getElementById('fabricFileInput');
   fi.addEventListener('change', (e) => {
-    if (e.target.files && e.target.files[0]) {
-      fabricSlots[activeSlot] = e.target.files[0];
-      qualityScores[activeSlot] = simulateQuality(e.target.files[0]);
-      renderSlot(activeSlot);
-      updateAnalyzeBtn();
-      fi.value = '';
+    const picked = Array.from((e.target && e.target.files) || []);
+    if (!picked.length) return;
+    let cursor = activeSlot;
+    for (const f of picked) {
+      // Advance to the next empty slot if the current one is taken.
+      while (cursor < fabricSlots.length && fabricSlots[cursor] != null) cursor++;
+      if (cursor >= fabricSlots.length) break;
+      fabricSlots[cursor] = f;
+      qualityScores[cursor] = simulateQuality(f);
+      renderSlot(cursor);
+      cursor++;
     }
+    updateAnalyzeBtn();
+    fi.value = '';
   });
 
   // DPP file handling is now built into the drop zones directly
@@ -3809,24 +4224,64 @@ async function runAnalysis() {
   }
 }
 
-function runDemoSample(key) {
-  document.getElementById('recognition').scrollIntoView({ behavior: 'smooth', block: 'start' });
+async function runDemoSample(key) {
+  const fabric = FABRIC_DATA[key];
+  if (!fabric) return;
 
-  document.getElementById('fabricEmpty').style.display = 'none';
+  // Reset the recognition area
+  fabricSlots = [null, null, null];
+  qualityScores = [null, null, null];
+  [0, 1, 2].forEach(renderSlot);
   document.getElementById('fabricResult').innerHTML = '';
   document.getElementById('fabricResult').classList.remove('visible');
-  document.getElementById('fabricLoading').classList.add('visible');
-  document.getElementById('analyzeBtn').disabled = true;
+  document.getElementById('fabricEmpty').style.display = 'none';
 
-  setTimeout(() => {
-    showFabricResult(FABRIC_DATA[key]);
-    document.getElementById('analyzeBtn').disabled = !fabricSlots.some((f, i) => f !== null && qualityScores[i] >= 50);
-  }, 1200);
+  document.getElementById('recognition').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // ── Step 1: preload the 2 fabric photos into upload slots ──
+  try {
+    for (let i = 0; i < fabric.images.length && i < 2; i++) {
+      const url = fabric.images[i];
+      const name = url.split('/').pop();
+      const f = await urlToFile(url, name, 'image/jpeg');
+      fabricSlots[i] = f;
+      qualityScores[i] = 88;  // pre-shot samples are known-good
+      renderSlot(i);
+    }
+    updateAnalyzeBtn();
+  } catch (e) {
+    console.error('[FF] preload images failed', e);
+    alert('Could not load specimen images: ' + e.message);
+    return;
+  }
+
+  // ── Step 2: preload the 18 passport PDFs into the Digital Fabric Passport sections ──
+  try {
+    // Clear existing files so the bundle is clean
+    DPP_SECTIONS.forEach(sec => sec.subsections.forEach(ss => { dppFileStore[ss.storeKey] = []; }));
+    Object.keys(dppOcrResults || {}).forEach(k => delete dppOcrResults[k]);
+
+    const pdfFiles = await Promise.all(PASSPORT_DOC_NAMES.map(suffix => {
+      const fname = fabric.pdfPrefix + suffix + '.pdf';
+      return urlToFile('/sample/passport_test/' + fname, fname, 'application/pdf');
+    }));
+    dppBulkAdd(pdfFiles);
+    console.info('[FF] preloaded', pdfFiles.length, 'passport docs for', fabric.name);
+  } catch (e) {
+    console.warn('[FF] preload PDFs failed (passport docs may be missing):', e);
+  }
+
+  // Preload only — §02 stays locked until the user clicks Analyse and a
+  // recognition result is returned (showFabricResult reveals downstream
+  // sections). This keeps the flow: sample → analyse → passport.
+  updateAnalyzeBtn();
 }
 
 var lastFabricResult = null;
 function showFabricResult(data) {
   lastFabricResult = data;
+  // Reveal the FabricAI drawer — recognition is the gate for assistant access.
+  try { if (typeof window.faiShow === 'function') window.faiShow(); } catch (e) {}
   document.getElementById('fabricLoading').classList.remove('visible');
 
   // Reveal locked sections progressively
@@ -4148,5 +4603,6 @@ document.addEventListener('DOMContentLoaded', () => {
   switchIllustration(opt);
 })();
 </script>
+<script src="/widgets/fabricai_drawer.js" defer></script>
 </body>
 </html>
