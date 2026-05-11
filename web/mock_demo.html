@@ -3191,65 +3191,124 @@ const FABRIC_DATA = {
     pdfCount: 18,
   },
   // ── Additional Unsplash reference specimens ──────────────────
-  // Reuse the existing RibKnit_*/TwillWoven_*.pdf passport bundles by L1.
-  // Single-image specimens. Each Unsplash photo is its own independent
-  // fabric (not multiple views of the same swatch), so only slot 0 gets
-  // a value; magnified/reverse stay null and the slot-fill loop skips
-  // them. Demo flow: click → 1 photo preloaded → analyse → passport.
+  // Each Unsplash photo is its own independent fabric (not multiple views
+  // of the same swatch), so each gets its own slot-0-only entry. Categories
+  // with multiple files get -2, -3 suffixes in the display name. All entries
+  // reuse the existing RibKnit_*/TwillWoven_*.pdf passport bundles by L1.
+
+  // Jersey (existing phone-camera entry is slot-0/2; these two are extras)
+  jersey_2: {
+    name: 'Jersey -2', l1: 'KNIT', fullName: 'Single Jersey — KNIT',
+    construction: 'Weft Knit · Jersey', uses: 'T-shirts, base layers, dresses',
+    chars: 'Smooth face, soft drape, single-bed weft knit',
+    images: ['/sample/unsplash/knit-Jersey-69.jpg', null, null],
+    pdfPrefix: 'RibKnit_', pdfCount: 18,
+  },
+  jersey_3: {
+    name: 'Jersey -3', l1: 'KNIT', fullName: 'Single Jersey — KNIT',
+    construction: 'Weft Knit · Jersey', uses: 'T-shirts, base layers, dresses',
+    chars: 'Smooth face, soft drape, single-bed weft knit',
+    images: ['/sample/unsplash/knit-Jersey-77.jpg', null, null],
+    pdfPrefix: 'RibKnit_', pdfCount: 18,
+  },
+
   french_terry: {
-    name: 'French Terry',
-    l1: 'KNIT',
-    fullName: 'French Terry — KNIT',
-    construction: 'Weft Knit · Looped back',
-    uses: 'Sweatshirts, hoodies, joggers',
+    name: 'French Terry', l1: 'KNIT', fullName: 'French Terry — KNIT',
+    construction: 'Weft Knit · Looped back', uses: 'Sweatshirts, hoodies, joggers',
     chars: 'Flat face, looped reverse, moderate stretch',
     images: ['/sample/unsplash/knit-French_Terry-74.jpg', null, null],
-    pdfPrefix: 'RibKnit_',
-    pdfCount: 18,
+    pdfPrefix: 'RibKnit_', pdfCount: 18,
   },
+  french_terry_2: {
+    name: 'French Terry -2', l1: 'KNIT', fullName: 'French Terry — KNIT',
+    construction: 'Weft Knit · Looped back', uses: 'Sweatshirts, hoodies, joggers',
+    chars: 'Flat face, looped reverse, moderate stretch',
+    images: ['/sample/unsplash/knit-French_Terry-85.jpg', null, null],
+    pdfPrefix: 'RibKnit_', pdfCount: 18,
+  },
+
   rib_knit: {
-    name: 'Rib Knit',
-    l1: 'KNIT',
-    fullName: 'Rib Knit — KNIT',
+    name: 'Rib Knit', l1: 'KNIT', fullName: 'Rib Knit — KNIT',
     construction: 'Weft Knit · Rib (1×1 / 2×2)',
     uses: 'Cuffs, collars, body-hugging tops',
     chars: 'Vertical ribs, high stretch, recovers shape',
     images: ['/sample/unsplash/knit-Rib_Knit-71.jpg', null, null],
-    pdfPrefix: 'RibKnit_',
-    pdfCount: 18,
+    pdfPrefix: 'RibKnit_', pdfCount: 18,
   },
+  rib_knit_2: {
+    name: 'Rib Knit -2', l1: 'KNIT', fullName: 'Rib Knit — KNIT',
+    construction: 'Weft Knit · Rib (1×1 / 2×2)',
+    uses: 'Cuffs, collars, body-hugging tops',
+    chars: 'Vertical ribs, high stretch, recovers shape',
+    images: ['/sample/unsplash/knit-Rib_Knit-85.jpg', null, null],
+    pdfPrefix: 'RibKnit_', pdfCount: 18,
+  },
+
+  // Plain Weave -2 (existing phone-camera is the primary, this is the Unsplash extra)
+  plain_weave_2: {
+    name: 'Plain Weave -2', l1: 'WOVEN', fullName: 'Plain Weave — WOVEN',
+    construction: 'Woven · Plain (1/1)', uses: 'Shirting, dress fabric, lining',
+    chars: 'Tight 1/1 interlace, balanced face, low stretch',
+    images: ['/sample/unsplash/woven-Plain_Weave-81.jpg', null, null],
+    pdfPrefix: 'TwillWoven_', pdfCount: 18,
+  },
+
+  // Twill -2/-3/-4 (existing phone-camera is the primary)
+  twill_2: {
+    name: 'Twill -2', l1: 'WOVEN', fullName: 'Twill — WOVEN',
+    construction: 'Woven · Twill', uses: 'Denim, chinos, workwear',
+    chars: 'Diagonal rib, durable, drapes well',
+    images: ['/sample/unsplash/woven-Twill-85.jpg', null, null],
+    pdfPrefix: 'TwillWoven_', pdfCount: 18,
+  },
+  twill_3: {
+    name: 'Twill -3', l1: 'WOVEN', fullName: 'Twill — WOVEN',
+    construction: 'Woven · Twill', uses: 'Denim, chinos, workwear',
+    chars: 'Diagonal rib, durable, drapes well',
+    images: ['/sample/unsplash/woven-Twill-87.jpg', null, null],
+    pdfPrefix: 'TwillWoven_', pdfCount: 18,
+  },
+  twill_4: {
+    name: 'Twill -4', l1: 'WOVEN', fullName: 'Twill — WOVEN',
+    construction: 'Woven · Twill', uses: 'Denim, chinos, workwear',
+    chars: 'Diagonal rib, durable, drapes well',
+    images: ['/sample/unsplash/woven-Twill-88.jpg', null, null],
+    pdfPrefix: 'TwillWoven_', pdfCount: 18,
+  },
+
   corduroy: {
-    name: 'Corduroy',
-    l1: 'WOVEN',
-    fullName: 'Corduroy — WOVEN',
+    name: 'Corduroy', l1: 'WOVEN', fullName: 'Corduroy — WOVEN',
     construction: 'Woven · Cut pile, ribbed',
     uses: 'Trousers, jackets, upholstery',
     chars: 'Lengthwise wales, soft pile, heavy hand',
     images: ['/sample/unsplash/woven-Corduroy-80.jpg', null, null],
-    pdfPrefix: 'TwillWoven_',
-    pdfCount: 18,
+    pdfPrefix: 'TwillWoven_', pdfCount: 18,
   },
+
   satin: {
-    name: 'Satin',
-    l1: 'WOVEN',
-    fullName: 'Satin — WOVEN',
+    name: 'Satin', l1: 'WOVEN', fullName: 'Satin — WOVEN',
     construction: 'Woven · Satin (long warp floats)',
     uses: 'Linings, eveningwear, bedding',
     chars: 'Lustrous face, smooth drape, slick hand',
     images: ['/sample/unsplash/woven-Satin-79.jpg', null, null],
-    pdfPrefix: 'TwillWoven_',
-    pdfCount: 18,
+    pdfPrefix: 'TwillWoven_', pdfCount: 18,
   },
+  satin_2: {
+    name: 'Satin -2', l1: 'WOVEN', fullName: 'Satin — WOVEN',
+    construction: 'Woven · Satin (long warp floats)',
+    uses: 'Linings, eveningwear, bedding',
+    chars: 'Lustrous face, smooth drape, slick hand',
+    images: ['/sample/unsplash/woven-Satin-87.jpg', null, null],
+    pdfPrefix: 'TwillWoven_', pdfCount: 18,
+  },
+
   woven_jacquard: {
-    name: 'Woven Jacquard',
-    l1: 'WOVEN',
-    fullName: 'Woven Jacquard — WOVEN',
+    name: 'Woven Jacquard', l1: 'WOVEN', fullName: 'Woven Jacquard — WOVEN',
     construction: 'Woven · Jacquard pattern',
     uses: 'Brocade, upholstery, fashion bottoms',
     chars: 'Complex woven motif, structured hand',
     images: ['/sample/unsplash/woven-Woven+Jacquard-71.jpg', null, null],
-    pdfPrefix: 'TwillWoven_',
-    pdfCount: 18,
+    pdfPrefix: 'TwillWoven_', pdfCount: 18,
   },
 };
 
