@@ -1,0 +1,17 @@
+# CPU-only PyTorch wheels via --extra-index-url (set in Dockerfile)
+torch==2.3.1
+torchvision==0.18.1
+
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
+pillow>=10.2
+numpy>=1.26,<2
+
+# FabricAI assistant (Haochen sub-app)
+openai>=1.55
+pydantic>=2.5
+
+# Optional OCR — lazy import; only loads when low-confidence path triggers.
+# Commented out to keep image lean. Uncomment if OCR fallback is desired.
+# easyocr>=1.7.0

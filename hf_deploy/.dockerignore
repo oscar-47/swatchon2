@@ -1,0 +1,13 @@
+__pycache__
+*.pyc
+*.pyo
+.git
+.venv
+node_modules
+.DS_Store
+outputs
+training
+runs_finetune
+runs20260203
+runs/_backup_*
+server/fabricai_app/config.py

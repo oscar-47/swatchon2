@@ -599,9 +599,18 @@ if os.path.isdir(MOCK_DIR):
         if os.path.isdir(sub_path):
             app.mount(f"/{sub}", StaticFiles(directory=sub_path), name=f"mock_{sub}")
 
-    # Demo reference specimens (images + passport PDFs) — served from the user's
-    # ~/Downloads/sample folder so the homepage can preload real samples on click.
-    _sample_dir = os.path.expanduser("~/Downloads/sample")
+    # Demo reference specimens (images + passport PDFs) — resolution order:
+    #   1. FF_SAMPLE_DIR env (explicit override, e.g. HF Space deploy)
+    #   2. ~/Downloads/sample (Oscar's local Mac layout)
+    #   3. <repo_root>/sample (bundled with deployment image)
+    _sample_dir = (
+        os.environ.get("FF_SAMPLE_DIR")
+        or os.path.expanduser("~/Downloads/sample")
+    )
+    if not os.path.isdir(_sample_dir):
+        _alt = os.path.join(REPO_ROOT, "sample")
+        if os.path.isdir(_alt):
+            _sample_dir = _alt
     if os.path.isdir(_sample_dir):
         app.mount("/sample", StaticFiles(directory=_sample_dir), name="sample")
 
