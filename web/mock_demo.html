@@ -4,6 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FabricFlow</title>
+<script>
+  // Pre-paint URL gate — `?skip=1` lets internal navigation (Assistant
+  // nav, etc.) jump straight into the demo without showing the splash or
+  // landing-intro overlays. Adds a marker class before the body renders
+  // so neither overlay flashes; the load handler below finishes the job
+  // by stripping the splash-mode / web-landing-mode body classes once
+  // their dismiss helpers are defined.
+  (function () {
+    try {
+      var qs = new URLSearchParams(location.search);
+      if (qs.get('skip') === '1') {
+        document.documentElement.classList.add('ff-skip-intro');
+      }
+    } catch (e) {}
+  })();
+</script>
+<style>
+  html.ff-skip-intro #splash,
+  html.ff-skip-intro #webLandingOverlay { display: none !important; }
+  html.ff-skip-intro body.splash-mode .header,
+  html.ff-skip-intro body.web-landing-mode .header,
+  html.ff-skip-intro body.splash-mode .main,
+  html.ff-skip-intro body.web-landing-mode .main { display: block !important; }
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
@@ -3340,6 +3364,29 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================
 // SPLASH PAGE
 // ============================================================
+
+// Honour ?skip=1 — strip splash + landing modes immediately so internal
+// navigation (e.g. /assistant → Recognition) lands directly on the demo.
+(function ffSkipIntro() {
+  try {
+    var qs = new URLSearchParams(location.search);
+    if (qs.get('skip') !== '1') return;
+    document.addEventListener('DOMContentLoaded', function () {
+      document.body.classList.remove('splash-mode');
+      document.body.classList.remove('web-landing-mode');
+      var splash = document.getElementById('splashPage');
+      if (splash) splash.remove();
+      var landing = document.getElementById('webLandingOverlay');
+      if (landing) landing.remove();
+      // Smooth-scroll into the recognition section if it's the requested anchor.
+      if (location.hash === '#recognition') {
+        var el = document.getElementById('recognition');
+        if (el) setTimeout(function(){ el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+      }
+    });
+  } catch (e) {}
+})();
+
 function dismissSplash() {
   const splash = document.getElementById('splashPage');
   if (!splash) return;
